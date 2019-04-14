@@ -79,19 +79,19 @@ class Cons inherits List {
 
     Object:
     ...
-
+    
     IO:
     ...
-
+    
     Int:
     ...
-
+    
     String:
     ...
-
+    
     Bool:
     ...
-
+    
     Main Class:
     ...
 
@@ -99,16 +99,16 @@ class Cons inherits List {
 
     Integers, Identifiers, and Special Notation:
     ...
-
+    
     Strings:
     ...
-
+    
     Comments:
     ...
-
+    
     Keywords:
     ...
-
+    
     White Space:
     ...
 
