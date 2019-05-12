@@ -1,9 +1,19 @@
 # Lexical Analisys
 
+# Authors:  Joel David Hernandez Cruz
+#           Juan Jose Roque Cires
+#           Julio Cesar Rodriguez Sanchez
+
 # ------------------------------------------------------------------------------------------------------
-# Reference ply (Python Lex-Yacc) Documentation
+#   Reference ply (Python Lex-Yacc) Documentation
 #
-# By David M. Beazley
+#   Reference links
+#   https://www.dabeaz.com/ply/ply.html#ply_nn13
+#   http://www.dalkescientific.com/writings/NBN/parsing_with_ply.html
+#   https://www.dabeaz.com/ply/PLYTalk.pdf
+#
+#
+#   By David M. Beazley
 # ------------------------------------------------------------------------------------------------------
 
 import ply.lex as lex
@@ -41,10 +51,9 @@ class CoolLexer(object):
             # Identifiers
             "ID", "TYPE",
             # Literals
-            "LPAREN", "RPAREN", "LBRACE", "RBRACE", "COLON", "COMA", "DOT", "SEMICOLON", "AROBA", "COMMENTD", "COMMENT"
+            "LPAREN", "RPAREN", "LBRACE", "RBRACE", "COLON", "COMA", "DOT", "SEMICOLON", "AROBA", "COMMENTD", "COMMENT",
             # Operations                                                                                  
-                                                                                                              "PLUS",
-            "MINUS", "DIVIDE", "MULTIPLY", "NOT", "LT", "EQ", "LTEQ", "ASSIGN", "INT_COMP",
+            "PLUS", "MINUS", "DIVIDE", "MULTIPLY", "NOT", "LT", "EQ", "LTEQ", "ASSIGN", "INT_COMP",
             # Basic Types
             "STRING", "BOOLEAN", "INTEGER",
             # Special Operators
