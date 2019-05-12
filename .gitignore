@@ -1,2 +1,5 @@
 # Idea JetBrains
 .idea/*
+
+# Enviorment Windows
+venv/*
