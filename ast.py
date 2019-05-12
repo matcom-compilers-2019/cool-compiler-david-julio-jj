@@ -41,23 +41,44 @@ class PROGRAM(AST):
         return "{}(classes{})".format(self.classname, self.classes)
 
 class Class(AST):
-    def __init__(self, name, parent, feature):
+    def __init__(self, name, parent, features):
         super(Class, self).__init__()
         self.name = name
         self.parent = parent
-        self.feature = feature
+        self.features = features
 
     def prettier(self):
-        return "{}\n name: {}\n parent: {}\n(features: {})".format(self.classname, self.name, self.parent, self.feature)
+        return "{}(name: {}, parent: {}, features: {})".format(self.classname, self.name, self.parent, self.features)
 
-class Inherits(AST):
+class ClassFeature(AST):
+    def __init__(self):
+        super(ClassFeature, self).__init__()
+
+class Inherits(ClassFeature):
     def __init__(self, tipo):
         super(Inherits, self).__init__()
         self.tipo = tipo
 
     def prettier(self):
-        return "{}(type: {})".format(self.classname, self.tipo)
+        return "{} type: {}".format(self.classname, self.tipo)
     
-class Feature(AST):
-    def __init__(self, parameters_list, ):
-        super(Feature, self).__init__()
+class ClassMethods(ClassFeature):
+    def __init__(self, name, body, parameters_list, return_type):
+        super(ClassMethods, self).__init__()
+        self.name = name
+        self.body = body
+        self.parameter_list = parameters_list
+        self.return_type = return_type
+
+    def prettier(self):
+        return "{}(name: {}, body: {}, parameter_list: {}, return_type: {})".format(self.classname, self.name, self.body, self.parameter_list, self.return_type)
+
+class ClassAtributes(ClassFeature):
+    def __init__(self, name, atribute, expr):
+        super(ClassAtributes, self).__init__()
+        self.name = name
+        self.atribute = atribute
+        self.expr = expr
+
+    def prettier(self):
+        return "{}(name: {}, atribute: {}, expr: {})".format()

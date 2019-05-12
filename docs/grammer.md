@@ -13,45 +13,50 @@
 ```Coo
 <program> 	 ::= <classes>
 <classes> 	 ::= <classes><class>; 
-			 | <class>;
+			 |   <class>;
 <class> 	 ::= class TYPE [<inherits>] { <feature> };
 <inhertits>  ::= inherits TYPE
-			 | <empty>
+			 |   <empty>
 <feature> 	 ::= ID[<parameters_list>] : TYPE { <expr> }
-			 | <parameter>;
+			 |   <feature_parameter>;
 <params_list>::= <parameters_list>, <parameter>
-			 | <parameter>
-<parameter>	 ::= ID : TYPE [ <- <expr> ]
-			 | 	 ID : TYPE
+			 | 	 <parameter>
+<parameter>	 ::= ID : TYPE
+<feature_parameter> ::= ID : TYPE <- <expr>
+			 | 			ID : TYPE
 <expr> 		 ::= ID <- <expr>
-             |  <expr>.ID( <expr>(, <expr>)*)
-             |  [self].ID( <expr>(, <expr>)*)
-             |  <expr>@TYPE.ID( <expr>(, <expr>)*)
-             |  if <expr> then <expr> else <expr> fi
-             |  while <expr> loop <expr> pool
-             |  { <expr>; (<expr>;)* }
-             |  <let>
-             |  <case>
-             |  new TYPE
-             |  isvoid <expr>
-             |  <expr> <op> <expr>
-             |  <comment>
-             |  TRUE
-             |  FALSE
-             |  ~ <expr>
-             |  ID
-             |  STRING
-             |	INTEGER
-             |  not <expr>
-<case> 		 :: = case <expr> of ID : TYPE => <expr>; [(ID : TYPE => <expr>;)*] esac
+             |   <expr>.ID( <expr>(, <expr>)*)
+             |   [self].ID( <expr>(, <expr>)*)
+             |   <expr>@TYPE.ID( <expr>(, <expr>)*)
+             |   <if>
+             |   <while>
+             |   { <expr>; ( <expr>; )* }
+             |   <let>
+             |   <case>
+             |   new TYPE
+             |   isvoid <expr>
+             |   <expr> <op> <expr>
+             |   <comment>
+             |   TRUE
+             |   FALSE
+             |   ~ <expr>
+             |	 ( <expr> )
+             |   ID
+             |   STRING
+             |	 INTEGER
+             |   not <expr>
+<case> 		 ::= case <expr> of ID : TYPE => <expr>; [(ID : TYPE => <expr>;)*] esac
 <let> 		 ::= let ID : TYPE [ <- expr ] (, ID : TYPE [ <- expre ])* in <expr>
+<while>		 ::= while <expr> loop <expr> pool
+<if>		 ::= if <expr> then <expr> else <expr> fi
 <op> 		 ::= +
-             | -
-             | /
-             | *
-             | <
-             | <=
-             | =
+             | 	 -
+             |   /
+             |   *
+             |   <
+             |   <=
+             |   =
 <empty>      ::=
+<comment>	 ::=
 ```
 
