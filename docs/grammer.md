@@ -17,9 +17,12 @@
 <class> 	 ::= class TYPE [<inherits>] { <feature> };
 <inhertits>  ::= inherits TYPE
 			 | <empty>
-<feature> 	 ::= ID[<parameters>[(, <parameters>)*]] : TYPE { <expr> }
-			 | ID : TYPE [ <- <expr> ];
-<parameters> ::= ID : TYPE
+<feature> 	 ::= ID[<parameters_list>] : TYPE { <expr> }
+			 | <parameter>;
+<params_list>::= <parameters_list>, <parameter>
+			 | <parameter>
+<parameter>	 ::= ID : TYPE [ <- <expr> ]
+			 | 	 ID : TYPE
 <expr> 		 ::= ID <- <expr>
              |  <expr>.ID( <expr>(, <expr>)*)
              |  [self].ID( <expr>(, <expr>)*)

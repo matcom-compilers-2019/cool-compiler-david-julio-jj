@@ -43,4 +43,21 @@ class PROGRAM(AST):
 class Class(AST):
     def __init__(self, name, parent, feature):
         super(Class, self).__init__()
-        
+        self.name = name
+        self.parent = parent
+        self.feature = feature
+
+    def prettier(self):
+        return "{}\n name: {}\n parent: {}\n(features: {})".format(self.classname, self.name, self.parent, self.feature)
+
+class Inherits(AST):
+    def __init__(self, tipo):
+        super(Inherits, self).__init__()
+        self.tipo = tipo
+
+    def prettier(self):
+        return "{}(type: {})".format(self.classname, self.tipo)
+    
+class Feature(AST):
+    def __init__(self, parameters_list, ):
+        super(Feature, self).__init__()
