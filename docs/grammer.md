@@ -30,11 +30,11 @@
              |   <expr>@TYPE.ID( <expr>(, <expr>)*)
              |   <if>
              |   <while>
-             |   { <expr>; ( <expr>; )* }
+             |   <block_expr>
              |   <let>
              |   <case>
              |   new TYPE
-             |   isvoid <expr>
+             |   isVoids <expr>
              |   <expr> <op> <expr>
              |   <comment>
              |   TRUE
@@ -49,6 +49,9 @@
 <let> 		 ::= let ID : TYPE [ <- expr ] (, ID : TYPE [ <- expre ])* in <expr>
 <while>		 ::= while <expr> loop <expr> pool
 <if>		 ::= if <expr> then <expr> else <expr> fi
+<block_expr> ::= { <block_list> }
+<block_list> ::= <block_list> <expression> ;
+             |   <expression> ;
 <op> 		 ::= +
              | 	 -
              |   /
