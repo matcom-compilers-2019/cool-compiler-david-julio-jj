@@ -45,13 +45,15 @@
              |   STRING
              |	 INTEGER
              |   not <expr>
-<case> 		 ::= case <expr> of ID : TYPE => <expr>; [(ID : TYPE => <expr>;)*] esac
-<let> 		 ::= let ID : TYPE [ <- expr ] (, ID : TYPE [ <- expre ])* in <expr>
+<case> 		 ::= case <expr> of <case_actions> esac
+<case_actions> ::= <case_actions>; ID : TYPE => <expr> 
+			   |   ID : TYPE => <expr>;
+<let> 		 ::= let <feature_parameter> (, ID : TYPE [ <- expre ])* in <expr>
 <while>		 ::= while <expr> loop <expr> pool
 <if>		 ::= if <expr> then <expr> else <expr> fi
 <block_expr> ::= { <block_list> }
-<block_list> ::= <block_list> <expression> ;
-             |   <expression> ;
+<block_list> ::= <block_list> <expr> ;
+             |   <expr> ;
 <op> 		 ::= +
              | 	 -
              |   /

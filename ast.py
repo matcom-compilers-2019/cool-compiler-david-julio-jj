@@ -258,7 +258,7 @@ class Assignment(Expression):
     def to_readable(self):
         return "{}(instance: {}, expr: {})".format(self.classname, self.instance, self.expr)
 
-
+# <block_expr> in Grammar
 class Block(Expression):
     def __init__(self, expr_list):
         super(Block, self).__init__()
@@ -315,7 +315,7 @@ class StaticDispatch(Expression):
         return "{}(instance: {}, dispatch_type: {}, method: {}, arguments: {})".format(
             self.classname, self.instance, self.dispatch_type, self.method, self.arguments)
 
-
+# <let> in grammar
 class Let(Expression):
     def __init__(self, instance, return_type, init_expr, body):
         super(Let, self).__init__()
@@ -337,7 +337,7 @@ class Let(Expression):
         return "{}(instance: {}, return_type: {}, init_expr: {}, body: {})".format(
             self.classname, self.instance, self.return_type, self.init_expr, self.body)
 
-
+# <if> in Grammar
 class If(Expression):
     def __init__(self, predicate, then_body, else_body):
         super(If, self).__init__()
@@ -357,7 +357,7 @@ class If(Expression):
         return "{}(predicate: {}, then_body: {}, else_body: {})".format(
             self.classname, self.predicate, self.then_body, self.else_body)
 
-
+# <while> in Grammar
 class WhileLoop(Expression):
     def __init__(self, predicate, body):
         super(WhileLoop, self).__init__()
@@ -374,7 +374,7 @@ class WhileLoop(Expression):
     def to_readable(self):
         return "{}(predicate: {}, body: {})".format(self.classname, self.predicate, self.body)
 
-
+# <case> in Grammar
 class Case(Expression):
     def __init__(self, expr, actions):
         super(Case, self).__init__()
@@ -391,7 +391,7 @@ class Case(Expression):
     def to_readable(self):
         return "{}(expr: {}, actions: {})".format(self.classname, self.expr, self.actions)
 
-
+# <case_action> in Grammar
 class Action(AST):
     def __init__(self, name, action_type, body):
         super(Action, self).__init__()
@@ -410,6 +410,15 @@ class Action(AST):
     def to_readable(self):
         return "{}(name: '}, action_type: {}, body: {})".format(self.classname, self.name, self.action_type, self.body)
 
+# ############################## UNARY OPERATIONS ##################################
+# ~, not
+
+# To do
+
+# ############################## BINARY OPERATIONS ##################################
+# Add, Sub, Mult, Divi, LThan, Equal, LTEQ
+
+# To do
 
 class Object(AST):
     def __init__(self, name):
