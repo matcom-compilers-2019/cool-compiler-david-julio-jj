@@ -1,13 +1,8 @@
-# -----------------------------------------------------------------------------
-# ast.py
-#
-# Author:       Ahmad Alhour (aalhour.com).
-# Date:         May 26rd, 2016.
-# Description:  The Abstract Syntax Tree module. Provides classes for managing
-#               the parse tree.
-# -----------------------------------------------------------------------------
+# AST
 
-
+# Authors:  Joel David Hernandez Cruz
+#           Juan Jose Roque Cires
+#           Julio Cesar Rodriguez Sanchez
 # ############################## BASE AST NODES CLASSES ##############################
 
 
