@@ -69,10 +69,12 @@
 <arguments_list>        ::= <arguments_list_opt>, <expression>
                         |   <expression>
                         
-<case> 		 			::= case <expr> of <case_actions> esac
+<case>                  ::= case <expression> of <case_actions> esac
 
-<case_actions> 			::= <case_actions>; ID : TYPE => <expr> 
-			   			|   ID : TYPE => <expr>;
+<case_action>           ::= ID : TYPE => <expr>
+
+<case_actions>          ::= <case_action>
+                        |   <case_action> <case_actions>
 			   			
 <let_expression>        ::= let <formal> in <expression>
                         |   <nested_lets> , <formal>
