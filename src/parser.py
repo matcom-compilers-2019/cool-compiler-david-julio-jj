@@ -469,7 +469,7 @@ if __name__ == '__main__':
         parse_result = parser.parse(cool_program_code)
         print(parse_result)
     else:
-        print("PyCOOLC Parser: Interactive Mode.\r\n")
+        print("CoolCompiler Parser: Interactive Mode.\r\n")
         while True:
             try:
                 s = input('COOL >>> ')
