@@ -257,9 +257,9 @@ class CoolParser(object):
 
     def p_expression_math_comparisons(self, p):
         """
-        <expr> : expression LT expression
-                   | expression LTEQ expression
-                   | expression EQ expression
+        <expr>      ::= expression LT expression
+                    |   expression LTEQ expression
+                    |   expression EQ expression
         """
         if p[2] == '<':
             p[0] = AST.LessThan(first=p[1], second=p[3])
@@ -278,12 +278,204 @@ class CoolParser(object):
 
     def p_expression_if_conditional(self, p):
         """
-        expression : IF expression THEN expression ELSE expression FI
+        <expr> : IF expression THEN expression ELSE expression FI
         """
         p[0] = AST.If(predicate=p[2], then_body=p[4], else_body=p[6])
 
     def p_expression_while_loop(self, p):
         """
-        expression : WHILE expression LOOP expression POOL
+        <expr> : WHILE expression LOOP expression POOL
         """
         p[0] = AST.WhileLoop(predicate=p[2], body=p[4])
+
+    # ######################### LET EXPRESSIONS ########################################
+
+    def p_expression_let(self, p):
+        """
+         <expr> : let_expression
+        """
+        p[0] = p[1]
+
+    def p_expression_let_simple(self, p):
+        """
+        <let_expression>    ::= LET ID COLON TYPE IN expression
+                            | nested_lets COMMA LET ID COLON TYPE
+        """
+        p[0] = AST.Let(instance=p[2], return_type=p[4], init_expr=None, body=p[6])
+
+    def p_expression_let_initialized(self, p):
+        """
+        <let_expression>    ::= LET ID COLON TYPE ASSIGN expression IN expression
+                            | nested_lets COMMA LET ID COLON TYPE ASSIGN expression
+        """
+        p[0] = AST.Let(instance=p[2], return_type=p[4], init_expr=p[6], body=p[8])
+
+    def p_inner_lets_simple(self, p):
+        """
+        <nested_lets>       ::= ID COLON TYPE IN expression
+                            | nested_lets COMMA ID COLON TYPE
+        """
+        p[0] = AST.Let(instance=p[1], return_type=p[3], init_expr=None, body=p[5])
+
+    def p_inner_lets_initialized(self, p):
+        """
+        <nested_lets>       ::= ID COLON TYPE ASSIGN expression IN expression
+                            | nested_lets COMMA ID COLON TYPE ASSIGN expression
+        """
+        p[0] = AST.Let(instance=p[1], return_type=p[3], init_expr=p[5], body=p[7])
+
+    # ######################### CASE EXPRESSION ########################################
+
+    def p_expression_case(self, p):
+        """
+        <expr>  ::= CASE expression OF actions_list ESAC
+        """
+        p[0] = AST.Case(expr=p[2], actions=p[4])
+
+    def p_actions_list(self, p):
+        """
+        <actions_list>  ::= actions_list action
+                        | action
+        """
+        if len(p) == 2:
+            p[0] = (p[1],)
+        else:
+            p[0] = p[1] + (p[2],)
+
+    def p_action_expr(self, p):
+        """
+        <action>    ::= ID COLON TYPE ARROW expression SEMICOLON
+        """
+        p[0] = (p[1], p[3], p[5])
+
+    # ######################### UNARY OPERATIONS #######################################
+
+    def p_expression_new(self, p):
+        """
+        <expr>  ::= NEW TYPE
+        """
+        p[0] = AST.NewObject(p[2])
+
+    def p_expression_isvoid(self, p):
+        """
+        <expr>  ::= ISVOID expression
+        """
+        p[0] = AST.IsVoid(p[2])
+
+    def p_expression_integer_complement(self, p):
+        """
+        <expr>  ::= INT_COMP expression
+        """
+        p[0] = AST.IntegerComplement(p[2])
+
+    def p_expression_boolean_complement(self, p):
+        """
+        <expr>  ::= NOT expression
+        """
+        p[0] = AST.BooleanComplement(p[2])
+
+    # ######################### THE EMPTY PRODUCTION ###################################
+
+    def p_empty(self, p):
+        """
+        <empty> :
+        """
+        p[0] = None
+
+    # ######################### p ERROR HANDLER ####################################
+
+    def p_error(self, p):
+        """
+        Error rule for Syntax Errors handling and reporting.
+        """
+        if p is None:
+            print("Error! Unexpected end of input!")
+        else:
+            error = "Syntax error! Line: {}, position: {}, character: {}, type: {}".format(
+                p.lineno, p.lexpos, p.value, p.type)
+            self.error_list.append(error)
+            self.parser.errok()
+
+    # ################### END OF FORMAL GRAMMAR RULES SPECIFICATION ####################
+
+    def build(self, **kwargs):
+        """
+        Builds the Parser Instance
+        :param kwargs:
+        :return:
+        """
+        # Parse the parameters
+        if kwargs is None or len(kwargs) == 0:
+            debug, write_tables, optimize, outputdir, yacctab, debuglog, errorlog = \
+                self._debug, self._write_tables, self._optimize, self._outputdir, self._yacctab, self._debuglog, \
+                self._errorlog
+        else:
+            debug = kwargs.get("debug", self._debug)
+            write_tables = kwargs.get("write_tables", self._write_tables)
+            optimize = kwargs.get("optimize", self._optimize)
+            outputdir = kwargs.get("outputdir", self._outputdir)
+            yacctab = kwargs.get("yacctab", self._yacctab)
+            debuglog = kwargs.get("debuglog", self._debuglog)
+            errorlog = kwargs.get("errorlog", self._errorlog)
+
+        # Build CoolLexer
+        self.lexer = make_lexer(debug=debug, optimize=optimize, outputdir=outputdir, debuglog=debuglog,
+                                errorlog=errorlog)
+
+        # Expose tokens collections to this instance scope
+        self.tokens = self.lexer.tokens
+
+        # Build yacc parser
+        self.parser = yacc.yacc(module=self, write_tables=write_tables, debug=debug, optimize=optimize,
+                                outputdir=outputdir, tabmodule=yacctab, debuglog=debuglog, errorlog=errorlog)
+
+    def parse(self, program_source_code: str) -> AST.Program:
+        """
+        Parses a COOL program source code passed as a string.
+        :param program_source_code: string.
+        :return: Parser output.
+        """
+        if self.parser is None:
+            raise ValueError("Parser was not build, try building it first with the build() method.")
+
+        return self.parser.parse(program_source_code)
+
+def make_parser(**kwargs) -> CoolParser:
+    """
+    Utility function.
+    :return: PyCoolParser object.
+    """
+    a_parser = CoolParser(**kwargs)
+    a_parser.build()
+    return a_parser
+
+
+if __name__ == '__main__':
+    import sys
+
+    parser = make_parser()
+
+    if len(sys.argv) > 1:
+        if not str(sys.argv[1]).endswith(".cl"):
+            print("Cool program source code files must end with .cl extension.")
+            print("Usage: ./parser.py program.cl")
+            exit()
+
+        input_file = sys.argv[1]
+        with open(input_file, encoding="utf-8") as file:
+            cool_program_code = file.read()
+
+        parse_result = parser.parse(cool_program_code)
+        print(parse_result)
+    else:
+        print("PyCOOLC Parser: Interactive Mode.\r\n")
+        while True:
+            try:
+                s = input('COOL >>> ')
+            except EOFError:
+                break
+            if not s:
+                continue
+            result = parser.parse(s)
+            if result is not None:
+                print(result)
