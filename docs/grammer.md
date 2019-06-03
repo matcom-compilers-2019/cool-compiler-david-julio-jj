@@ -21,21 +21,23 @@
 <features_list>         ::= <features_list> <feature> ;
                         |   <feature> ;
 
-<feature>               ::= ID ( <parameters_list> ) : TYPE { <expression> }
-                        |   <feature_parameter>
+<feature>               ::= ID ( <formal_params_list_opt> ) : TYPE { <expression> }
+                        |   <formal>
 			 			
-<params_list>			::= <parameters_list>, <parameter>
-			 			| 	<parameter>
-			 			| 	<empty>
-			 			
-<parameter>	 			::= ID : TYPE
+<formal_params_list_opt>::= <formal_params_list>
+                        |   <empty>
 
-<feature_parameter> 	::= ID : TYPE <- <expr>
-			 			|   ID : TYPE
+<formal_params_list>    ::= <formal_params_list> , <formal_param>
+                        |   <formal_param>
+
+<formal_param>          ::= ID : TYPE
+
+<formal>                ::= ID : TYPE <- <expression>
+                        |   ID : TYPE
 			 			
 <expr> 		 			::= ID <- <expr>
-             			|   <expr>.ID( <arguments_list> )
-             			|   <expr>@TYPE.ID( <arguments_list> )
+             			|   <expr>.ID( <arguments_list_opt> )
+             			|   <expr>@TYPE.ID( <arguments_list_opt> )
              			|   <if>
              			|   <while>
              			|   <block_expr>
@@ -61,9 +63,11 @@
              			|   FALSE
                         |	INTEGER
 
+<arguments_list_opt>      ::= <arguments_list>
+                          |   <empty>
+
 <arguments_list>        ::= <arguments_list_opt>, <expression>
                         |   <expression>
-                        |   <empty>
                         
 <case> 		 			::= case <expr> of <case_actions> esac
 
