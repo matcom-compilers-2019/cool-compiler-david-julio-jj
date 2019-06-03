@@ -127,7 +127,7 @@ class CoolLexer(object):
     t_COLON = r'\:'         # :
     t_COMA = r'\,'          # ,
     t_SEMICOLON = r'\;'     # ;
-    t_AT = r'\@'         # @
+    t_AT = r'\@'            # @
     t_PLUS = r'\+'          # +
     t_MINUS = r'\-'         # -
     t_DIVIDE = r'\/'        # /

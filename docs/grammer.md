@@ -10,13 +10,19 @@
 <classes> 	 			::= <classes><class>; 
 			 			|   <class>;
 			 			
-<class> 	 			::= class TYPE <inherits> { <feature> };
+<class> 	 			::= class TYPE <inherits> { <features_list_opt> };
 
-<inhertits>  			::= inherits TYPE
+<inhertits>  			::= inherits sTYPE
 			 			|   <empty>
-			 			
-<feature> 	 			::= ID(<parameters_list>) : TYPE { <expr> }
-			 			|   <feature_parameter>;
+
+<features_list_opt>     ::= <features_list>
+                        |   <empty>
+
+<features_list>         ::= <features_list> <feature> ;
+                        |   <feature> ;
+
+<feature>               ::= ID ( <parameters_list> ) : TYPE { <expression> }
+                        |   <feature_parameter>
 			 			
 <params_list>			::= <parameters_list>, <parameter>
 			 			| 	<parameter>
