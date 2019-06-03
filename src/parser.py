@@ -19,6 +19,7 @@ import src.ast as AST
 from src.lexer import make_lexer
 
 
+
 class CoolParser(object):
 
     def __init__(self, build_parser=True, debug=False, write_tables=True,

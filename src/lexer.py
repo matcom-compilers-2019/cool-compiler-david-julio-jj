@@ -287,8 +287,8 @@ class CoolLexer(object):
         t.lexer.skip(1)
         
     # COMMENT error handler
-    def t_COMMENT_error(self, token):
-        token.lexer.skip(1)
+    def t_COMMENT_error(self, t):
+        t.lexer.skip(1)
 
     ##### END of Comment State #####
 
