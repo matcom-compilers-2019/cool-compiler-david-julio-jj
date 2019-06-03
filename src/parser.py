@@ -108,8 +108,8 @@ class CoolParser(object):
 
     def p_feature_method(self, p):
         """
-        <feature>       ::= ID LPAREN <parameters_list> RPAREN COLON TYPE LBRACE <expression> RBRACE
-                        |   <feature_parameter>
+        <feature>       ::= ID LPAREN parameters_list RPAREN COLON TYPE LBRACE expression RBRACE
+                        |   feature_parameter
         """
         p[0] = AST.ClassMethod(name=p[1], formal_params=p[3], return_type=p[6], body=p[8])
 
@@ -150,37 +150,37 @@ class CoolParser(object):
 
     def p_expression_object_identifier(self, p):
         """
-        <expression> ::= ID
+        <expr> ::= ID
         """
         p[0] = AST.Object(name=p[1])
 
     def p_expression_integer_constant(self, p):
         """
-        <expression> ::= INTEGER
+        <expr> ::= INTEGER
         """
         p[0] = AST.Integer(content=p[1])
 
     def p_expression_boolean_constant(self, p):
         """
-        <expression> ::= BOOLEAN
+        <expr> ::= BOOLEAN
         """
         p[0] = AST.Boolean(content=p[1])
 
     def p_expression_string_constant(self, p):
         """
-        <expression> ::= STRING
+        <expr> ::= STRING
         """
         p[0] = AST.String(content=p[1])
 
     def p_expression_self(self, p):
         """
-        <expression>  ::= SELF
+        <expr>  ::= SELF
         """
         p[0] = AST.Self()
 
     def p_expression_block(self, p):
         """
-        <expression> ::= LBRACE block_list RBRACE
+        <expr> ::= LBRACE block_list RBRACE
         """
         p[0] = AST.Block(expr_list=p[2])
 
@@ -196,8 +196,94 @@ class CoolParser(object):
 
     def p_expression_assignment(self, p):
         """
-        <expression> ::= ID ASSIGN expression
+        <expr> ::= ID ASSIGN expression
         """
         p[0] = AST.Assignment(AST.Object(name=p[1]), expr=p[3])
 
-    
+    # ######################### METHODS DISPATCH ######################################
+
+    def p_expression_dispatch(self, p):
+        """
+        <expr>    ::= expression DOT ID LPAREN arguments_list_opt RPAREN
+        """
+        p[0] = AST.DynamicDispatch(instance=p[1], method=p[3], arguments=p[5])
+
+    def p_arguments_list_opt(self, p):
+        """
+        <arguments_list_opt>    ::= arguments_list
+                                | empty
+        """
+        p[0] = tuple() if p.slice[1].type == "empty" else p[1]
+
+    def p_arguments_list(self, p):
+        """
+        <arguments_list>    ::= arguments_list COMMA expression
+                            | expression
+        """
+        if len(p) == 2:
+            p[0] = (p[1],)
+        else:
+            p[0] = p[1] + (p[3],)
+
+    def p_expression_static_dispatch(self, p):
+        """
+        <expr>    ::= expression AT TYPE DOT ID LPAREN arguments_list_opt RPAREN
+        """
+        p[0] = AST.StaticDispatch(instance=p[1], dispatch_type=p[3], method=p[5], arguments=p[7])
+
+    def p_expression_self_dispatch(self, p):
+        """
+        <expr>    ::= ID LPAREN arguments_list_opt RPAREN
+        """
+        p[0] = AST.DynamicDispatch(instance=AST.Self(), method=p[1], arguments=p[3])
+
+    # ######################### PARENTHESIZED, MATH & COMPARISONS #####################
+
+    def p_expression_math_operations(self, p):
+        """
+        <expr>      ::= expression PLUS expression
+                    |   expression MINUS expression
+                    |   expression MULTIPLY expression
+                    |   expression DIVIDE expression
+        """
+        if p[2] == '+':
+            p[0] = AST.Addition(first=p[1], second=p[3])
+        elif p[2] == '-':
+            p[0] = AST.Subtraction(first=p[1], second=p[3])
+        elif p[2] == '*':
+            p[0] = AST.Multiplication(first=p[1], second=p[3])
+        elif p[2] == '/':
+            p[0] = AST.Division(first=p[1], second=p[3])
+
+    def p_expression_math_comparisons(self, p):
+        """
+        <expr> : expression LT expression
+                   | expression LTEQ expression
+                   | expression EQ expression
+        """
+        if p[2] == '<':
+            p[0] = AST.LessThan(first=p[1], second=p[3])
+        elif p[2] == '<=':
+            p[0] = AST.LessThanOrEqual(first=p[1], second=p[3])
+        elif p[2] == '=':
+            p[0] = AST.Equal(first=p[1], second=p[3])
+
+    def p_expression_with_parenthesis(self, p):
+        """
+        <expr> : LPAREN expression RPAREN
+        """
+        p[0] = p[2]
+
+    # ######################### CONTROL FLOW EXPRESSIONS ##############################
+
+    def p_expression_if_conditional(self, p):
+        """
+        expression : IF expression THEN expression ELSE expression FI
+        """
+        p[0] = AST.If(predicate=p[2], then_body=p[4], else_body=p[6])
+
+    def p_expression_while_loop(self, p):
+        """
+        expression : WHILE expression LOOP expression POOL
+        """
+        p[0] = AST.WhileLoop(predicate=p[2], body=p[4])

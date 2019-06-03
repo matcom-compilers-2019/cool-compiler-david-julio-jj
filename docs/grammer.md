@@ -74,10 +74,11 @@
 <case_actions> 			::= <case_actions>; ID : TYPE => <expr> 
 			   			|   ID : TYPE => <expr>;
 			   			
-<let> 		 			::= let <nested_let_params> in <expr>
+<let_expression>        ::= let <formal> in <expression>
+                        |   <nested_lets> , <formal>
 
-<nested_let_params>		::= <nested_let_params>, <feature_parameter>
-						| 	<feature_parameter>
+<nested_lets>           ::= <formal> IN <expression>
+                        |   <nested_lets> , <formal>
 
 <while>		 			::= while <expr> loop <expr> pool
 
