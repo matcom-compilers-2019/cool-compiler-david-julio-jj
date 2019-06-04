@@ -39,7 +39,7 @@ class Program(AST):
 
     def to_tuple(self):
         return tuple([
-            ("class_name", self.clsname), 
+            ("class_name", self.clsname),
             ("classes", self.classes)
         ])
 
@@ -58,7 +58,7 @@ class Class(AST):
         return tuple([
             ("class_name", self.clsname),
             ("name", self.name),
-            ("parent", self.parent), 
+            ("parent", self.parent),
             ("features", self.features)
         ])
 
@@ -105,7 +105,7 @@ class ClassAttribute(ClassFeature):
             ("class_name", self.clsname),
             ("name", self.name),
             ("attr_type", self.attr_type),
-            ("init_expr", self.init_expr)  
+            ("init_expr", self.init_expr)
         ])
 
     def to_readable(self):
