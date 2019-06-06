@@ -452,14 +452,6 @@ class CoolParser(object):
         return self.parser.parse(program_source_code)
 
 
-# -----------------------------------------------------------------------------
-#
-#                     Parser as a Standalone Python Program
-#                     Usage: ./parser.py cool_program.cl
-#
-# -----------------------------------------------------------------------------
-
-
 def make_parser(**kwargs) -> CoolParser:
     """
     Utility function.
