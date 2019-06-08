@@ -305,33 +305,33 @@ class CoolParser(object):
         """
         parse[0] = parse[1]
 
-    def p_expression_let_simple(self, parse):
+    def p_expression_let_list(self, parse):
         """
-        let_expression : LET ID COLON TYPE IN expression
-                       | nested_lets COMMA LET ID COLON TYPE
+         let_expression : LET formal_list IN expression
         """
-        parse[0] = AST.Let(instance=parse[2], return_type=parse[4], init_expr=None, body=parse[6])
+        parse[0] = AST.Let(declarations=parse[2], body=parse[4])
 
-    def p_expression_let_initialized(self, parse):
+    def p_formal_list(self, parse):
         """
-        let_expression : LET ID COLON TYPE ASSIGN expression IN expression
-                       | nested_lets COMMA LET ID COLON TYPE ASSIGN expression
+        formal_list : formal_list COMMA formal
+                    | formal
         """
-        parse[0] = AST.Let(instance=parse[2], return_type=parse[4], init_expr=parse[6], body=parse[8])
+        if len(parse) == 2:
+            parse[0] = (parse[1],)
+        else:
+            parse[0] = parse[1] + (parse[3],)
 
-    def p_inner_lets_simple(self, parse):
+    def p_formal_let_simpleparam(self, parse):
         """
-        nested_lets : ID COLON TYPE IN expression
-                    | nested_lets COMMA ID COLON TYPE
+         formal : ID COLON TYPE
         """
-        parse[0] = AST.Let(instance=parse[1], return_type=parse[3], init_expr=None, body=parse[5])
+        parse[0] = AST.Formal(name=parse[1], param_type=parse[3], init_expr=None)
 
-    def p_inner_lets_initialized(self, parse):
+    def p_formal_let_param(self, parse):
         """
-        nested_lets : ID COLON TYPE ASSIGN expression IN expression
-                    | nested_lets COMMA ID COLON TYPE ASSIGN expression
+         formal : ID COLON TYPE ASSIGN expression
         """
-        parse[0] = AST.Let(instance=parse[1], return_type=parse[3], init_expr=parse[5], body=parse[7])
+        parse[0] = AST.Formal(name=parse[1], param_type=parse[3], init_expr=parse[5])
 
     # ######################### CASE EXPRESSION ########################################
 
@@ -355,7 +355,7 @@ class CoolParser(object):
         """
         action : ID COLON TYPE ARROW expression SEMICOLON
         """
-        parse[0] = (parse[1], parse[3], parse[5])
+        parse[0] = AST.Action(parse[1], parse[3], parse[5])
 
     # ######################### UNARY OPERATIONS #######################################
 
