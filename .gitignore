@@ -1,5 +1,6 @@
 # Idea JetBrains
 .idea/*
+.src/__pycache__/*
 
 # Enviorment Windows
 venv/*
