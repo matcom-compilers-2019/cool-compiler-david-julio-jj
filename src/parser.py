@@ -325,7 +325,7 @@ class CoolParser(object):
         """
          formal : ID COLON TYPE
         """
-        parse[0] = AST.Formal(name=parse[1], param_type=parse[3])
+        parse[0] = AST.Formal(name=parse[1], param_type=parse[3], init_expr=None)
 
     def p_formal_let_param(self, parse):
         """
