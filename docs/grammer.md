@@ -21,7 +21,7 @@
 <features_list>         ::= <features_list> <feature> ;
                         |   <feature> ;
 
-<feature>               ::= ID ( <formal_params_list_opt> ) : TYPE { <expression> }
+<feature>               ::= ID ( <formal_params_list_opt> ) : TYPE { <expr> }
                         |   <formal>
 			 			
 <formal_params_list_opt>::= <formal_params_list>
