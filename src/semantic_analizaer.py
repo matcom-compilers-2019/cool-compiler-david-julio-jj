@@ -210,3 +210,73 @@ class CheckSemantic:
         newScope = Scope(scope.classname, scope)
         newScope.defineSymbol(node.name, scope.getType(node.action_type))
         return self.visit(node.body, newScope, errors)
+
+    @visitor.when(ast.IntegerComplement)
+    def visit(self, node:ast.IntegerComplement, scope:Scope, errors):
+        exprType = self.visit(node.integer_expr, scope, errors)
+        if not exprType.name == "Int":
+            raise CheckSemanticError(f'{exprType.name} doest\' match wiht Int')
+        return scope.getType('Int')
+
+    @visitor.when(ast.BooleanComplement)
+    def visit(self, node:ast.BooleanComplement, scope:Scope, errors):
+        exprType = self.visit(node.integer_expr, scope, errors)
+        if not exprType.name == 'Bool':
+            raise CheckSemanticError(f'{exprType.name} doest\' match wiht Int')
+        return scope.getType('Bool')
+
+    @visitor.when(ast.Addition)
+    def visit(self, node:ast.Addition, scope:Scope, errors):
+        leftType = self.visit(node.first, scope, errors)
+        rigthType = self.visit(node.second, scope, errors)
+        if not leftType.name == 'Int' or not rigth.name == 'Int':
+            raise CheckSemanticError(f'expressions type must to be Int')
+        return scope.getType('Int')
+
+    @visitor.when(ast.Subtraction)
+    def visit(self, node:ast.Subtraction, scope:Scope, errors):
+        leftType = self.visit(node.first, scope, errors)
+        rigthType = self.visit(node.second, scope, errors)
+        if not leftType.name == 'Int' or not rigth.name == 'Int':
+            raise CheckSemanticError(f'expressions type must to be Int')
+        return scope.getType('Int')
+
+    @visitor.when(ast.Multiplication)
+    def visit(self, node:ast.Multiplication, scope:Scope, errors):
+        leftType = self.visit(node.first, scope, errors)
+        rigthType = self.visit(node.second, scope, errors)
+        if not leftType.name == 'Int' or not rigth.name == 'Int':
+            raise CheckSemanticError(f'expressions type must to be Int')
+        return scope.getType('Int')
+
+    @visitor.when(ast.Division)
+    def visit(self, node:ast.Division, scope:Scope, errors):
+        leftType = self.visit(node.first, scope, errors)
+        rigthType = self.visit(node.second, scope, errors)
+        if not leftType.name == 'Int' or not rigth.name == 'Int':
+            raise CheckSemanticError(f'expressions type must be Int')
+        return scope.getType('Int')
+    
+    @visitor.when(ast.Equal)
+    def visit(self, node:ast.Equal, scope:Scope, errors):
+        leftType = self.visit(node.first, scope, errors)
+        rigthType = self.visit(node.second, scope, errors)
+        if not leftType.name == rigth.name:
+            raise CheckSemanticError(f'expressions type must be the same type')
+        return scope.getType('Bool')
+
+    @visitor.when(ast.LessThan)
+    def visit(self, node:ast.LessThan, scope:Scope, errors):
+        leftType = self.visit(node.first, scope, errors)
+        rigthType = self.visit(node.second, scope, errors)
+        if not leftType.name == 'Int' or not rigth.name == 'Int':
+            raise CheckSemanticError(f'expressions type must be Int')
+        return scope.getType('Int')
+
+     @visitor.when(ast.LessThanOrEqual)
+    def visit(self, node:ast.LessThanOrEqual, scope:Scope, errors):
+        leftType = self.visit(node.first, scope, errors)
+        rigthType = self.visit(node.second, scope, errors)
+        if not leftType.name == 'Int' or not rigth.name == 'Int':
+            raise CheckSemanticError(f'expressions type must be Int')
+        return scope.getType('Int')
