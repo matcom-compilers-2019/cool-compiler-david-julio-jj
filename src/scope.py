@@ -47,10 +47,10 @@ class Scope:
             raise ScopeError(f'{ct.name} is already defined.')
         ctypes[ct.name] = ct
     
-    def defineSymbol(self, symbol:str, ct:tp.ctype):
+    def defineSymbol(self, symbol:str, ct:tp.ctype, override=False):
         c = self
         while c:
-            if symbol in c.var:
+            if not override and symbol in c.var:
                 raise ScopeError(f'Symbol {symbol} already defined in the Scope.')        
             c = c.parentScope
         self.var[symbol] = ct

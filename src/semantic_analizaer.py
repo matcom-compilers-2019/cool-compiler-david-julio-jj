@@ -22,7 +22,7 @@ from src.type import ctype
 class CheckSemanticError(BaseException):
     def __init__(self, e):
         self.e = e
-    
+
     def __str__(self):
         return self.e
 
@@ -34,11 +34,9 @@ class CheckSemantic:
     @visitor.when(ast.Program)
     def visit(self, node:ast.Program, scope:Scope, errors):
         for classDef in node.classes:
-            methods = filter(lambda x: type(x) is ast.ClassMethod, classDef)
-            methods = list(methods)
             attribs = filter(lambda x: type(x) is ast.ClassAttribute, classDef)
             attribs = list(attribs)
-            newType = ctype(classDef.name, classDef.parent, attribs, methods)
+            newType = ctype(classDef.name, classDef.parent, [], [])
             try:
                 scope.createType(newType)
             except Exception as e:
@@ -46,7 +44,7 @@ class CheckSemantic:
 
         for i in node.classes:
             t = self.visit(i, Scope(i.name, scope), errors)
-        
+
     @visitor.when(ast.Class)
     def visit(self, node:ast.Class, scope:Scope, errors):
         methods = filter(lambda x: type(x) is ast.ClassMethod, classDef)
@@ -55,15 +53,31 @@ class CheckSemantic:
         attribs = list(attribs)
         for i in attribs:
             ta = self.visit(i, scope, errors)
+            try:
+                scope.getType(node.name).add_attrib({i.name: scope.getType(i.attr_type)})
+            except Exception as e:
+                print(e)
+        for i in methods:
+            try:
+                scope.getType(node.name).add_method({i.name:{
+                    'formal_params':{
+                        t.name: scope.getType(t.param_type) for j in i.formal_params
+                    },
+                    'return_type': scope.getType(i.return_type),
+                    'body': i.body
+                }})
+            exec Exception as e:
+                print(e)
         for i in methods:
             tb = self.visit(i, Scope(scope.classname, scope), errors)
-    
+
+
     @visitor.when(ast.ClassAttribute)
-    def visit(self, node:ast.ClassAttribute, scope:Scope, errors):
-        try:
-            scope.defineAttrib(node.name, scope.getType(node.attr_type))
-        except Exception as e:
-            print(e)
+    def visit(self, node: ast.ClassAttribute, scope: Scope, errors):
+    try:
+        scope.defineAttrib(node.name, scope.getType(node.attr_type))
+    except Exception as e:
+        print(e)
 
     @visitor.when(ast.ClassMethod)
     def visit(self, node:ast.ClassMethod, scope:Scope, errors):
@@ -76,7 +90,7 @@ class CheckSemantic:
         if not tb < scope.getType(node.return_type):
             raise CheckSemanticError(f'{tb} doesn\'t conform {node.return_type}')
         return scope.getType(node.return_type)
-    
+
     @visitor.when(ast.Integer)
     def visit(self, node:ast.Integer, scope:Scope, errors):
         return scope.getType("Int")
@@ -115,7 +129,7 @@ class CheckSemantic:
                 raise CheckSemanticError(f'{tb} doesn\'t conform {node.return_type}')
             return exprType
         except:
-            raise CheckSemanticError(f'Symbol {node.instance.name} not defined in the Scope.')    
+            raise CheckSemanticError(f'Symbol {node.instance.name} not defined in the Scope.')
 
     @visitor.when(ast.Block)
     def visit(self, node:ast.Block, scope:Scope, errors):
@@ -171,13 +185,13 @@ class CheckSemantic:
         scope.defineSymbol(node.name, scope.getType(node.param_type), True)
         t = self.visit(node.init_expr, scope)
     	if not t < node.param_type:
-            raise CheckSemanticError(f'{str(t)} doesn\'t conform {str(node.param_type)}')            
+            raise CheckSemanticError(f'{str(t)} doesn\'t conform {str(node.param_type)}')
 
     @visitor.when(ast.If)
     def visit(self, node:ast.If, scope:Scope, errors):
         predType = self.visit(node.predicate, scope, errors)
         if not predType.name == "Bool":
-            raise CheckSemanticError(f'you can\'t match {predType.name} with Bool')  
+            raise CheckSemanticError(f'you can\'t match {predType.name} with Bool')
         ifType = self.visit(node.then_body, scope, errors)
         elseType = self.visit(node.else_body, scope, errors)
         return scope.join(ifType, elseType)
@@ -186,7 +200,7 @@ class CheckSemantic:
     def visit(self, node:ast.WhileLoop, scope:Scope, errors):
         predType = self.visit(node.predicate, scope, errors)
         if not predType.name == "Bool":
-            raise CheckSemanticError(f'you can\'t match {predType.name} with Bool')  
+            raise CheckSemanticError(f'you can\'t match {predType.name} with Bool')
         self.visit(node.body, scope, errors)
         return scope.getType('Object')
 
@@ -198,7 +212,7 @@ class CheckSemantic:
             try:
                 scope.getType(item.action_type)
             except Exception as e:
-                print(e) 
+                print(e)
             listType.append(self.visit(item, scope, errors))
         returnType = listType[0]
         for item in listType[1:]:
