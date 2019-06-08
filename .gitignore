@@ -3,3 +3,6 @@
 
 # Enviorment Windows
 venv/*
+
+# VSCode
+src/__pycache__/*
