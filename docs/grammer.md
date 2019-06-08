@@ -21,7 +21,7 @@
 <features_list>         ::= <features_list> <feature> ;
                         |   <feature> ;
 
-<feature>               ::= ID ( <formal_params_list_opt> ) : TYPE { <expr> }
+<feature>               ::= ID ( <formal_params_list_opt> ) : TYPE { <expression> }
                         |   <formal>
 			 			
 <formal_params_list_opt>::= <formal_params_list>
@@ -31,9 +31,6 @@
                         |   <formal_param>
 
 <formal_param>          ::= ID : TYPE
-
-<formal>                ::= ID : TYPE <- <expression>
-                        |   ID : TYPE
 			 			
 <expr> 		 			::= ID <- <expr>
              			|   <expr>.ID( <arguments_list_opt> )
@@ -76,11 +73,13 @@
 <case_actions>          ::= <case_action>
                         |   <case_action> <case_actions>
 			   			
-<let_expression>        ::= let <formal> in <expression>
-                        |   <nested_lets> , <formal>
+<let_expression>        ::= let <formal_list> in <expression>
 
-<nested_lets>           ::= <formal> IN <expression>
-                        |   <nested_lets> , <formal>
+<formal_list>           ::= <formal_list>, <formal>
+                        |   <formal>
+
+<formal>                ::= ID : TYPE <- <expression>
+                        |   ID : TYPE
 
 <while>		 			::= while <expr> loop <expr> pool
 
@@ -92,7 +91,5 @@
              			|   <expr> ;
              			
 <empty>      			::=
-
-<comment>	 			::=
 ```
 

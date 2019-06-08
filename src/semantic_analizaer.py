@@ -22,7 +22,7 @@ from src.type import ctype
 class CheckSemanticError(BaseException):
     def __init__(self, e):
         self.e = e
-    
+
     def __str__(self):
         return self.e
 
@@ -34,8 +34,6 @@ class CheckSemantic:
     @visitor.when(ast.Program)
     def visit(self, node:ast.Program, scope:Scope, errors):
         for classDef in node.classes:
-            # methods = filter(lambda x: type(x) is ast.ClassMethod, classDef)
-            # methods = list(methods)
             attribs = filter(lambda x: type(x) is ast.ClassAttribute, classDef)
             attribs = list(attribs)
             newType = ctype(classDef.name, classDef.parent, [], [])
@@ -46,7 +44,7 @@ class CheckSemantic:
 
         for i in node.classes:
             t = self.visit(i, Scope(i.name, scope), errors)
-        
+
     @visitor.when(ast.Class)
     def visit(self, node:ast.Class, scope:Scope, errors):
         methods = filter(lambda x: type(x) is ast.ClassMethod, classDef)
@@ -72,13 +70,14 @@ class CheckSemantic:
                 print(e)
         for i in methods:
             tb = self.visit(i, Scope(scope.classname, scope), errors)
-    
+
+
     @visitor.when(ast.ClassAttribute)
-    def visit(self, node:ast.ClassAttribute, scope:Scope, errors):
-        try:
-            scope.defineAttrib(node.name, scope.getType(node.attr_type))
-        except Exception as e:
-            print(e)
+    def visit(self, node: ast.ClassAttribute, scope: Scope, errors):
+    try:
+        scope.defineAttrib(node.name, scope.getType(node.attr_type))
+    except Exception as e:
+        print(e)
 
     @visitor.when(ast.ClassMethod)
     def visit(self, node:ast.ClassMethod, scope:Scope, errors):
@@ -91,7 +90,7 @@ class CheckSemantic:
         if not tb < scope.getType(node.return_type):
             raise CheckSemanticError(f'{tb} doesn\'t conform {node.return_type}')
         return scope.getType(node.return_type)
-    
+
     @visitor.when(ast.Integer)
     def visit(self, node:ast.Integer, scope:Scope, errors):
         return scope.getType("Int")
@@ -123,11 +122,14 @@ class CheckSemantic:
 
     @visitor.when(ast.Assignment)
     def visit(self, node:ast.Assignment, scope:Scope, errors):
-        instanceType = self.visit(node.instance, scope, errors)
-        exprType = self.visit(node.expr, scope, errors)
-        if not instanceType < exprType :
-            raise CheckSemanticError(f'{tb} doesn\'t conform {node.return_type}')
-        return exprType    
+        try:
+            instanceType = scope.getTypeFor(node.instance.name)
+            exprType = self.visit(node.expr, scope, errors)
+            if not instanceType < exprType :
+                raise CheckSemanticError(f'{tb} doesn\'t conform {node.return_type}')
+            return exprType
+        except:
+            raise CheckSemanticError(f'Symbol {node.instance.name} not defined in the Scope.')
 
     @visitor.when(ast.Block)
     def visit(self, node:ast.Block, scope:Scope, errors):
@@ -139,7 +141,7 @@ class CheckSemantic:
     def visit(self, node:ast.DynamicDispatch, scope:Scope, errors):
         instanceType = scope.getTypeFor(node.instance)
         if not instanceType.is_method(node.method):
-           raise CheckSemanticError(f'method {node.method} not defined') #escribe
+           raise CheckSemanticError(f'method {node.method} not defined')
         argsType = instanceType.get_method_args(node.method)
         if len(argsType) != len(node.arguments):
             raise CheckSemanticError(f'{node.method} require {len(argsType)} arguments')
@@ -148,5 +150,77 @@ class CheckSemantic:
             if not t < x:
                 raise CheckSemanticError(f'{str(t)} doesn\'t conform {str(x)}')
         method = instanceType.get_method(node.method)
-        
         return  method.return_type
+
+    @visitor.when(ast.StaticDispatch)
+    def visit(self, node:ast.StaticDispatch, scope:Scope, errors):
+        instanceType = scope.getTypeFor(node.instance)
+        classType = scope.getType(node.dispatch_type)
+        if not instanceType < :
+            raise CheckSemanticError(f'type {instanceType} is not a {node.dispatch_type}')
+        if not classType.is_method(node.method):
+           raise CheckSemanticError(f'method {node.method} not defined')
+        argsType = classType.get_method_args(node.method)
+        if len(argsType) != len(node.arguments):
+            raise CheckSemanticError(f'{node.method} require {len(argsType)} arguments')
+        for x, y in argsType, node.arguments:
+            t = self.visit(y, scope, errors)
+            if not t < x:
+                raise CheckSemanticError(f'{str(t)} doesn\'t conform {str(x)}')
+        method = classType.get_method(node.method)
+        return  method.return_type
+
+    @visitor.when(ast.Let)
+    def visit(self, node:ast.Let, scope:Scope, errors):
+        newScope = Scope(scope.classname, scope)
+        for decl in node.init_expr :
+            try:
+                self.visit(decl, newScope, errors)
+            except Exception as e:
+                print(e)
+        return self.visit(node.body, newScope, errors)
+
+    @visitor.when(ast.Formal)
+    def visit(self, node:ast.Formal, scope:Scope, errors):
+        scope.defineSymbol(node.name, scope.getType(node.param_type), True)
+        t = self.visit(node.init_expr, scope)
+    	if not t < node.param_type:
+            raise CheckSemanticError(f'{str(t)} doesn\'t conform {str(node.param_type)}')
+
+    @visitor.when(ast.If)
+    def visit(self, node:ast.If, scope:Scope, errors):
+        predType = self.visit(node.predicate, scope, errors)
+        if not predType.name == "Bool":
+            raise CheckSemanticError(f'you can\'t match {predType.name} with Bool')
+        ifType = self.visit(node.then_body, scope, errors)
+        elseType = self.visit(node.else_body, scope, errors)
+        return scope.join(ifType, elseType)
+
+    @visitor.when(ast.WhileLoop)
+    def visit(self, node:ast.WhileLoop, scope:Scope, errors):
+        predType = self.visit(node.predicate, scope, errors)
+        if not predType.name == "Bool":
+            raise CheckSemanticError(f'you can\'t match {predType.name} with Bool')
+        self.visit(node.body, scope, errors)
+        return scope.getType('Object')
+
+    @visitor.when(ast.Case)
+    def visit(self, node:ast.Case, scope:Scope, errors):
+        self.visit(node.expr, scope, errors)
+        listType = []
+        for item in node.actions:
+            try:
+                scope.getType(item.action_type)
+            except Exception as e:
+                print(e)
+            listType.append(self.visit(item, scope, errors))
+        returnType = listType[0]
+        for item in listType[1:]:
+            returnType = scope.join(returnType, item)
+        return returnType
+
+    @visitor.when(ast.Action)
+    def visit(self, node:ast.Action, scope:Scope, errors):
+        newScope = Scope(scope.classname, scope)
+        newScope.defineSymbol(node.name, scope.getType(node.action_type))
+        return self.visit(node.body, newScope, errors)
