@@ -172,3 +172,41 @@ class CheckSemantic:
         t = self.visit(node.init_expr, scope)
     	if not t < node.param_type:
             raise CheckSemanticError(f'{str(t)} doesn\'t conform {str(node.param_type)}')            
+
+    @visitor.when(ast.If)
+    def visit(self, node:ast.If, scope:Scope, errors):
+        predType = self.visit(node.predicate, scope, errors)
+        if not predType.name == "Bool":
+            raise CheckSemanticError(f'you can\'t match {predType.name} with Bool')  
+        ifType = self.visit(node.then_body, scope, errors)
+        elseType = self.visit(node.else_body, scope, errors)
+        return scope.join(ifType, elseType)
+
+    @visitor.when(ast.WhileLoop)
+    def visit(self, node:ast.WhileLoop, scope:Scope, errors):
+        predType = self.visit(node.predicate, scope, errors)
+        if not predType.name == "Bool":
+            raise CheckSemanticError(f'you can\'t match {predType.name} with Bool')  
+        self.visit(node.body, scope, errors)
+        return scope.getType('Object')
+
+    @visitor.when(ast.Case)
+    def visit(self, node:ast.Case, scope:Scope, errors):
+        self.visit(node.expr, scope, errors)
+        listType = []
+        for item in node.actions:
+            try:
+                scope.getType(item.action_type)
+            except Exception as e:
+                print(e) 
+            listType.append(self.visit(item, scope, errors))
+        returnType = listType[0]
+        for item in listType[1:]:
+            returnType = scope.join(returnType, item)
+        return returnType
+
+    @visitor.when(ast.Action)
+    def visit(self, node:ast.Action, scope:Scope, errors):
+        newScope = Scope(scope.classname, scope)
+        newScope.defineSymbol(node.name, scope.getType(node.action_type))
+        return self.visit(node.body, newScope, errors)
