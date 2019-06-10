@@ -1,96 +1,44 @@
-# COOL: Proyecto de Compilación
+# Cool Compiler Project
 
-> Proyecto base para el compilador de 4to año en Ciencia de la Computación.
+**Nombre** | **Grupo** | **Github**
+--|--|--
+Joel David Hernandez Cruz   | C411 | [@github_user](https://github.com/JDavid17)
+Juan Jose Roque Cires       | C411 | [@github_user](https://github.com/<user>)
+Nombre3 Apellido1 Apellido2 | C411 | [@github_user](https://github.com/julioc1p)
 
-## Generalidades
+## Content
+Modifique el contenido documento para documentar de forma clara y concisa los siguientes aspectos:
 
-La evaluación de la asignatura Complementos de Compilación, inscrita en el programa del 4to año de la Licenciatura en Ciencia de la Computación de la Facultad de Matemática y Computación de la
-Universidad de La Habana, consiste este curso en la implementación de un compilador completamente
-funcional para el lenguaje _COOL_.
+- Cómo ejecutar (y compilar si es necesario) su compilador.
+- Requisitos adicionales, dependencias, configuración, etc.
+- Opciones adicionales que tenga su compilador.
 
-_COOL (Classroom Object-Oriented Language)_ es un pequeño lenguaje que puede ser implementado con un esfuerzo razonable en un semestre del curso. Aun así, _COOL_ mantiene muchas de las características de los lenguajes de programación modernos, incluyendo orientación a objetos, tipado estático y manejo automático de memoria.
+## Reporte escrito
 
-## Cómo comenzar (o terminar)
+En esta carpeta ponga además su reporte escrito. Ya sea hecho en LaTeX, Markdown o Word, **además** genere un PDF y póngale nombre `report.pdf`.
 
-El proyecto de Compilación será recogido y evaluado **únicamente** a través de Github. Es imprescindible tener una cuenta de Github para cada participante, y que su proyecto esté correctamente hosteado en esta plataforma. A continuación le damos las instrucciones mínimas necesarias para ello:
+El reporte debe resumir de manera organizada y comprensible la arquitectura e implementación de su compilador.
+El documento **NO** debe exceder las 5 cuartillas.
+En él explicará en más detalle su solución a los problemas que, durante la implementación de cada una de las fases del proceso de compilación, hayan requerido de Ud. especial atención.
 
-### 1. Si no lo han hecho ya, regístrense en [Github](https://github.com) todos los miembros del equipo (es gratis).
+El informe debe incluir además una dirección a un repositorio git público con el código fuente de su compilador. Para la evaluación del proyecto, se clonará el repositorio y se procederá a su revisión. El proyecto debe contener un fichero `README.md` con las indicaciones para ejecutar su compilador, y los mecanismos pertinentes para garantizar su correcto funcionamiento en la máquina del revisor (instalación de dependencias, etc.).
 
-![](img/img1.png)
+### Estructura del reporte
 
-### 2. Haga click en [este link](https://classroom.github.com/g/QrlsVQA4) y acepte la tarea, creando un nuevo equipo, o uniéndose a un equipo existente.
+Usted es libre de estructurar su reporte escrito como más conveniente le parezca. A continuación le sugerimos algunas secciones que no deberían faltar, aunque puede mezclar, renombrar y organizarlas de la manera que mejor le parezca:
 
-![](img/img2.png)
+- **Uso del compilador**: detalles sobre las opciones de líneas de comando, si tiene opciones adicionales (e.j., `--ast` genera un AST en JSON, etc.). Básicamente lo mismo que pondrá en este Readme.
+- **Arquitectura del compilador**: una explicación general de la arquitectura, en cuántos módulos se divide el proyecto, cuantas fases tiene, qué tipo de gramática se utiliza, y en general, como se organiza el proyecto. Una buena imagen siempre ayuda.
+- **Problemas técnicos**: detalles sobre cualquier problema teórico o técnico interesante que haya necesitado resolver de forma particular.
 
-### 3. Una vez hecho esto, tendrá un nuevo repositorio en [Github/MatCom Compilers 2019](https://github.com/matcom-compilers-2019). Revise que el repositorio de su equipo está en la lista.
+## DEV. STATUS
 
-![](img/img3.png)
+Development Status.
 
-### 4. Clone este proyecto en un repositorio local. Busque la URL de su proyecto en la interfaz web de Github.
-
-![](img/img4.png)
-
-```bash
-$ git clone git@github.com:matcom-compilers-2019/cool-compiler-<team>.git
-```
-
-> Donde `<team>` es posiblemente el nombre de su equipo.
-
-A partir de este punto debe tener un proyecto `cool-compiler-<team>` local.
-El siguiente paso depende de si usted ya tiene su código versionado con `git` o no.
-
-### 5.A. Si tiene su proyecto en git (y no quiere perder la historia):
-
-5.1. Mezcle hacia el nuevo respositorio su repositorio anterior:
-
-```bash
-$ cd cool-compiler-<team>
-$ git pull <my-old-compiler-project> master
-```
-
-5.2. Organice su proyecto, código fuente y documentación, de acuerdo a las instrucciones de este documento, y vuelva a hacer `commit`.
-
-```bash
-$ mv <my-old-code> src/
-$ git add .
-$ git commit -a -m "Mezclado con el proyecto base"
-```
-
-5.3. A partir de este punto puede hacer `push` cada vez que tenga cambios que subir:
-
-```bash
-$ git push origin master
-```
-
-### 5.B Si aún no tiene su proyecto en git (o no le importa la historia):
-
-5.1. Simplemente copie el código de su proyecto en la carpeta correspondiente `src` y haga su primer commit:
-
-```bash
-$ mv <my-old-code> src/
-$ git commit -a -m "Hello Git!"
-```
-
-5.2. A partir de este punto asegúrese de hacer `commit` de forma regular para mantener su repositorio actualizado. Si necesita saber más sobre `git`, todo lo imprescindible está [esta guía](doc/github-git-cheat-sheet.pdf).
-
-5.3. A partir de este punto puede hacer `push` cada vez que tenga cambios que subir:
-
-```bash
-$ git push origin master
-```
-
-### 6. Asegúrese de que sus cambios están online en el momento de revisar el compilador.
-
-![](img/img5.png)
-
-## Sobre la implementación
-
-Ponga todo su código e instrucciones necesarias en la carpeta `src`. Más información en [`src/Readme.md`](src/Readme.md).
-
-## Sobre la documentación
-
-Usted debe presentar un reporte escrito documentando el proceso de construcción de su compilador y los detalles más importantes de su funcionamiento. Más información en [`doc/Readme.md`](doc/Readme.md).
-
-## Sobre los Equipos de Desarrollo
-
-Para desarrollar el compilador del lenguaje COOL se trabajará en equipos de 2 o 3 integrantes.
+| Compiler Stage     | Python Module                         | Status                      |
+|:-------------------|:--------------------------------------|:----------------------------|
+| Lexical Analysis   | [lexer.py](/lexer.py)                 | **complete**             |
+| Parsing            | [parser.py](/parser.py)               | **complete**             |
+| Semantic Analysis  | -                                     | **in progress**                           |
+| Optimization       | -                                     | -                           |
+| Code Generation    | -                                     | -                           |

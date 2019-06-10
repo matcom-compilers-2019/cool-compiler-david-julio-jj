@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # File created using '.gitignore Generator' for Visual Studio Code: https://bit.ly/vscode-gig
 
 # Created by https://www.gitignore.io/api/c++,latex,linux,macos,python,sublimetext,virtualenv,visualstudiocode,windows,pycharm,visualstudio
@@ -977,3 +978,17 @@ MigrationBackup/
 
 # Custom rules (everything added below won't be overriden by 'Generate .gitignore File' if you use 'Update' option)
 
+=======
+# Idea JetBrains
+.idea/*
+
+# Enviorment Windows
+venv/*
+
+# VSCode
+src/__pycache__/
+.vscode/*
+__pycache__/*
+src/.vscode/*
+src/__pycache__/*
+>>>>>>> 2ffe8e225dec7e326a91a6fce09dbb4281f9c276
