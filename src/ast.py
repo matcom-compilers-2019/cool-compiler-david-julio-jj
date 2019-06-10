@@ -20,7 +20,7 @@ class AST:
         ])
 
     def to_readable(self):
-        return "\n{}".format(self.clsname)
+        return "{}".format(self.clsname)
 
     def __repr__(self):
         return self.__str__()
@@ -44,7 +44,7 @@ class Program(AST):
         ])
 
     def to_readable(self):
-        return "\n{}(classes={})".format(self.clsname, self.classes)
+        return "{}(classes={})".format(self.clsname, self.classes)
 
 
 class Class(AST):
@@ -63,7 +63,7 @@ class Class(AST):
         ])
 
     def to_readable(self):
-        return "\n{}(name='{}', parent={}, features={})".format(self.clsname, self.name, self.parent, self.features)
+        return "{}(name='{}', parent={}, features={})".format(self.clsname, self.name, self.parent, self.features)
 
 
 class ClassFeature(AST):
@@ -89,7 +89,7 @@ class ClassMethod(ClassFeature):
         ])
 
     def to_readable(self):
-        return "\n{}(name='{}', formal_params={}, return_type={}, body={})".format(
+        return "{}(name='{}', formal_params={}, return_type={}, body={})".format(
             self.clsname, self.name, self.formal_params, self.return_type, self.body)
 
 
@@ -110,7 +110,7 @@ class ClassAttribute(ClassFeature):
         ])
 
     def to_readable(self):
-        return "\n{}(name='{}', attr_type={}, init_expr={})".format(
+        return "{}(name='{}', attr_type={}, init_expr={})".format(
             self.clsname, self.name, self.attr_type, self.init_expr)
 
 
@@ -128,7 +128,7 @@ class FormalParameter(ClassFeature):
         ])
 
     def to_readable(self):
-        return "\n{}(name='{}', param_type={})".format(self.clsname, self.name, self.param_type)
+        return "{}(name='{}', param_type={})".format(self.clsname, self.name, self.param_type)
 
 class Formal(ClassFeature):
     def __init__(self, name, param_type, init_expr):
@@ -146,7 +146,7 @@ class Formal(ClassFeature):
         ])
 
     def to_readable(self):
-        return "\n{}(name='{}', param_type={}, init_expr={})".format(self.clsname, self.name, self.param_type, self.init_expr)
+        return "{}(name='{}', param_type={}, init_expr={})".format(self.clsname, self.name, self.param_type, self.init_expr)
 
 
 class Object(AST):
@@ -161,7 +161,7 @@ class Object(AST):
         ])
 
     def to_readable(self):
-        return "\n{}(name='{}')".format(self.clsname, self.name)
+        return "{}(name='{}')".format(self.clsname, self.name)
 
 
 class Self(Object):
@@ -174,7 +174,7 @@ class Self(Object):
         ])
 
     def to_readable(self):
-        return "\n{}".format(self.clsname)
+        return "{}".format(self.clsname)
 
 
 # ############################## CONSTANTS ##############################
@@ -197,7 +197,7 @@ class Integer(Constant):
         ])
 
     def to_readable(self):
-        return "\n{}(content={})".format(self.clsname, self.content)
+        return "{}(content={})".format(self.clsname, self.content)
 
 
 class String(Constant):
@@ -212,7 +212,7 @@ class String(Constant):
         ])
 
     def to_readable(self):
-        return "\n{}(content={})".format(self.clsname, repr(self.content))
+        return "{}(content={})".format(self.clsname, repr(self.content))
 
 
 class Boolean(Constant):
@@ -227,7 +227,7 @@ class Boolean(Constant):
         ])
 
     def to_readable(self):
-        return "\n{}(content={})".format(self.clsname, self.content)
+        return "{}(content={})".format(self.clsname, self.content)
 
 
 # ############################## EXPRESSIONS ##############################
@@ -250,7 +250,7 @@ class NewObject(Expr):
         ])
 
     def to_readable(self):
-        return "\n{}(type={})".format(self.clsname, self.type)
+        return "{}(type={})".format(self.clsname, self.type)
 
 
 class IsVoid(Expr):
@@ -265,7 +265,7 @@ class IsVoid(Expr):
         ])
 
     def to_readable(self):
-        return "\n{}(expr={})".format(self.clsname, self.expr)
+        return "{}(expr={})".format(self.clsname, self.expr)
 
 
 class Assignment(Expr):
@@ -282,7 +282,7 @@ class Assignment(Expr):
         ])
 
     def to_readable(self):
-        return "\n{}(instance={}, expr={})".format(self.clsname, self.instance, self.expr)
+        return "{}(instance={}, expr={})".format(self.clsname, self.instance, self.expr)
 
 
 class Block(Expr):
@@ -297,7 +297,7 @@ class Block(Expr):
         ])
 
     def to_readable(self):
-        return "\n{}(expr_list={})".format(self.clsname, self.expr_list)
+        return "{}(expr_list={})".format(self.clsname, self.expr_list)
 
 
 class DynamicDispatch(Expr):
@@ -316,7 +316,7 @@ class DynamicDispatch(Expr):
         ])
 
     def to_readable(self):
-        return "\n{}(instance={}, method={}, arguments={})".format(
+        return "{}(instance={}, method={}, arguments={})".format(
             self.clsname, self.instance, self.method, self.arguments)
 
 
@@ -338,7 +338,7 @@ class StaticDispatch(Expr):
         ])
 
     def to_readable(self):
-        return "\n{}(instance={}, dispatch_type={}, method={}, arguments={})".format(
+        return "{}(instance={}, dispatch_type={}, method={}, arguments={})".format(
             self.clsname, self.instance, self.dispatch_type, self.method, self.arguments)
 
 
@@ -362,7 +362,7 @@ class Let(Expr):
         ])
 
     def to_readable(self):
-        return "\n{}(declarations={}, body={})".format(self.clsname, self.declarations, self.body)
+        return "{}(declarations={}, body={})".format(self.clsname, self.declarations, self.body)
 
 
 class If(Expr):
@@ -381,7 +381,7 @@ class If(Expr):
         ])
 
     def to_readable(self):
-        return "\n{}(predicate={}, then_body={}, else_body={})".format(
+        return "{}(predicate={}, then_body={}, else_body={})".format(
             self.clsname, self.predicate, self.then_body, self.else_body)
 
 
@@ -399,7 +399,7 @@ class WhileLoop(Expr):
         ])
 
     def to_readable(self):
-        return "\n{}(predicate={}, body={})".format(self.clsname, self.predicate, self.body)
+        return "{}(predicate={}, body={})".format(self.clsname, self.predicate, self.body)
 
 
 class Case(Expr):
@@ -416,7 +416,7 @@ class Case(Expr):
         ])
 
     def to_readable(self):
-        return "\n{}(expr={}, actions={})".format(self.clsname, self.expr, self.actions)
+        return "{}(expr={}, actions={})".format(self.clsname, self.expr, self.actions)
 
 
 class Action(AST):
@@ -435,7 +435,7 @@ class Action(AST):
         ])
 
     def to_readable(self):
-        return "\n{}(name='{}', action_type={}, body={})".format(self.clsname, self.name, self.action_type, self.body)
+        return "{}(name='{}', action_type={}, body={})".format(self.clsname, self.name, self.action_type, self.body)
 
 
 # ############################## UNARY OPERATIONS ##################################
@@ -459,7 +459,7 @@ class IntegerComplement(UnaryOperation):
         ])
 
     def to_readable(self):
-        return "\n{}(expr={})".format(self.clsname, self.integer_expr)
+        return "{}(expr={})".format(self.clsname, self.integer_expr)
 
 
 class BooleanComplement(UnaryOperation):
@@ -475,7 +475,7 @@ class BooleanComplement(UnaryOperation):
         ])
 
     def to_readable(self):
-        return "\n{}(expr={})".format(self.clsname, self.boolean_expr)
+        return "{}(expr={})".format(self.clsname, self.boolean_expr)
 
 
 # ############################## BINARY OPERATIONS ##################################
@@ -500,7 +500,7 @@ class Addition(BinaryOperation):
         ])
 
     def to_readable(self):
-        return "\n{}(first={}, second={})".format(self.clsname, self.first, self.second)
+        return "{}(first={}, second={})".format(self.clsname, self.first, self.second)
 
 
 class Subtraction(BinaryOperation):
@@ -518,7 +518,7 @@ class Subtraction(BinaryOperation):
         ])
 
     def to_readable(self):
-        return "\n{}(first={}, second={})".format(self.clsname, self.first, self.second)
+        return "{}(first={}, second={})".format(self.clsname, self.first, self.second)
 
 
 class Multiplication(BinaryOperation):
@@ -536,7 +536,7 @@ class Multiplication(BinaryOperation):
         ])
 
     def to_readable(self):
-        return "\n{}(first={}, second={})".format(self.clsname, self.first, self.second)
+        return "{}(first={}, second={})".format(self.clsname, self.first, self.second)
 
 
 class Division(BinaryOperation):
@@ -554,7 +554,7 @@ class Division(BinaryOperation):
         ])
 
     def to_readable(self):
-        return "\n{}(first={}, second={})".format(self.clsname, self.first, self.second)
+        return "{}(first={}, second={})".format(self.clsname, self.first, self.second)
 
 
 class Equal(BinaryOperation):
@@ -572,7 +572,7 @@ class Equal(BinaryOperation):
         ])
 
     def to_readable(self):
-        return "\n{}(first={}, second={})".format(self.clsname, self.first, self.second)
+        return "{}(first={}, second={})".format(self.clsname, self.first, self.second)
 
 
 class LessThan(BinaryOperation):
@@ -590,7 +590,7 @@ class LessThan(BinaryOperation):
         ])
 
     def to_readable(self):
-        return "\n{}(first={}, second={})".format(self.clsname, self.first, self.second)
+        return "{}(first={}, second={})".format(self.clsname, self.first, self.second)
 
 
 class LessThanOrEqual(BinaryOperation):
@@ -608,7 +608,7 @@ class LessThanOrEqual(BinaryOperation):
         ])
 
     def to_readable(self):
-        return "\n{}(first={}, second={})".format(self.clsname, self.first, self.second)
+        return "{}(first={}, second={})".format(self.clsname, self.first, self.second)
 
 
 # ############################## HELPER METHODS ##############################

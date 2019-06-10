@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Idea JetBrains
 .idea/*
 
@@ -10,3 +11,13 @@ src/__pycache__/
 __pycache__/*
 *
 *
+=======
+# Idea JetBrains
+.idea/*
+
+# Enviorment Windows
+venv/*
+
+# VSCode
+src/__pycache__/*
+>>>>>>> 80de387e54ac59528d9162682b71c537eac025e2
