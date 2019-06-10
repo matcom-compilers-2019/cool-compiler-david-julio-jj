@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Idea JetBrains
 .idea/*
 
@@ -7,17 +6,5 @@ venv/*
 
 # VSCode
 src/__pycache__/
-.vscode/
+.vscode/*
 __pycache__/*
-*
-*
-=======
-# Idea JetBrains
-.idea/*
-
-# Enviorment Windows
-venv/*
-
-# VSCode
-src/__pycache__/*
->>>>>>> 80de387e54ac59528d9162682b71c537eac025e2
