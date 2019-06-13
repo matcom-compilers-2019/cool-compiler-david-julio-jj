@@ -69,11 +69,11 @@ class ctype:
             }
         """
         for i in self.methods:
-            if i.name == method_name:
+            if method_name in i:
                 return i
         return None if not self.parent else self.parent.get_method(method_name) 
 
-    def is_method(self, method_name:str):
+    def is_method(self, method_name: str):
         """verify method in a type
         
         Arguments:
@@ -83,7 +83,7 @@ class ctype:
             bool -- if True the method exist
         """
         for i in self.methods:
-            if i.name == method_name:
+            if method_name in i:
                 return True
         return False if not self.parent else self.parent.is_method(method_name)         
 
@@ -97,7 +97,7 @@ class ctype:
             list -- return a list with the types of a method
         """
         m = self.get_method(method_name)
-        p = m.formal_params
+        p = m[method_name]['formal_params']
         return list(map(lambda x: p[x], p))
 
     def __eq__(self, other):
@@ -118,13 +118,12 @@ class ctype:
 class BasicType:
     Object = ctype("Object", None, [], [])
     Int = ctype("Int", Object, [], [])
-    Void = ctype("Void", Object, [], [])
     Bool = ctype("Bool", Object, [], [])
     String = ctype("String", Object, [], [])
     SelfType = ctype("SELF_TYPE", None, [], [])
     IO = ctype("IO", Object, [], [
         {'out_string': {'formal_params': {'x_1': String}, 'return_type': SelfType, 'body': None}}, 
-        {'out_int': {'formal_params': {'x_1':Int}, 'return_type': SelfType, 'body': None}},
+        {'out_int': {'formal_params': {'x_1': Int}, 'return_type': SelfType, 'body': None}},
         {'in_string': {'formal_params': {}, 'return_type': String, 'body': None}},
         {'in_int': {'formal_params': {}, 'return_type': Int, 'body': None}}
         ])
@@ -138,4 +137,4 @@ class BasicType:
         {'concat': {'formal_params': {'x_1': String}, 'return_type': String, 'body': None}},
         {'substr': {'formal_params': {'x_1': Int, 'x_2': Int}, 'return_type': String, 'body': None}}
     )
-    basicTypes = [Object, Int, Void, Bool, String, SelfType]
+    basicTypes = [Object, Int, Bool, String, SelfType, IO]

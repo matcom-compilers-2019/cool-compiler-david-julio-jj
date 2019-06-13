@@ -15,8 +15,8 @@
 # ------------------------------------------------------------------------------------------------------
 
 import ply.yacc as yacc
-import ast as AST
-from lexer import make_lexer
+import src.ast as AST
+from src.lexer import make_lexer
 
 
 class CoolParser(object):
