@@ -130,7 +130,6 @@ class FormalParameter(ClassFeature):
     def to_readable(self):
         return "{}(name='{}', param_type={})".format(self.clsname, self.name, self.param_type)
 
-
 class Formal(ClassFeature):
     def __init__(self, name, param_type, init_expr):
         super(Formal, self).__init__()
@@ -167,7 +166,7 @@ class Object(AST):
 
 class Self(Object):
     def __init__(self):
-        super(Self, self).__init__("Self")
+        super(Self, self).__init__("SELF")
 
     def to_tuple(self):
         return tuple([

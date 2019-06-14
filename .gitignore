@@ -5,4 +5,8 @@
 venv/*
 
 # VSCode
+src/__pycache__/
+.vscode/*
+__pycache__/*
+src/.vscode/*
 src/__pycache__/*
