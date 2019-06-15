@@ -2,9 +2,9 @@
 
 **Nombre** | **Grupo** | **Github**
 --|--|--
-Joel David Hernandez Cruz   | C411 | [@github_user](https://github.com/JDavid17)
-Juan Jose Roque Cires       | C411 | [@github_user](https://github.com/<user>)
-Nombre3 Apellido1 Apellido2 | C411 | [@github_user](https://github.com/julioc1p)
+Joel David Hernandez Cruz   | C411 | [@JDavid17](https://github.com/JDavid17)
+Juan Jose Roque Cires       | C411 | [@jr638091](https://github.com/jr638091)
+Nombre3 Apellido1 Apellido2 | C411 | [@julioc1p](https://github.com/julioc1p)
 
 ## Content
 Modifique el contenido documento para documentar de forma clara y concisa los siguientes aspectos:
