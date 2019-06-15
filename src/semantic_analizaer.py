@@ -29,6 +29,29 @@ class CheckSemanticError(BaseException):
 
 
 class CheckSemantic:
+
+    def check_ciclic_inheritance(self, type_list: dict):
+        type_list = list(type_list.values())
+        type_map = {}
+        for i in range(len(type_list)):
+            ctype = type_list[i]
+            type_map[ctype.name] = i
+
+        for i in range(len(type_list)):
+            bit_mask = [False] * len(type_list)
+            ctype = type_list[i]
+            if not bit_mask[i] and not ctype.name == 'Object' and not ctype.name == 'SELF_TYPE':
+                self.check_ciclic_inheritance_(ctype, type_map, bit_mask)
+    
+    def check_ciclic_inheritance_(self, ctype, type_map, mask):
+        itype = type_map[ctype.name]
+        if mask[itype]:
+            raise CheckSemanticError(f'Circular inheritance at the type {ctype.name}')
+        mask[itype] = True
+        if ctype.parent.name == 'Object':
+            return
+        self.check_ciclic_inheritance_(ctype.parent, type_map, mask)
+
     @visitor.on('node')
     def visit(self, node, scope, errors):
         pass
@@ -42,7 +65,7 @@ class CheckSemantic:
         for classDef in node.classes:
             a = scope.getType(classDef.name)
             a.parent = scope.getType(classDef.parent)
-
+        self.check_ciclic_inheritance(scope.get_types())
         for i in node.classes:
             self.visit(i, Scope(i.name, scope), errors)
 

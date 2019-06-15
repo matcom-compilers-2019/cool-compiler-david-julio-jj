@@ -62,3 +62,7 @@ class Scope:
             if snd < c:
                 return c
             c = c.parent
+
+    def get_types(self):
+        global ctypes
+        return ctypes
