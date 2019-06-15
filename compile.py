@@ -12,6 +12,6 @@ if __name__ == '__main__':
     parser_object = parser.make_parser()
     ast = parser_object.parse(inp)
     semantic_object = check_semantic.CheckSemantic()
-    semantic_object.visit(ast, None, [])
+    semantic_object.visit(ast, None)
     # print(ast)
 
