@@ -8,7 +8,7 @@
 
 class AST:
     def __init__(self):
-        pass
+        self.static_type = None
 
     @property
     def clsname(self):
