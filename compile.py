@@ -1,7 +1,6 @@
 import src.parser as parser
 import src.semantic_analizaer as check_semantic
 from sys import argv
-import subprocess
 
 if __name__ == '__main__':
     files = subprocess.Popen(['ls', 'examples/'], stdout=subprocess.PIPE).communicate()[0]

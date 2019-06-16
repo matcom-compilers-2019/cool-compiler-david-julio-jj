@@ -1,3 +1,5 @@
+yacctab.py
+
 # Idea JetBrains
 .idea/*
 
@@ -5,7 +7,6 @@
 venv/*
 
 # VSCode
-src/__pycache__/
 .vscode/*
 __pycache__/*
 src/.vscode/*
