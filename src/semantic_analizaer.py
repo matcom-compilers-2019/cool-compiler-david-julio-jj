@@ -46,6 +46,32 @@ class CheckSemantic:
             a = scope.getType(classDef.name)
             a.parent = scope.getType(classDef.parent)
 
+        for j in node.classes:
+            methods = filter(lambda x: type(x) is ast.ClassMethod, j.features)
+            methods = list(methods)
+            attribs = filter(lambda x: type(x) is ast.ClassAttribute, j.features)
+            attribs = list(attribs)
+            for i in attribs:
+                try:
+                    scope.getType(j.name).add_attrib({i.name: scope.getType(i.attr_type)})
+                except Exception as e:
+                    raise e
+                try:
+                    scope.defineAttrib(i.name, scope.getType(i.attr_type))
+                except Exception as e:
+                    raise e
+            for i in methods:
+                try:
+                    scope.getType(j.name).add_method({i.name: {
+                        'formal_params': {
+                            t.name: scope.getType(t.param_type) for t in i.formal_params
+                        },
+                        'return_type': scope.getType(i.return_type),
+                        'body': i.body
+                    }})
+                except Exception as e:
+                    raise e
+
         for i in node.classes:
             self.visit(i, Scope(i.name, scope), errors)
 
@@ -80,6 +106,7 @@ class CheckSemantic:
 
     @visitor.when(ast.ClassAttribute)
     def visit(self, node: ast.ClassAttribute, scope: Scope, errors):
+        node.static_type = scope.getType(node.attr_type)
         if node.init_expr:
             t_exp = self.visit(node.init_expr, scope, errors)
             if node.attr_type != 'SELF_TYPE':
@@ -95,47 +122,60 @@ class CheckSemantic:
 
     @visitor.when(ast.ClassMethod)
     def visit(self, node: ast.ClassMethod, scope: Scope, errors):
+        node.static_type = scope.getType(node.return_type)
         for i in node.formal_params:
             try:
                 scope.defineSymbol(i.name, scope.getType(i.param_type))
             except Exception as e:
                 raise e
         tb = self.visit(node.body, scope, errors)
-        if node.return_type == 'SELF_TYPE' or tb.name == 'SELF_TYPE':
-            if tb.name == 'SELF_TYPE' and node.return_type == 'SELF_TYPE':
-                return scope.classname
+        if tb.name == 'SELF_TYPE' and node.return_type == 'SELF_TYPE':
+            return scope.getType(scope.classname)
+        elif tb.name == 'SELF_TYPE':
+            if scope.getType(scope.classname) < scope.getType(node.return_type):
+                return scope.getType(node.return_type)
             else:
-                raise CheckSemanticError(f'Method {node.name} returns SELF_TYPE and body doesn\'t')
+                raise CheckSemanticError(f'{scope.getType(scope.classname)}'
+                                         f' doesn\'t conform {scope.getType(node.return_type)}')
+        elif node.return_type == 'SELF_TYPE':
+            raise CheckSemanticError(f'Method {node.name} returns SELF_TYPE and body doesn\'t')
         if not tb < scope.getType(node.return_type):
             raise CheckSemanticError(f'{tb} doesn\'t conform {node.return_type}')
         return scope.getType(node.return_type)
 
     @visitor.when(ast.Integer)
-    def visit(self, _, scope: Scope, _1):
+    def visit(self, node: ast.Integer, scope: Scope, _1):
+        node.static_type = scope.getType('Int')
         return scope.getType("Int")
 
     @visitor.when(ast.String)
-    def visit(self, _, scope: Scope, _1):
+    def visit(self, node: ast.String, scope: Scope, _1):
+        node.static_type = scope.getType('String')
         return scope.getType("String")
 
     @visitor.when(ast.Boolean)
-    def visit(self, _, scope: Scope, _1):
+    def visit(self, node: ast.Boolean, scope: Scope, _1):
+        node.static_type = scope.getType('Bool')
         return scope.getType("Bool")
 
     @visitor.when(ast.Object)
     def visit(self, node: ast.Object, scope: Scope, _):
+        node.static_type = scope.getTypeFor(node.name)
         return scope.getTypeFor(node.name)
 
     @visitor.when(ast.Self)
-    def visit(self, _, scope: Scope, _1):
+    def visit(self, node: ast.Self, scope: Scope, _1):
+        node.static_type = scope.getType('SELF_TYPE')
         return scope.getType('SELF_TYPE')
 
     @visitor.when(ast.NewObject)
     def visit(self, node: ast.NewObject, scope: Scope, _):
+        node.static_type = scope.getType(node.type)
         return scope.getType(node.type)
 
     @visitor.when(ast.IsVoid)
     def visit(self, node: ast.IsVoid, scope: Scope, _):
+        node.static_type = scope.getType('Bool')
         self.visit(node.expr)
         return scope.getType("Bool")
 
@@ -151,6 +191,7 @@ class CheckSemantic:
                 raise CheckSemanticError(f'{r_type} doesn\'t conform {instance_type}')
             if not expr_type < instance_type:
                 raise CheckSemanticError(f'{expr_type} doesn\'t conform {instance_type}')
+            node.static_type = expr_type
             return expr_type
         except Exception as e:
             raise e
@@ -160,6 +201,7 @@ class CheckSemantic:
         t = None
         for item in node.expr_list:
             t = self.visit(item, scope, errors)
+        node.static_type = t
         return t
 
     @visitor.when(ast.DynamicDispatch)
@@ -177,18 +219,24 @@ class CheckSemantic:
             raise CheckSemanticError(f'{node.method} require {len(args_type)} arguments')
         for i in range(len(args_type)):
             t = self.visit(node.arguments[i], scope, errors)
+            if t.name == 'SELF_TYPE':
+                t = scope.getType(scope.classname)
             if not t < args_type[i]:
                 raise CheckSemanticError(f'{str(t)} doesn\'t conform {str(args_type[i])}')
         method = inner_type.get_method(node.method)
         r_type = method[node.method]['return_type']
         if r_type.name == 'SELF_TYPE':
+            node.static_type = instance_type
             return instance_type
+        node.static_type = instance_type
         return r_type
 
     @visitor.when(ast.StaticDispatch)
     def visit(self, node: ast.StaticDispatch, scope: Scope, errors):
         instance_type = self.visit(node.instance, scope, errors)
         class_type = scope.getType(node.dispatch_type)
+        if instance_type.name == 'SELF_TYPE':
+            instance_type = scope.getType(scope.classname)
         if not instance_type < class_type:
             raise CheckSemanticError(f'type {str(instance_type)} is not a {str(class_type)}')
         if not class_type.is_method(node.method):
@@ -203,18 +251,17 @@ class CheckSemantic:
         method = class_type.get_method(node.method)
         r_type = method[node.method]['return_type']
         if r_type.name == 'SELF_TYPE':
-            return class_type
-        return class_type
+            node.static_type = class_type
+        return r_type
 
     @visitor.when(ast.Let)
     def visit(self, node: ast.Let, scope: Scope, errors):
         new_scope = Scope(scope.classname, scope)
         for decl in node.declarations:
-            try:
-                self.visit(decl, new_scope, errors)
-            except Exception as e:
-                raise e
-        return self.visit(node.body, new_scope, errors)
+            self.visit(decl, new_scope, errors)
+        b_type = self.visit(node.body, new_scope, errors)
+        node.static_type = b_type
+        return b_type
 
     @visitor.when(ast.Formal)
     def visit(self, node: ast.Formal, scope: Scope, errors):
