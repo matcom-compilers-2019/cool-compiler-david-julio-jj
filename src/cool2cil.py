@@ -8,6 +8,19 @@ class vTable:
     """
     pass
 
+class Unique_name_generator:
+    def __init__(self):
+        self.name_keys = {}
+
+    def generate(self, var: str):
+        value = 1
+        try:
+            value = self.name_keys[var]
+            self.name_keys[var] += 1
+        except expression as identifier:
+            self.name_keys[var] = 1
+        return f'{var}@{str(value)}'
+
 class cool2cil:
 
     def __init__(self):
@@ -15,6 +28,7 @@ class cool2cil:
         self.data = []
         self.code = []
         self.vtable = vTable()
+        self.name_generator = Unique_name_generator()
 
     @visitor.on('node')
     def visit(self, node):
