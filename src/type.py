@@ -4,7 +4,7 @@ SelfType = "SELF_TYPE"
 
 
 class ctype:
-    def __init__(self, name, parent=None, attributes=[], methods=[]):
+    def __init__(self, name, parent=None, attributes=None, methods=None):
         """
         The Contructor for Cool Types
         Parameters:
@@ -23,7 +23,11 @@ class ctype:
         """
         self.name = name
         self.parent = parent
+        if attributes is None:
+            attributes = []
         self.attributes = attributes
+        if methods is None:
+            methods = []
         self.methods = methods
 
     def add_attrib(self, *att):

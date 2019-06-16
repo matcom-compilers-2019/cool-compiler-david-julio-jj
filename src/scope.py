@@ -17,6 +17,8 @@ class Scope:
         self.parentScope = parentScope
         self.classname = classname
         global ctypes
+        if not parentScope:
+            ctypes = {i.name: i for i in tp.BasicType.basicTypes}
         self.var = {}
         self.att = {}
 
@@ -75,3 +77,7 @@ class Scope:
     def get_types(self):
         global ctypes
         return ctypes
+
+    def set_types(self, new_types):
+        global ctypes
+        ctypes = new_types

@@ -30,6 +30,36 @@ class CheckSemanticError(BaseException):
 
 class CheckSemantic:
 
+    def sort_type(self, type_list: dict):
+        type_list = list(type_list.values())
+        type_map = {}
+        bit_mask = [False] * len(type_list)
+        for i in range(len(type_list)):
+            ctype = type_list[i]
+            type_map[ctype.name] = i
+
+        bit_mask[type_map['Object']] = True
+        sorted = {}
+        self_type = type_list[type_map['SELF_TYPE']]
+        sorted[self_type.name] = self_type
+        object_type = type_list[type_map['Object']]
+        sorted[object_type.name] = object_type
+        for i in range(len(type_list)):
+            ctype = type_list[i]
+            if ctype.name == 'Object' or ctype.name == 'SELF_TYPE':
+                continue
+            if not bit_mask[i]:
+                self.sort_type_(ctype, type_list, type_map, bit_mask, sorted)
+        return sorted
+
+    def sort_type_(self, ctype, type_list, type_map, mask, sort_list):
+        mask[type_map[ctype.name]] = True
+        parent = ctype.parent
+        iparent = type_map[parent.name]
+        if not mask[iparent]:
+            self.sort_type_(parent, type_list, type_map, mask, sort_list)
+        sort_list[ctype.name] = ctype
+
     def check_ciclic_inheritance(self, type_list: dict):
         type_list = list(type_list.values())
         type_map = {}
@@ -52,28 +82,46 @@ class CheckSemantic:
             return
         self.check_ciclic_inheritance_(ctype.parent, type_map, mask)
 
+    def get_node_by_type(self, t, classes):
+        for i in classes:
+            if t == i.name:
+                return i
+
     @visitor.on('node')
     def visit(self, node, scope):
         pass
 
     @visitor.when(ast.Program)
     def visit(self, node: ast.Program, _):
-        scope = Scope(None, None)
+        scope_root = Scope(None, None)
         for classDef in node.classes:
             new_type = ctype(classDef.name)
-            scope.createType(new_type)
+            scope_root.createType(new_type)
         for classDef in node.classes:
-            a = scope.getType(classDef.name)
-            a.parent = scope.getType(classDef.parent)
-        self.check_ciclic_inheritance(scope.get_types())
-        for i in node.classes:
-            self.visit(i, Scope(i.name, scope))
-
+            a = scope_root.getType(classDef.name)
+            a.parent = scope_root.getType(classDef.parent)
+        new_types = self.sort_type(scope_root.get_types())
+        node.classes = list(map(lambda x: self.get_node_by_type(x, node.classes), list(new_types.keys())[6:]))
+        scope_root.set_types(new_types)
+        self.check_ciclic_inheritance(scope_root.get_types())
+        scopes = []
         for j in node.classes:
+            scope = Scope(j.name, scope_root)
             methods = filter(lambda x: type(x) is ast.ClassMethod, j.features)
             methods = list(methods)
             attribs = filter(lambda x: type(x) is ast.ClassAttribute, j.features)
             attribs = list(attribs)
+            p_type = scope.getType(j.parent)
+            for i in p_type.attributes:
+                try:
+                    scope.getType(j.name).add_attrib(i)
+                except Exception as e:
+                    raise e
+                try:
+                    scope.defineAttrib(list(i.keys())[0], list(i.values())[0])
+                except Exception as e:
+                    raise e
+
             for i in attribs:
                 try:
                     scope.getType(j.name).add_attrib({i.name: scope.getType(i.attr_type)})
@@ -94,12 +142,12 @@ class CheckSemantic:
                     }})
                 except Exception as e:
                     raise e
-
-        for i in node.classes:
-            self.visit(i, Scope(i.name, scope), errors)
+            scopes.append(scope)
+        for i in range(len(node.classes)):
+            self.visit(node.classes[i], scopes[i])
 
     @visitor.when(ast.Class)
-    def visit(self, node: ast.Class, scope: Scope, errors):
+    def visit(self, node: ast.Class, scope: Scope):
         for i in node.features:
             self.visit(i, Scope(scope.classname, scope))
 
@@ -110,9 +158,9 @@ class CheckSemantic:
             t_exp = self.visit(node.init_expr, scope)
             if node.attr_type != 'SELF_TYPE':
                 if t_exp.name == 'SELF_TYPE':
-                    raise CheckSemanticError(f'You can\t not assign a SELF_TYPE expression in a non SELF_TYPE'
+                    raise CheckSemanticError(f'You can\'t not assign a SELF_TYPE expression in a non SELF_TYPE'
                                              f'attribute')
-                if not scope.getType(node.attr_type) < t_exp:
+                if not t_exp < scope.getType(node.attr_type):
                     raise CheckSemanticError(f'{str(t_exp)} doesn\'t conform {str(scope.getType(node.attr_type))}')
             else:
                 if t_exp.name == 'SELF_TYPE':
@@ -125,11 +173,15 @@ class CheckSemantic:
         for i in node.formal_params:
             scope.defineSymbol(i.name, scope.getType(i.param_type))
         tb = self.visit(node.body, scope)
-        if node.return_type == 'SELF_TYPE' or tb.name == 'SELF_TYPE':
-            if tb.name == 'SELF_TYPE' and node.return_type == 'SELF_TYPE':
-                return scope.classname
+        if tb.name == 'SELF_TYPE' and node.return_type == 'SELF_TYPE':
+            return scope.classname
+        elif tb.name == 'SELF_TYPE':
+            if scope.getType(scope.classname) < node.static_type:
+                return node.static_type
             else:
-                raise CheckSemanticError(f'Method {node.name} returns SELF_TYPE and body doesn\'t')
+                raise CheckSemanticError(f'{scope.getType(scope.classname)} doesn\'t conform {node.static_type}')
+        elif node.return_type == 'SELF_TYPE':
+            raise CheckSemanticError(f'Method {node.name} returns SELF_TYPE and body doesn\'t')
         if not tb < scope.getType(node.return_type):
             raise CheckSemanticError(f'{tb} doesn\'t conform {node.return_type}')
         return scope.getType(node.return_type)
@@ -167,7 +219,7 @@ class CheckSemantic:
     @visitor.when(ast.IsVoid)
     def visit(self, node: ast.IsVoid, scope: Scope):
         node.static_type = scope.getType('Bool')
-        self.visit(node.expr)
+        self.visit(node.expr, scope)
         return scope.getType("Bool")
 
     @visitor.when(ast.Assignment)
@@ -216,7 +268,7 @@ class CheckSemantic:
         if r_type.name == 'SELF_TYPE':
             node.static_type = instance_type
             return instance_type
-        node.static_type = instance_type
+        node.static_type = r_type
         return r_type
 
     @visitor.when(ast.StaticDispatch)
@@ -238,8 +290,11 @@ class CheckSemantic:
                 raise CheckSemanticError(f'{str(t)} doesn\'t conform {str(args_type[i])}')
         method = class_type.get_method(node.method)
         r_type = method[node.method]['return_type']
-        node.static_type = class_type        
-        return class_type
+        if r_type.name == 'SELF_TYPE':
+            node.static_type = class_type
+            return class_type
+        node.static_type = r_type
+        return r_type
 
     @visitor.when(ast.Let)
     def visit(self, node: ast.Let, scope: Scope):
@@ -386,8 +441,12 @@ class CheckSemantic:
     def visit(self, node: ast.Equal, scope: Scope):
         left_type = self.visit(node.first, scope)
         right_type = self.visit(node.second, scope)
+        if left_type.name == 'SELF_TYPE':
+            left_type = scope.getType(scope.classname)
+        if right_type.name == 'SELF_TYPE':
+            right_type = scope.getType(scope.classname)
         if not left_type.name == right_type.name:
-            raise CheckSemanticError(f'expressions type must be the same type')
+            raise CheckSemanticError(f'In equal expressions type must be the same type')
         bool_type = scope.getType('Bool')
         return bool_type
 
