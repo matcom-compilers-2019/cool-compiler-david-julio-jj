@@ -66,7 +66,7 @@ class CoolLexer(object):
             # Literals
             "LPAREN", "RPAREN", "LBRACE", "RBRACE", "COLON", "COMMA", "DOT", "SEMICOLON", "AT",
             # Operators
-            "PLUS", "MINUS", "MULTIPLY", "DIVIDE", "EQ", "LT", "LTEQ", "ASSIGN", "INT_COMP", "NOT",
+            "PLUS", "MINUS", "MULTIPLY", "DIVIDE", "EQ", "LT", "LTEQ", "ASSIGN", "INT_COMP",
             # Special Operators
             "ARROW"
         )
@@ -91,6 +91,7 @@ class CoolLexer(object):
             "loop": "LOOP",
             "new": "NEW",
             "of": "OF",
+            "not": "NOT",
             "pool": "POOL",
             "self": "SELF",
             "then": "THEN",
@@ -140,7 +141,6 @@ class CoolLexer(object):
     t_EQ = r'\='            # =
     t_LTEQ = r'\<\='        # <=
     t_ASSIGN = r'\<\-'      # <-
-    t_NOT = r'not'          # not
     t_ARROW = r'\=\>'       # =>
 
     @TOKEN(r"(true|false)")

@@ -15,8 +15,8 @@
 # ------------------------------------------------------------------------------------------------------
 
 import ply.yacc as yacc
-import src.ast as AST
-from src.lexer import make_lexer
+import ast as AST
+from lexer import make_lexer
 
 
 class CoolParser(object):
@@ -29,7 +29,7 @@ class CoolParser(object):
                  write_tables=True,
                  optimize=True,
                  outputdir="",
-                 yacctab="pycoolc.yacctab",
+                 yacctab="yacctab",
                  debuglog=None,
                  errorlog=None):
 
@@ -429,7 +429,7 @@ class CoolParser(object):
             debuglog = kwargs.get("debuglog", self._debuglog)
             errorlog = kwargs.get("errorlog", self._errorlog)
 
-        # Build PyCoolLexer
+        # Build CoolCompiler Lexer
         self.lexer = make_lexer(debug=debug, optimize=optimize, outputdir=outputdir, debuglog=debuglog,
                                 errorlog=errorlog)
 
@@ -480,7 +480,7 @@ if __name__ == '__main__':
         parse_result = parser.parse(cool_program_code)
         print(parse_result)
     else:
-        print("PyCOOLC Parser: Interactive Mode.\r\n")
+        print("CoolCompiler Parser: Interactive Mode.\r\n")
         while True:
             try:
                 s = input('COOL >>> ')
