@@ -55,8 +55,15 @@ class ctype:
         """
         for i in methods:
             self.methods.append(i)
-    
-    def get_method(self, method_name:str):
+
+    def delete(self, method_name):
+        t = []
+        for i in range(len(self.methods)):
+            if method_name not in self.methods[i]:
+                t.append(self.methods[i])
+        self.methods = t
+
+    def get_method(self, method_name: str):
         """
         get method from a type
         Parameters:
@@ -75,7 +82,7 @@ class ctype:
         for i in self.methods:
             if method_name in i:
                 return i
-        return None if not self.parent else self.parent.get_method(method_name) 
+        return None if not self.parent else self.parent.get_method(method_name)
 
     def is_method(self, method_name: str):
         """verify method in a type
@@ -89,9 +96,9 @@ class ctype:
         for i in self.methods:
             if method_name in i:
                 return True
-        return False if not self.parent else self.parent.is_method(method_name)         
+        return False if not self.parent else self.parent.is_method(method_name)
 
-    def get_method_args(self, method_name:str):
+    def get_method_args(self, method_name: str):
         """get params from a method
         
         Arguments:
@@ -126,11 +133,11 @@ class BasicType:
     String = ctype("String", Object, [], [])
     SelfType = ctype("SELF_TYPE", None, [], [])
     IO = ctype("IO", Object, [], [
-        {'out_string': {'formal_params': {'x_1': String}, 'return_type': SelfType, 'body': None}}, 
+        {'out_string': {'formal_params': {'x_1': String}, 'return_type': SelfType, 'body': None}},
         {'out_int': {'formal_params': {'x_1': Int}, 'return_type': SelfType, 'body': None}},
         {'in_string': {'formal_params': {}, 'return_type': String, 'body': None}},
         {'in_int': {'formal_params': {}, 'return_type': Int, 'body': None}}
-        ])
+    ])
     Object.add_method(
         {'abort': {'formal_params': {}, 'return_type': Object, 'body': None}},
         {'type_name': {'formal_params': {}, 'return_type': String, 'body': None}},

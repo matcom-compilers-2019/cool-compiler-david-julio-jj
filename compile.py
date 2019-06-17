@@ -2,6 +2,7 @@ import src.parser as parser
 import src.semantic_analizaer as check_semantic
 from sys import argv
 import subprocess
+import src.cool2cil as cil
 
 if __name__ == '__main__':
     files = subprocess.Popen(['ls', 'examples/'], stdout=subprocess.PIPE).communicate()[0]
@@ -19,8 +20,10 @@ if __name__ == '__main__':
         parser_object = parser.make_parser()
         ast = parser_object.parse(inp)
         semantic_object = check_semantic.CheckSemantic()
-        try:
-            semantic_object.visit(ast, None)
-            print(f'{i} ok')
-        except BaseException as e:
-            print(f'{i} {e}')
+        cil_object = cil.Cool2cil()
+        # try:
+        scope_root = semantic_object.visit(ast, None)
+        cil_object.visit(ast, scope_root)
+        print(f'{i} ok')
+        # except BaseException as e:
+        #     print(f'{i} {e}')
