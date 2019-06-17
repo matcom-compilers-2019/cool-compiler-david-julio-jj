@@ -39,6 +39,9 @@ class CILJump(CILNode):
     def __init__(self, label: str):
         self.label = label
 
+class CILBlock(CILNode):
+    def __init__(self, label: str):
+        pass
 
 class CILPush(CILNode):
     def __init__(self):

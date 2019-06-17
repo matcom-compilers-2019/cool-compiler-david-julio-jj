@@ -10,9 +10,9 @@
 <classes> 	 			::= <classes><class>; 
 			 			|   <class>;
 			 			
-<class> 	 			::= class TYPE <inherits> { <features_list_opt> };
+<class> 	 			::= class TYPE <inherits> { <features_list_opt> }
 
-<inhertits>  			::= inherits sTYPE
+<inhertits>  			::= inherits TYPE
 			 			|   <empty>
 
 <features_list_opt>     ::= <features_list>

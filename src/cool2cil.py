@@ -182,7 +182,7 @@ class Cool2cil:
             assignment_node = cil_node.CILGetAttr(node.instance, expr)
         else :
             assignment_node = cil_node.CILAssignment(real_name, expr)
-        return ([expr[0]], [expr[1], assignment_node])
+        return [expr[0]], [expr[1], assignment_node]
 
     @visitor.when(ast.Block)
     def visit(self, node: ast.Block, scope: CILScope):
@@ -230,7 +230,7 @@ class Cool2cil:
             tmp = self.visit(item, new_scope)
             var += tmp[0]
             codes += tmp[1]
-        codes.append(cil_node.CILLET(len(node.declarations)))
+        codes.append(cil_node.CILLet(len(node.declarations)))
         tmp = self.visit(node.body, new_scope)
         var += tmp[0]
         codes += tmp[1]
@@ -245,7 +245,7 @@ class Cool2cil:
 
     @visitor.when(ast.Addition)
     def visit(self, node: ast.Addition):
-        self.code.append(cil_node.Pop())
+        self.code.append(cil_node.CILPop())
         self.visit(node.first)
         self.visit(node.second)
 
