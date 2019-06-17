@@ -4,14 +4,23 @@ class CILNode:
     pass
 
 
-class DotTypes(CILNode):
-    def __init__(self):
-        self.types = []
-
-
 class DotData(CILNode):
     def __init__(self):
         self.strings = []
+
+class DotType(CILNode):
+    def __init__(self, cType, attributes, methods):
+        self.cType = cType
+        self.attributes = attributes
+        self.methods = methods
+
+    def __str__(self):
+        r = f'type {self.cType} {"{"}\n'
+        for i in self.attributes:
+            r += f'\tattribute {i}\n'
+        for i in self.methods:
+            r += f'\tmethod {i.split(".")[1]} : {i}\n'
+        return r
 
 
 class DotCode(CILNode):
@@ -44,6 +53,7 @@ class CILReadS(CILNode):
         self.offset = offset
         self.register = register
 
+
 class CILMethod(CILNode):
     def __init__(self, name: str, classname: str, params, locals, body):
         self.name = f'.{classname}.{name}'
@@ -64,9 +74,6 @@ class CILGetAttr(CILExpression):
         self.attr_name = attr_name
         self.expr = expr
 
-class CILBlock(CILExpression):
-    def __init__(self, c_exprs):
-        self.c_exprs = c_exprs
 
 class CILDynamicDispatch(CILExpression):
     def __init__(self, c_args: int, method_name: str):

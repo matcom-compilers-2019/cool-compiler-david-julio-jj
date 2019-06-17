@@ -145,6 +145,7 @@ class CheckSemantic:
             scopes.append(scope)
         for i in range(len(node.classes)):
             self.visit(node.classes[i], scopes[i])
+        return scope_root
 
     @visitor.when(ast.Class)
     def visit(self, node: ast.Class, scope: Scope):
