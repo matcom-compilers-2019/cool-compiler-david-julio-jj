@@ -38,13 +38,15 @@ class Unique_name_generator:
     def __init__(self):
         self.name_keys = {}
 
-    def generate(self, var: str):
+    def generate(self, var: str, just_int=False):
         value = 1
         if var in self.name_keys:
             value = self.name_keys[var]
             self.name_keys[var] += 1
         else:
             self.name_keys[var] = 1
+        if just_int:
+            return value
         return f'{var}@{str(value)}'
 
     def reset(self):
@@ -101,6 +103,7 @@ class cool2cil:
         self.code = []
         self.vtable = vTable()
         self.name_generator = Unique_name_generator()
+        self.keys_generator = Unique_name_generator()
 
     @visitor.on('node')
     def visit(self, node, scope):
@@ -182,7 +185,7 @@ class cool2cil:
             assignment_node = cil_node.CILGetAttr(node.instance, expr)
         else :
             assignment_node = cil_node.CILAssignment(real_name, expr)
-        return ([expr[0]], [expr[1], assignment_node])
+        return [expr[0]], [expr[1], assignment_node]
 
     @visitor.when(ast.Block)
     def visit(self, node: ast.Block, scope: CILScope):
@@ -240,13 +243,39 @@ class cool2cil:
     def visit(self, node: ast.Formal, scope: CILScope):
         new_name = self.name_generator.generate(node.name)
         scope.add_var(new_name)
-        tmp = self.visit(node.init_expr, scope)
-        return [new_name] + tmp[0], tmp[1] + cil_node.CILAssignment(new_name)
+        var = [new_name]
+        codes = []
+        if node.init_expr:
+            tmp = self.visit(node.init_expr, scope)
+            var += tmp[0]
+            codes += tmp[1]
+            codes.append(cil_node.CILAssignment(new_name))
+        elif node.param_type == 'Int':
+            codes.append(cil_node.CILFormal(new_name, True))
+        elif node.param_type == 'Bool':
+            codes.append(cil_node.CILFormal(new_name, False, True))
+        return var, codes
 
-    @visitor.when(ast.Addition)
-    def visit(self, node: ast.Addition):
-        self.code.append(cil_node.Pop())
-        self.visit(node.first)
-        self.visit(node.second)
+    @visitor.when(ast.If)
+    def visit(self, node: ast.If, scope: CILScope):
+        predicate_visit = self.visit(node.predicate, scope)
+        if_visit = self.visit(node.then_body, scope)
+        else_visit = self.visit(node.else_body, scope)
+        int_key = self.keys_generator.generate('if', True)
+        return predicate_visit[0] + if_visit[0] + else_visit[0],\
+            [cil_node.CILIf(predicate_visit[1],if_visit[1],else_visit[1], int_key)]
 
+    @visitor.when(ast.WhileLoop)
+    def visit(self, node: ast.WhileLoop, scope: CILScope):
+        predicate_visit = self.visit(node.predicate, scope)
+        body_visit = self.visit(node.body, scope)
+        int_key = self.keys_generator.generate('while', True)
+        return predicate_visit[0] + body_visit[0],\
+            [cil_node.CILWhile(predicate_visit[1],body_visit[1], int_key)]
 
+    @visitor.when(ast.Object)
+    def visit(self, node: ast.Object, scope: CILScope):
+        real_name = scope.get_real_name(node.name)
+        if real_name == '':
+            return [], [cil_node.CILGetAttr(node.name)]
+        return [], [cil_node.CILGetLocal(real_name)]
