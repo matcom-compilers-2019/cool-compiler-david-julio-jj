@@ -51,7 +51,7 @@ class Unique_name_generator:
         self.name_keys = {}
 
 
-class cool2cil:
+class Cool2cil:
 
     def sort_type(self, type_list: dict):
         type_list = list(type_list.values())
