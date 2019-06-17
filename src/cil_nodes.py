@@ -113,11 +113,13 @@ class CILLET(CILExpression):
     def __init__(self, c_args):
         self.c_args = c_args
 
+
 class CILFormal(CILExpression):
     def __init__(self, dest: str, default_int=False,default_bool=False):
         self.default_int = default_int
         self.default_bool = default_bool
         self.dest = dest
+
 
 class CILIf(CILExpression):
     def __init__(self, predicate, then_body, else_body, key):
@@ -126,6 +128,8 @@ class CILIf(CILExpression):
         self.else_body = else_body
         self.if_tag = f'.if.start.{key}'
         self.end_tag = f'.if.end.{key}'
+
+
 class CILWhile(CILExpression):
     def __init__(self, predicate, body, key):
         self.predicate = predicate
@@ -133,17 +137,21 @@ class CILWhile(CILExpression):
         self.while_tag = f'.while.start.{key}'
         self.end_tag = f'.if.end.{key}'
 
+
 class CILObject(CILExpression):
     def __init__(self, name):
         self.name = name
 
-class CILSetAttr(CILExpression):
+
+class CILGetAttr(CILExpression):
     def __init__(self, attr_name):
         self.name = attr_name
+
 
 class CILGetLocal(CILExpression):
     def __init__(self, local_name):
         self.name = local_name
+
 
 class StackToRegister(CILExpression):
     def __init__(self, register_name):
@@ -192,3 +200,18 @@ class CILNArith(CILExpression):
 class CILNBool(CILExpression):
     def __init__(self, fst):
         self.fst = fst
+
+
+class CILBlock(CILExpression):
+    def __init__(self, size):
+        self.size = size
+
+
+class CILDecInt(CILExpression):
+    def __init__(self):
+        pass
+
+
+class CILIsVoid(CILExpression):
+    def __init__(self, exp):
+        self.exp = exp
