@@ -64,16 +64,18 @@ class CILGetAttr(CILExpression):
         self.attr_name = attr_name
         self.expr = expr
 
-class Bclo
+class CILBlock(CILExpression):
+    def __init__(self, c_exprs):
+        self.c_exprs = c_exprs
 
 class CILDynamicDispatch(CILExpression):
-    def __init__(self, cargs: int, method_name: str):
-        self.cargs =  cargs
+    def __init__(self, c_args: int, method_name: str):
+        self.c_args =  c_args
         self.method = method_name
 
 class CILStaticDispatch(CILExpression):
-    def __init__(self, cargs: int, classname: str, method_name: str):
-        self.cargs = cargs
+    def __init__(self, c_args: int, classname: str, method_name: str):
+        self.c_args = c_args
         self.method = f'.{classname}.{method_name}'
 
 class StackToRegister(CILExpression):
