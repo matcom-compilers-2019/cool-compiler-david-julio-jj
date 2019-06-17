@@ -18,7 +18,7 @@ class Scope:
         self.classname = classname
         global ctypes
         if not parentScope:
-            ctypes = {i.name: i for i in tp.BasicType.basicTypes}
+            ctypes = {i.name: i for i in tp.BasicType().reset()}
         self.var = {}
         self.att = {}
 

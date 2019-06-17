@@ -310,7 +310,7 @@ class CheckSemantic:
     def visit(self, node: ast.Formal, scope: Scope):
         scope.defineSymbol(node.name, scope.getType(node.param_type), True)
         t = self.visit(node.init_expr, scope)
-        node.static_type = node.static_type
+        node.static_type = node.param_type
         if not t:
             return
         if node.param_type == 'SELF_TYPE' and t.name == 'SELF_TYPE':
