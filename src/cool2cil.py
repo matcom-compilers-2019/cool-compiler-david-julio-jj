@@ -221,16 +221,27 @@ class cool2cil:
         codes.append(cil_node.CILStaticDispatch(len(node.arguments), scope.classname, node.method))
         return var, codes
 
-    # @visitor.when(ast.Let)
-    # def visit(self, node: ast.Let, scope: CILScope):
-    #     new_scope = CILScope(scope.classname, scope)
-    #     var = []
-    #     codes = []
-    #     for item in node.declarations:
-    #         tmp = self.visit(item, new_scope)
-    #         var += tmp[0]
-    #         codes += tmp[1]
-        
+    @visitor.when(ast.Let)
+    def visit(self, node: ast.Let, scope: CILScope):
+        new_scope = CILScope(scope.classname, scope)
+        var = []
+        codes = []
+        for item in node.declarations:
+            tmp = self.visit(item, new_scope)
+            var += tmp[0]
+            codes += tmp[1]
+        codes.append(cil_node.CILLET(len(node.declarations)))
+        tmp = self.visit(node.body, new_scope)
+        var += tmp[0]
+        codes += tmp[1]
+        return var, codes
+
+    @visitor.when(ast.Formal)
+    def visit(self, node: ast.Formal, scope: CILScope):
+        new_name = self.name_generator.generate(node.name)
+        scope.add_var(new_name)
+        tmp = self.visit(node.init_expr, scope)
+        return [new_name] + tmp[0], tmp[1] + cil_node.CILAssignment(new_name)
 
     @visitor.when(ast.Addition)
     def visit(self, node: ast.Addition):
