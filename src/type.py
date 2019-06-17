@@ -30,6 +30,15 @@ class ctype:
             methods = []
         self.methods = methods
 
+    def fix_methods(self):
+        r = []
+        for i in self.methods:
+            t = i
+            for j in i:
+                r.append({f'{self.name}.{j}': i[j]})
+        self.methods = r
+
+
     def add_attrib(self, *att):
         """
         Add attributes to Cool type
@@ -127,6 +136,32 @@ class ctype:
 
 
 class BasicType:
+
+    def reset(self):
+        Object = ctype("Object", None, [], [])
+        Int = ctype("Int", Object, [], [])
+        Bool = ctype("Bool", Object, [], [])
+        String = ctype("String", Object, [], [])
+        SelfType = ctype("SELF_TYPE", None, [], [])
+        IO = ctype("IO", Object, [], [
+            {'out_string': {'formal_params': {'x_1': String}, 'return_type': SelfType, 'body': None}},
+            {'out_int': {'formal_params': {'x_1': Int}, 'return_type': SelfType, 'body': None}},
+            {'in_string': {'formal_params': {}, 'return_type': String, 'body': None}},
+            {'in_int': {'formal_params': {}, 'return_type': Int, 'body': None}}
+        ])
+        Object.add_method(
+            {'abort': {'formal_params': {}, 'return_type': Object, 'body': None}},
+            {'type_name': {'formal_params': {}, 'return_type': String, 'body': None}},
+            {'copy': {'formal_params': {}, 'retunr_type': SelfType, 'body': None}}
+        )
+        String.add_method(
+            {'length': {'formal_params': {}, 'return_type': Int, 'body': None}},
+            {'concat': {'formal_params': {'x_1': String}, 'return_type': String, 'body': None}},
+            {'substr': {'formal_params': {'x_1': Int, 'x_2': Int}, 'return_type': String, 'body': None}}
+        )
+        basicTypes = [Object, Int, Bool, String, SelfType, IO]
+        return basicTypes
+
     Object = ctype("Object", None, [], [])
     Int = ctype("Int", Object, [], [])
     Bool = ctype("Bool", Object, [], [])
