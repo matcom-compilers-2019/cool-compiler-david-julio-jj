@@ -37,7 +37,11 @@ class Pop(CiLNode):
         pass
 
 
-class ReadS(CiLNode):
-    def ___init__(self, offset: int, register: str):
-        self.offset = offset
-        self.register = register
+class CILProgram(CiLNode):
+    def __init__(self):
+        pass
+
+
+class CILType(CiLNode):
+    def __init__(self):
+        pass

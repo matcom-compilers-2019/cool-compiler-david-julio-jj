@@ -6,7 +6,7 @@ class Main inherits IO {
 	then true
 	else if s.substr(0, 1) = s.substr(s.length() - 1, 1)
 	then pal(s.substr(1, s.length() -2))
-	else false
+	else! false
 	fi fi fi
     };
 
