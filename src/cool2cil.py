@@ -54,7 +54,6 @@ class Unique_name_generator:
 
 
 class Cool2cil:
-
     def calc_static(self):
         r = 0
         for i in self.data:
@@ -330,7 +329,7 @@ class Cool2cil:
             tmp = self.visit(item, new_scope)
             var += tmp[0]
             codes += tmp[1]
-        codes.append(cil_node.CILLET(len(node.declarations)))
+        codes.append(cil_node.CILLet(len(node.declarations)))
         tmp = self.visit(node.body, new_scope)
         var += tmp[0]
         codes += tmp[1]

@@ -23,6 +23,7 @@ class CoolLexer(object):
     """
     CoolLexer class.
     """
+
     def __init__(self,
                  build_lexer=True,
                  debug=False,
@@ -32,10 +33,10 @@ class CoolLexer(object):
                  debuglog=None,
                  errorlog=None):
 
-        self.lexer = None               # ply lexer instance
-        self.tokens = ()                # ply tokens collection
-        self.reserved = {}              # ply reserved keywords map
-        self.last_token = None          # last returned token
+        self.lexer = None  # ply lexer instance
+        self.tokens = ()  # ply tokens collection
+        self.reserved = {}  # ply reserved keywords map
+        self.last_token = None  # last returned token
 
         # Save Flags - PRIVATE PROPERTIES
         self._debug = debug
@@ -123,25 +124,25 @@ class CoolLexer(object):
 
     ###
     # SIMPLE TOKENS
-    t_LPAREN = r'\('        # (
-    t_RPAREN = r'\)'        # )
-    t_LBRACE = r'\{'        # {
-    t_RBRACE = r'\}'        # }
-    t_COLON = r'\:'         # :
-    t_COMMA = r'\,'         # ,
-    t_DOT = r'\.'           # .
-    t_SEMICOLON = r'\;'     # ;
-    t_AT = r'\@'            # @
-    t_MULTIPLY = r'\*'      # *
-    t_DIVIDE = r'\/'        # /
-    t_PLUS = r'\+'          # +
-    t_MINUS = r'\-'         # -
-    t_INT_COMP = r'~'       # ~
-    t_LT = r'\<'            # <
-    t_EQ = r'\='            # =
-    t_LTEQ = r'\<\='        # <=
-    t_ASSIGN = r'\<\-'      # <-
-    t_ARROW = r'\=\>'       # =>
+    t_LPAREN = r'\('  # (
+    t_RPAREN = r'\)'  # )
+    t_LBRACE = r'\{'  # {
+    t_RBRACE = r'\}'  # }
+    t_COLON = r'\:'  # :
+    t_COMMA = r'\,'  # ,
+    t_DOT = r'\.'  # .
+    t_SEMICOLON = r'\;'  # ;
+    t_AT = r'\@'  # @
+    t_MULTIPLY = r'\*'  # *
+    t_DIVIDE = r'\/'  # /
+    t_PLUS = r'\+'  # +
+    t_MINUS = r'\-'  # -
+    t_INT_COMP = r'~'  # ~
+    t_LT = r'\<'  # <
+    t_EQ = r'\='  # =
+    t_LTEQ = r'\<\='  # <=
+    t_ASSIGN = r'\<\-'  # <-
+    t_ARROW = r'\=\>'  # =>
 
     @TOKEN(r"(true|false)")
     def t_BOOLEAN(self, t):
@@ -336,6 +337,7 @@ class CoolLexer(object):
     def next(self):
         return self.__next__()
 
+
 def make_lexer(**kwargs) -> CoolLexer:
     """
     Utility function.
@@ -365,5 +367,3 @@ if __name__ == "__main__":
     lexer.input(cool_program_code)
     for token in lexer:
         print(token)
-
-

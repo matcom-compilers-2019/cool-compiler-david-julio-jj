@@ -6,6 +6,7 @@ class DotData(CILNode):
     def __init__(self):
         self.strings = []
 
+
 class DotType(CILNode):
     def __init__(self, cType, attributes, methods):
         self.cType = cType
@@ -96,6 +97,11 @@ class CILStaticDispatch(CILExpression):
         self.method = f'.{classname}.{method_name}'
 
 
+class CILLet(CILExpression):
+    def __init__(self, c_args):
+        self.c_args = c_args
+
+
 class CILNew(CILExpression):
     def __init__(self, attributes, ctype):
         self.attributes = attributes
@@ -109,13 +115,8 @@ class CILAttribute(CILExpression):
         self.exp_code = exp_code
 
 
-class CILLET(CILExpression):
-    def __init__(self, c_args):
-        self.c_args = c_args
-
-
 class CILFormal(CILExpression):
-    def __init__(self, dest: str, default_int=False,default_bool=False):
+    def __init__(self, dest: str, default_int=False, default_bool=False):
         self.default_int = default_int
         self.default_bool = default_bool
         self.dest = dest
@@ -151,16 +152,6 @@ class CILGetAttr(CILExpression):
 class CILGetLocal(CILExpression):
     def __init__(self, local_name):
         self.name = local_name
-
-
-class StackToRegister(CILExpression):
-    def __init__(self, register_name):
-        self.register = register_name
-
-
-class RegisterToStack(CILExpression):
-    def __init__(self, register_name):
-        self.register = register_name
 
 
 class CILInteger(CILExpression):
@@ -200,18 +191,3 @@ class CILNArith(CILExpression):
 class CILNBool(CILExpression):
     def __init__(self, fst):
         self.fst = fst
-
-
-class CILBlock(CILExpression):
-    def __init__(self, size):
-        self.size = size
-
-
-class CILDecInt(CILExpression):
-    def __init__(self):
-        pass
-
-
-class CILIsVoid(CILExpression):
-    def __init__(self, exp):
-        self.exp = exp
