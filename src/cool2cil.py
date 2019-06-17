@@ -40,10 +40,10 @@ class Unique_name_generator:
 
     def generate(self, var: str):
         value = 1
-        try:
+        if var in self.name_keys:
             value = self.name_keys[var]
             self.name_keys[var] += 1
-        except expression as identifier:
+        else:
             self.name_keys[var] = 1
         return f'{var}@{str(value)}'
 
@@ -191,8 +191,9 @@ class Cool2cil:
         for expr in node.expr_list:
             tmp = self.visit(expr, scope)
             var += tmp[0]
-            codes += tmp[1] + cil_node.CILPop()
-        return var, codes[:-1]
+            codes += tmp[1]
+        codes.append(cil_node.CILBlock(len(node.expr_list)))
+        return var, codes
 
     @visitor.when(ast.DynamicDispatch)
     def visit(self, node: ast.DynamicDispatch, scope: CILScope):
@@ -219,6 +220,28 @@ class Cool2cil:
         codes.append(tmp[1])
         codes.append(cil_node.CILStaticDispatch(len(node.arguments), scope.classname, node.method))
         return var, codes
+
+    @visitor.when(ast.Let)
+    def visit(self, node: ast.Let, scope: CILScope):
+        new_scope = CILScope(scope.classname, scope)
+        var = []
+        codes = []
+        for item in node.declarations:
+            tmp = self.visit(item, new_scope)
+            var += tmp[0]
+            codes += tmp[1]
+        codes.append(cil_node.CILLET(len(node.declarations)))
+        tmp = self.visit(node.body, new_scope)
+        var += tmp[0]
+        codes += tmp[1]
+        return var, codes
+
+    @visitor.when(ast.Formal)
+    def visit(self, node: ast.Formal, scope: CILScope):
+        new_name = self.name_generator.generate(node.name)
+        scope.add_var(new_name)
+        tmp = self.visit(node.init_expr, scope)
+        return [new_name] + tmp[0], tmp[1] + cil_node.CILAssignment(new_name)
 
     @visitor.when(ast.Addition)
     def visit(self, node: ast.Addition):

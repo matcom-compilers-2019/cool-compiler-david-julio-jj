@@ -79,27 +79,30 @@ class CILExpression(CILNode):
 
 
 class CILAssignment(CILExpression):
-    def __init__(self, dest: str, expr: CILExpression):
+    def __init__(self, dest: str):
         self.dest = dest
-        self.expr = expr
 
 
 class CILGetAttr(CILExpression):
-    def __init__(self, attr_name: str, expr: CILExpression):
+    def __init__(self, attr_name: str):
         self.attr_name = attr_name
-        self.expr = expr
 
 
 class CILDynamicDispatch(CILExpression):
-    def __init__(self, cargs: int, method_name: str):
-        self.cargs = cargs
+    def __init__(self, c_args: int, method_name: str):
+        self.c_args = c_args
         self.method = method_name
 
 
 class CILStaticDispatch(CILExpression):
-    def __init__(self, cargs: int, classname: str, method_name: str):
-        self.cargs = cargs
+    def __init__(self, c_args: int, classname: str, method_name: str):
+        self.c_args = c_args
         self.method = f'.{classname}.{method_name}'
+
+
+class CILLet(CILExpression):
+    def __init__(self, c_args):
+        self.c_args = c_args
 
 
 class StackToRegister(CILExpression):
