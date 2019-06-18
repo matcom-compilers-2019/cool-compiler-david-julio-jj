@@ -207,12 +207,19 @@ class CILIsVoid(CILExpression):
     def __init__(self, exp):
         self.exp = exp
 
+
 class CILCase(CILExpression):
     def __init__(self, instance, actions):
         self.instance = instance
         self.actions = actions
 
+
 class CILAction(CILExpression):
     def __init__(self, ctype, body):
         self.ctype = ctype
         self.body = body
+
+
+class CILDef(CILExpression):
+    def __init__(self):
+        pass

@@ -176,7 +176,7 @@ class Cool2cil:
 
         for i in node.classes:
             self.visit(i, None)
-            
+
     @visitor.when(ast.Class)
     def visit(self, node: ast.Class, scope: CILScope):
         attr = filter(lambda x: type(x) is ast.ClassAttribute, node.features)
@@ -406,3 +406,7 @@ class Cool2cil:
     def visit(self, node: ast.Action, scope):
         t = self.visit(node.body, scope)
         return t[0], [cil_node.CILAction(node.action_type, t[1])]
+
+    @visitor.when(ast.Self)
+    def visit(self, node: ast.Self, scope: CILScope):
+        return [], [cil_node.CILDef]
