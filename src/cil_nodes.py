@@ -191,3 +191,28 @@ class CILNArith(CILExpression):
 class CILNBool(CILExpression):
     def __init__(self, fst):
         self.fst = fst
+
+
+class CILBlock(CILExpression):
+    def __init__(self, size):
+        self.size = size
+
+
+class CILDecInt(CILExpression):
+    def __init__(self):
+        pass
+
+
+class CILIsVoid(CILExpression):
+    def __init__(self, exp):
+        self.exp = exp
+
+class CILCase(CILExpression):
+    def __init__(self, instance, actions):
+        self.instance = instance
+        self.actions = actions
+
+class CILAction(CILExpression):
+    def __init__(self, ctype, body):
+        self.ctype = ctype
+        self.body = body
