@@ -376,6 +376,6 @@ class Cool2cil:
             return [], [cil_node.CILGetAttr(node.name)]
         return [], [cil_node.CILGetLocal(real_name)]
 
-    @visitor.when(ast.IsVoid)
-    def visit(self, node: ast.IsVoid, scope):
-        t
+    @visitor.when(ast.Self)
+    def visit(self, node: ast.Self, scope: CILScope):
+        return [], [cil_node.CILDef]

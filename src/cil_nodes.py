@@ -191,3 +191,6 @@ class CILNArith(CILExpression):
 class CILNBool(CILExpression):
     def __init__(self, fst):
         self.fst = fst
+
+class CILDef(CILExpression):
+    pass
