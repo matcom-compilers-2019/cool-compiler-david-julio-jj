@@ -36,15 +36,9 @@ class CILJump(CILNode):
     def __init__(self, label: str):
         self.label = label
 
-class CILBlock(CILNode):
-    def __init__(self, label: str):
-        pass
-
-
 class CILProgram(CILNode):
     def __init__(self):
         pass
-
 
 class CILType(CILNode):
     def __init__(self):
@@ -74,7 +68,7 @@ class CILAssignment(CILExpression):
         self.dest = dest
 
 
-class CILGetAttr(CILExpression):
+class CILSetAttr(CILExpression):
     def __init__(self, attr_name: str):
         self.attr_name = attr_name
 
@@ -148,7 +142,7 @@ class CILObject(CILExpression):
         self.name = name
 
 
-class CILSetAttr(CILExpression):
+class CILGetAttr(CILExpression):
     def __init__(self, attr_name):
         self.name = attr_name
 
@@ -157,14 +151,6 @@ class CILGetLocal(CILExpression):
     def __init__(self, local_name):
         self.name = local_name
 
-# class StackToRegister(CILExpression):
-#     def __init__(self, register_name):
-#         self.register = register_name
-#
-#
-# class RegisterToStack(CILExpression):
-#     def __init__(self, register_name):
-#         self.register = register_name
 
 class CILInteger(CILExpression): # Listo
     def __init__(self, value):
@@ -181,25 +167,57 @@ class CILString(CILExpression):
         self.pos = pos
 
 
-class CILArithm(CILExpression):  # listo
+class CILArithm(CILExpression):
     def __init__(self, fst, snd, op):
         self.fst = fst
         self.snd = snd
         self.op = op
 
 
-class CILBoolOp(CILExpression):  # listo
+class CILBoolOp(CILExpression):
     def __init__(self, fst, snd, op):
         self.fst = fst
         self.snd = snd
         self.op = op
 
 
-class CILNArith(CILExpression):  # listo
+class CILNArith(CILExpression):
     def __init__(self, fst):
         self.fst = fst
 
 
-class CILNBool(CILExpression):  # listo
+class CILNBool(CILExpression):
     def __init__(self, fst):
         self.fst = fst
+
+
+class CILBlock(CILExpression):
+    def __init__(self, size):
+        self.size = size
+
+
+class CILDecInt(CILExpression):
+    def __init__(self):
+        pass
+
+
+class CILIsVoid(CILExpression):
+    def __init__(self, exp):
+        self.exp = exp
+
+
+class CILCase(CILExpression):
+    def __init__(self, instance, actions):
+        self.instance = instance
+        self.actions = actions
+
+
+class CILAction(CILExpression):
+    def __init__(self, ctype, body):
+        self.ctype = ctype
+        self.body = body
+
+
+class CILDef(CILExpression):
+    def __init__(self):
+        pass

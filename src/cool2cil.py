@@ -26,7 +26,7 @@ class CILScope:
         self.vars.append(var)
 
     def get_real_name(self, var_name: str):
-        for name in self.var:
+        for name in self.vars:
             if var_name in name:
                 return name
         if self.parentScope:
@@ -95,11 +95,17 @@ class Cool2cil:
             if t == i.name:
                 return i
 
-    def delete(self, method_name, tp):
+    def replace(self, method, tp):
         t = []
+        rep = False
         for i in range(len(tp.methods)):
-            if method_name != (list(tp.methods[i].keys())[0]).split('.')[1]:
+            if (list(method.keys())[0]).split('.')[1] != (list(tp.methods[i].keys())[0]).split('.')[1]:
                 t.append(tp.methods[i])
+            else:
+                rep = True
+                t.append(method)
+        if not rep:
+            t.append(method)
         tp.methods = t
 
     def __init__(self):
@@ -131,6 +137,11 @@ class Cool2cil:
         for i in list(new_types.keys())[1:6]:
             if i != 'Int' and i != 'Bool':
                 new_types[i].fix_methods()
+                tp = new_types[i].methods
+                if i != 'Object':
+                    new_types[i].methods = []
+                    new_types[i].add_method(*tuple(new_types['Object'].methods + tp))
+
         for j in node.classes:
             scope = Scope(j.name, scope_root)
             methods = filter(lambda x: type(x) is ast.ClassMethod, j.features)
@@ -138,19 +149,20 @@ class Cool2cil:
             attribs = filter(lambda x: type(x) is ast.ClassAttribute, j.features)
             attribs = list(attribs)
             p_type = scope.getType(j.parent)
+            scope.getType(j.name).add_method(*tuple(scope.getType('Object').methods))
             scope.getType(j.name).add_attrib(*tuple(p_type.attributes))
             scope.getType(j.name).add_method(*tuple(p_type.methods))
             for i in attribs:
                 scope.getType(j.name).add_attrib({i.name: scope.getType(i.attr_type)})
             for i in methods:
-                self.delete(i.name, scope.getType(j.name))
-                scope.getType(j.name).add_method({f'{j.name}.{i.name}': {
+                m = {f'{j.name}.{i.name}': {
                     'formal_params': {
                         t.name: scope.getType(t.param_type) for t in i.formal_params
                     },
                     'return_type': scope.getType(i.return_type),
                     'body': i.body
-                }})
+                }}
+                self.replace(m, scope.getType(j.name))
         for i in list(t.keys())[1:]:
             if i != 'Int' and i != 'Bool':
                 self.constructors[i] = []
@@ -162,23 +174,26 @@ class Cool2cil:
                     attrs.append(list(a.keys())[0])
                 self.dtpe.append(cil_node.DotType(t[i].name, attrs, meths))
 
+        for i in node.classes:
+            self.visit(i, None)
+
     @visitor.when(ast.Class)
     def visit(self, node: ast.Class, scope: CILScope):
         attr = filter(lambda x: type(x) is ast.ClassAttribute, node.features)
         attr = list(attr)
         for method in attr:
-            self.constructors[node.name].append(self.visit(method, Scope(node.name))[1])
+            self.constructors[node.name] += (self.visit(method, CILScope(node.name))[1])
         methods = filter(lambda x: type(x) is ast.ClassMethod, node.features)
         methods = list(methods)
         for method in methods:
-            self.visit(method, Scope(node.name))
+            self.visit(method, CILScope(node.name))
 
     @visitor.when(ast.ClassMethod)
     def visit(self, node: ast.ClassMethod, scope: CILScope):
         self.name_generator.reset()
         params = ['self']
         for p in node.formal_params:
-            redefinition = self.name_generator.generate(p)
+            redefinition = self.name_generator.generate(p.name)
             params.append(redefinition)
             scope.add_var(redefinition)
         var, exprs = self.visit(node.body, scope)
@@ -187,13 +202,13 @@ class Cool2cil:
 
     @visitor.when(ast.Assignment)
     def visit(self, node: ast.Assignment, scope: CILScope):
-        real_name = scope.get_real_name(node.instance)
+        real_name = scope.get_real_name(node.instance.name)
         expr = self.visit(node.expr, scope)
         if real_name == '':
-            assignment_node = cil_node.CILGetAttr(node.instance, expr)
+            assignment_node = cil_node.CILGetAttr(node.instance)
         else :
-            assignment_node = cil_node.CILAssignment(real_name, expr)
-        return [expr[0]], [expr[1], assignment_node]
+            assignment_node = cil_node.CILAssignment(real_name)
+        return expr[0], expr[1] + [assignment_node]
 
     @visitor.when(ast.Block)
     def visit(self, node: ast.Block, scope: CILScope):
@@ -241,11 +256,14 @@ class Cool2cil:
 
     @visitor.when(ast.NewObject)
     def visit(self, node: ast.NewObject, scope):
+        if node.type == 'Int' or node.type == 'Bool':
+            return [], [cil_node.CILDecInt()]
         c = self.constructors[node.static_type.name]
         t = [cil_node.CILAlocate(node.static_type)]
         for i in c:
             t += i.exp_code
             t.append(cil_node.CILInitAttr(i.attr_name))
+        return [], t
 
     @visitor.when(ast.Integer)
     def visit(self, node: ast.Integer, scope):
@@ -258,43 +276,59 @@ class Cool2cil:
     @visitor.when(ast.String)
     def visit(self, node: ast.String, scope):
         self.data.append(node.content)
-        return [], [cil_node.CILString(self.calc_static())]
+        return [], [cil_node.CILString(len(self.data)-1)]
 
     @visitor.when(ast.Addition)
     def visit(self, node: ast.Addition, scope):
-        return [], [cil_node.CILArithm(self.visit(node.first, scope), self.visit(node.second, scope), '+')]
+        fst = self.visit(node.first, scope)
+        snd = self.visit(node.second, scope)
+        return fst[0] + snd[0], [cil_node.CILArithm(fst[1], snd[1], '+')]
 
     @visitor.when(ast.Subtraction)
     def visit(self, node: ast.Subtraction, scope):
-        return [], [cil_node.CILArithm(self.visit(node.first, scope), self.visit(node.second, scope), '-')]
+        fst = self.visit(node.first, scope)
+        snd = self.visit(node.second, scope)
+        return fst[0] + snd[0], [cil_node.CILArithm(fst[1], snd[1], '-')]
 
     @visitor.when(ast.Multiplication)
     def visit(self, node: ast.Multiplication, scope):
-        return [], [cil_node.CILArithm(self.visit(node.first, scope), self.visit(node.second, scope), '*')]
+        fst = self.visit(node.first, scope)
+        snd = self.visit(node.second, scope)
+        return fst[0] + snd[0], [cil_node.CILArithm(fst[1], snd[1], '*')]
 
     @visitor.when(ast.Division)
     def visit(self, node: ast.Division, scope):
-        return [], [cil_node.CILArithm(self.visit(node.first, scope), self.visit(node.second, scope), '/')]
+        fst = self.visit(node.first, scope)
+        snd = self.visit(node.second, scope)
+        return fst[0] + snd[0], [cil_node.CILArithm(fst[1], snd[1], '/')]
 
     @visitor.when(ast.Equal)
     def visit(self, node: ast.Equal, scope):
-        return [], [cil_node.CILBoolOp(self.visit(node.first, scope), self.visit(node.second, scope), '=')]
+        fst = self.visit(node.first, scope)
+        snd = self.visit(node.second, scope)
+        return fst[0] + snd[0], [cil_node.CILArithm(fst[1], snd[1], '=')]
 
     @visitor.when(ast.LessThan)
     def visit(self, node: ast.LessThan, scope):
-        return [], [cil_node.CILBoolOp(self.visit(node.first, scope), self.visit(node.second, scope), '<')]
+        fst = self.visit(node.first, scope)
+        snd = self.visit(node.second, scope)
+        return fst[0] + snd[0], [cil_node.CILArithm(fst[1], snd[1], '<')]
 
     @visitor.when(ast.LessThanOrEqual)
     def visit(self, node: ast.LessThanOrEqual, scope):
-        return [], [cil_node.CILBoolOp(self.visit(node.first, scope), self.visit(node.second, scope), '<=')]
+        fst = self.visit(node.first, scope)
+        snd = self.visit(node.second, scope)
+        return fst[0] + snd[0], [cil_node.CILArithm(fst[1], snd[1], '<=')]
 
     @visitor.when(ast.IntegerComplement)
     def visit(self, node: ast.IntegerComplement, scope):
-        return [], [cil_node.CILNArith(self.visit(node.integer_expr, scope))]
+        t = self.visit(node.integer_expr, scope)
+        return t[0], [cil_node.CILNArith(t[1])]
 
     @visitor.when(ast.BooleanComplement)
     def visit(self, node: ast.BooleanComplement, scope):
-        return [], [cil_node.CILNBool(self.visit(node.boolean_expr, scope))]
+        t = self.visit(node.boolean_expr, scope)
+        return t[0], [cil_node.CILNBool(t[1])]
 
     @visitor.when(ast.Let)
     def visit(self, node: ast.Let, scope: CILScope):
@@ -335,7 +369,7 @@ class Cool2cil:
         else_visit = self.visit(node.else_body, scope)
         int_key = self.keys_generator.generate('if', True)
         return predicate_visit[0] + if_visit[0] + else_visit[0],\
-            [cil_node.CILIf(predicate_visit[1],if_visit[1],else_visit[1], int_key)]
+            [cil_node.CILIf(predicate_visit[1], if_visit[1], else_visit[1], int_key)]
 
     @visitor.when(ast.WhileLoop)
     def visit(self, node: ast.WhileLoop, scope: CILScope):
@@ -351,3 +385,28 @@ class Cool2cil:
         if real_name == '':
             return [], [cil_node.CILGetAttr(node.name)]
         return [], [cil_node.CILGetLocal(real_name)]
+
+    @visitor.when(ast.IsVoid)
+    def visit(self, node: ast.IsVoid, scope):
+        exp = self.visit(node.expr, scope)
+        return exp[0], [cil_node.CILIsVoid(exp)]
+
+    @visitor.when(ast.Case)
+    def visit(self, node: ast.Case, scope):
+        instance = self.visit(node.expr, scope)
+        actions = []
+        local = instance[0]
+        for i in node.actions:
+            t = self.visit(i, scope)
+            local += t[0]
+            actions.append(t[1])
+        return local, [cil_node.CILCase(instance[1], actions)]
+
+    @visitor.when(ast.Action)
+    def visit(self, node: ast.Action, scope):
+        t = self.visit(node.body, scope)
+        return t[0], [cil_node.CILAction(node.action_type, t[1])]
+
+    @visitor.when(ast.Self)
+    def visit(self, node: ast.Self, scope: CILScope):
+        return [], [cil_node.CILDef]
