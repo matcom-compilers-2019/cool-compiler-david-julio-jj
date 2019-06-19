@@ -114,9 +114,11 @@ class MIPS:
         self.dotType = dotType
         self.dotCode = dotCode
         self.dotData = dotData
+        self.vars = []
+        self.arguments = []
         self.mips_code = []
 
-    def generate_mips(self, data, dtpe, code):
+    def generate_mips(self):
         """
         Visits nodes in self.dot*
         """
@@ -125,6 +127,11 @@ class MIPS:
 
         exit_code = "li $v0, 10 " \
                     "syscall"
+        pos = 0
+        self.mips_code.append("# Start .data segment (data!)")
+        self.mips_code.append(".data")
+        for s_data in self.dotData:
+            self.mips_code.append("msg{}:   .asscii     \"{}\"".format(pos, s_data))
 
     @visitor.on('node')
     def visit(self, node, scope):
@@ -223,9 +230,14 @@ class MIPS:
     @visitor.when(node.CILAlocate)
     def visit(self, node: node.CILAlocate):
         self.mips_code.append("li $v0, 9")
-        self.mips_code.append("la $a0, {}".format(4 * node.ctype))
+        self.mips_code.append("li $a0, {}".format(4 * node.ctype))
         self.mips_code.append("syscall")
         # $v0 contains address of allocated memory
+        self.mips_code.append("sw $v0, $sp")
+
+    @visitor.when(node.CILAttribute)
+    def visit(self, node: node.CILAttribute):
+        pass
 
     @visitor.when(node.CILInteger)
     def visit(self, node: node.CILInteger):
@@ -246,10 +258,47 @@ class MIPS:
 
     @visitor.when(node.CILDynamicDispatch)
     def visit(self, node: node.CILDynamicDispatch):
-        self.mips_code.append("lw #t0, ($sp)")
-        self.mips_code.append()
-        pass
+        self.mips_code.append("lw $t0, ($sp)")
+        self.mips_code.append("la $t1, $t0")
+        self.mips_code.append("la $t2, {}($t1)".format(4 * (node.c_args + 1)))
+
+        self.mips_code.append("subu $sp, $sp, 12")
+        self.mips_code.append("sw $ra, 12($sp)")
+        self.mips_code.append("sw $fp, 8($sp)")
+        self.mips_code.append("la $fp, $sp")
+
+        self.mips_code.append("jal ($t2)")
+
+        self.mips_code.append("la $sp, $fp")
+        self.mips_code.append("addu $sp, $sp, 12")
+        self.mips_code.append("lw $ra, 12($sp)")
+        self.mips_code.append("lw $fp, 8($sp)")
+
+        self.mips_code.append("addu $sp, $sp, -{}".format(len(self.vars)))
 
     @visitor.when(node.CILStaticDispatch)
     def visit(self, node: node.CILStaticDispatch):
+        self.mips_code.append("subu $sp, $sp, 12")
+        self.mips_code.append("sw $ra, 12($sp)")
+        self.mips_code.append("sw $fp, 8($sp)")
+        self.mips_code.append("la $fp, $sp")
+
         self.mips_code.append("jal {}".format(node.method))
+
+        self.mips_code.append("la $sp, $fp")
+        self.mips_code.append("addu $sp, $sp, 12")
+        self.mips_code.append("lw $ra, 12($sp)")
+        self.mips_code.append("lw $fp, 8($sp)")
+
+        self.mips_code.append("addu $sp, $sp, -{}".format(len(self.vars)))
+
+    @visitor.when(node.CILMethod)
+    def visit(self, node: node.CILMethod):
+        self.vars = node.local
+        self.arguments = node.params
+
+        self.mips_code.append("{}:".format(node.name))
+        self.mips_code.append("addu $sp, $sp, {}".format(4 * len(node.local)))
+
+        for code in node.body:
+            self.visit(code)
