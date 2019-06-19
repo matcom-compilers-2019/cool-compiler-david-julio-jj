@@ -230,14 +230,28 @@ class MIPS:
     @visitor.when(node.CILAlocate)
     def visit(self, node: node.CILAlocate):
         self.mips_code.append("li $v0, 9")
-        self.mips_code.append("li $a0, {}".format(4 * node.ctype))
+        self.mips_code.append("li $a0, {}".format(4 * (node.ctype + 4)))
         self.mips_code.append("syscall")
         # $v0 contains address of allocated memory
-        self.mips_code.append("sw $v0, $sp")
+        self.mips_code.append("sw $v0, 0($sp)")
 
-    @visitor.when(node.CILAttribute)
+    @visitor.when(node.CILInitAttr)
     def visit(self, node: node.CILAttribute):
-        pass
+        self.mips_code.append("lw $t0, 4($sp)")
+        self.mips_code.append("lw $t1, (12)($fp)")
+        self.mips_code.append("addi $t1, $t1, 4")
+        self.mips_code.append("sw $t0, $t1")
+        self.mips_code.append("addu $sp, $sp, 4")
+
+    @visitor.when(node.CILNew)
+    def visit(self, node: node.CILNew):
+        self.mips_code.append("subu $sp, $sp, 8")
+        self.mips_code.append("sw $ra, 8($sp)")
+        self.mips_code.append("sw $fp, 4($sp)")
+        self.mips_code.append("la $fp, $sp")
+
+        for attr in node.attributes:
+            self.visit(attr)
 
     @visitor.when(node.CILInteger)
     def visit(self, node: node.CILInteger):
@@ -267,7 +281,7 @@ class MIPS:
         self.mips_code.append("sw $fp, 8($sp)")
         self.mips_code.append("la $fp, $sp")
 
-        self.mips_code.append("jal ($t2)")
+        self.mips_code.append("j ($t2)")
 
         self.mips_code.append("la $sp, $fp")
         self.mips_code.append("addu $sp, $sp, 12")
@@ -283,7 +297,7 @@ class MIPS:
         self.mips_code.append("sw $fp, 8($sp)")
         self.mips_code.append("la $fp, $sp")
 
-        self.mips_code.append("jal {}".format(node.method))
+        self.mips_code.append("j {}".format(node.method))
 
         self.mips_code.append("la $sp, $fp")
         self.mips_code.append("addu $sp, $sp, 12")
