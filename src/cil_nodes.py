@@ -69,8 +69,8 @@ class CILAssignment(CILExpression):
 
 
 class CILSetAttr(CILExpression):
-    def __init__(self, attr_name: str):
-        self.attr_name = attr_name
+    def __init__(self, offset):
+        self.offset = offset
 
 
 class CILAlocate(CILExpression):
@@ -79,8 +79,8 @@ class CILAlocate(CILExpression):
 
 
 class CILInitAttr(CILExpression):
-    def __init__(self, attr_name: str):
-        self.attr_name = attr_name
+    def __init__(self, offset: str):
+        self.offset = offset
 
 
 class CILDynamicDispatch(CILExpression):
@@ -107,7 +107,7 @@ class CILNew(CILExpression):
 
 
 class CILAttribute(CILExpression):
-    def __init__(self, offset: int, exp_code: list):
+    def __init__(self, offset: str, exp_code: list):
         self.offset = offset
         self.exp_code = exp_code
 
@@ -142,8 +142,8 @@ class CILObject(CILExpression):
 
 
 class CILGetAttr(CILExpression):
-    def __init__(self, attr_name):
-        self.name = attr_name
+    def __init__(self, offset):
+        self.offset = offset
 
 
 class CILGetLocal(CILExpression):
