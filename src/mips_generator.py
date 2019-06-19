@@ -246,9 +246,10 @@ class MIPS:
 
     @visitor.when(node.CILDynamicDispatch)
     def visit(self, node: node.CILDynamicDispatch):
-
+        self.mips_code.append("lw #t0, ($sp)")
+        self.mips_code.append()
         pass
 
     @visitor.when(node.CILStaticDispatch)
     def visit(self, node: node.CILStaticDispatch):
-        pass
+        self.mips_code.append("jal {}".format(node.method))
