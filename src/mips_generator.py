@@ -230,14 +230,19 @@ class MIPS:
     @visitor.when(node.CILAlocate)
     def visit(self, node: node.CILAlocate):
         self.mips_code.append("li $v0, 9")
-        self.mips_code.append("li $a0, {}".format(4 * node.ctype))
+        self.mips_code.append("li $a0, {}".format(4 * (node.ctype + 4)))
         self.mips_code.append("syscall")
         # $v0 contains address of allocated memory
-        self.mips_code.append("sw $v0, $sp")
+        self.mips_code.append("sw $v0, 0($sp)")
 
-    @visitor.when(node.CILAttribute)
+    @visitor.when(node.CILInitAttr)
     def visit(self, node: node.CILAttribute):
         pass
+
+    @visitor.when(node.CILNew)
+    def visit(self, node: node.CILNew):
+        for attr in node.attributes:
+            self.visit(attr)
 
     @visitor.when(node.CILInteger)
     def visit(self, node: node.CILInteger):
