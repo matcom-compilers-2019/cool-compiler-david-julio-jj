@@ -247,7 +247,7 @@ class Cool2cil:
         real_name = scope.get_real_name(node.instance.name)
         expr = self.visit(node.expr, scope)
         if real_name == '':
-            assignment_node = cil_node.CILGetAttr(node.instance)
+            assignment_node = cil_node.CILSetAttr(self._att_offset(scope.classname, node.instance.name))
         else :
             assignment_node = cil_node.CILAssignment(real_name)
         return expr[0], expr[1] + [assignment_node]
@@ -293,7 +293,7 @@ class Cool2cil:
     def visit(self, node: ast.ClassAttribute, scope):
         if node.init_expr:
             tmp = self.visit(node.init_expr, scope)
-            return tmp[0], [cil_node.CILAttribute(self._att_offset(node.static_type.name, node.name), tmp[1])]
+            return tmp[0], [cil_node.CILAttribute(node.name, tmp[1])]
         return [], []
 
     @visitor.when(ast.NewObject)
@@ -304,7 +304,7 @@ class Cool2cil:
         t = [cil_node.CILAlocate(node.static_type)]
         for i in c:
             t += i.exp_code
-            t.append(cil_node.CILInitAttr(i.offset))
+            t.append(cil_node.CILInitAttr(self._att_offset(scope.classname, i.offset)))
         return [], t
 
     @visitor.when(ast.Integer)
@@ -425,7 +425,7 @@ class Cool2cil:
     def visit(self, node: ast.Object, scope: CILScope):
         real_name = scope.get_real_name(node.name)
         if real_name == '':
-            return [], [cil_node.CILGetAttr(node.name)]
+            return [], [cil_node.CILGetAttr(self._att_offset(scope.classname, node.name))]
         return [], [cil_node.CILGetLocal(real_name)]
 
     @visitor.when(ast.IsVoid)
