@@ -1,4 +1,4 @@
-.text
+
     .globl main
 main:
     subu    $sp, $sp, 32    # Stack frame is 32 bytes long
@@ -6,18 +6,14 @@ main:
     sw      $fp, 16($sp)    # Save old frame pointer
     addiu   $fp, $sp, 28    # Set up frame pointer
 
-    li      $a0, 10         # Put argument (10) in $a0
+    li      $a0, 3          # Put argument (10) in $a0
     jal     fact            # Call factorial function
 
-    move    $a1,$v0         # Move fact result to $a1
-    jal     printf          # Call the print function
-    
-    lw      $ra,20($sp)     # Restore return address
-    lw      $fp,16($sp)     # Restore frame pointer
-    addiu   $sp,$sp,32      # Pop stack frame
-    jr      $ra             # Return to caller
+    lw      $ra, 20($sp)     # Restore return address
+    lw      $fp, 16($sp)     # Restore frame pointer
+    addiu   $sp, $sp, 32     # Pop stack frame
+    jr      $ra              # Return to caller
 
-    .rdata
     .text
 fact:
     subu    $sp, $sp, 32    # Stack frame is 32 bytes long
@@ -46,3 +42,7 @@ $L1:                        # Result is in $v0
     lw      $fp, 16($sp)    # Restore $fp
     addiu   $sp, $sp, 32    # Pop stack
     jr      $ra             # Return to caller
+
+.data
+
+msg:	.asciiz	"Hello World!\n"

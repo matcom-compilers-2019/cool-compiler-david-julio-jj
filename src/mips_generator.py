@@ -237,10 +237,19 @@ class MIPS:
 
     @visitor.when(node.CILInitAttr)
     def visit(self, node: node.CILAttribute):
-        pass
+        self.mips_code.append("lw $t0, 4($sp)")
+        self.mips_code.append("lw $t1, (12)($fp)")
+        self.mips_code.append("addi $t1, $t1, 4")
+        self.mips_code.append("sw $t0, $t1")
+        self.mips_code.append("addu $sp, $sp, 4")
 
     @visitor.when(node.CILNew)
     def visit(self, node: node.CILNew):
+        self.mips_code.append("subu $sp, $sp, 8")
+        self.mips_code.append("sw $ra, 8($sp)")
+        self.mips_code.append("sw $fp, 4($sp)")
+        self.mips_code.append("la $fp, $sp")
+
         for attr in node.attributes:
             self.visit(attr)
 
@@ -272,7 +281,7 @@ class MIPS:
         self.mips_code.append("sw $fp, 8($sp)")
         self.mips_code.append("la $fp, $sp")
 
-        self.mips_code.append("jal ($t2)")
+        self.mips_code.append("j ($t2)")
 
         self.mips_code.append("la $sp, $fp")
         self.mips_code.append("addu $sp, $sp, 12")
@@ -288,7 +297,7 @@ class MIPS:
         self.mips_code.append("sw $fp, 8($sp)")
         self.mips_code.append("la $fp, $sp")
 
-        self.mips_code.append("jal {}".format(node.method))
+        self.mips_code.append("j {}".format(node.method))
 
         self.mips_code.append("la $sp, $fp")
         self.mips_code.append("addu $sp, $sp, 12")
