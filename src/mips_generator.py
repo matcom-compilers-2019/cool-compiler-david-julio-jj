@@ -116,10 +116,15 @@ class MIPS:
         self.dotData = dotData
         self.mips_code = []
 
-    def generate_mips(self):
+    def generate_mips(self, data, dtpe, code):
         """
         Visits nodes in self.dot*
         """
+        code = "    .text" \
+               "    .glob main"
+
+        exit_code = "li $v0, 10 " \
+                    "syscall"
 
     @visitor.on('node')
     def visit(self, node, scope):
@@ -143,13 +148,13 @@ class MIPS:
             self.mips_code.append("mlfo $a0")
 
         # Return value
-        # self.mips_code.append("sw $a0 {}($sp)".format())
+        self.mips_code.append("sw $a0 0($sp)")
 
     @visitor.when(node.CILBoolOp)
     def visit(self, node: node.CILBoolOp):
         # Move values to $a0-$a1
-        self.mips_code.append("lw $a0, {}($sp)".format(node.fst))  # offset?
-        self.mips_code.append("lw $a1, {}($sp)".format(node.snd))
+        self.mips_code.append("lw $a0, {}($sp)".format(4 * node.fst))  # offset?
+        self.mips_code.append("lw $a1, {}($sp)".format(4 * node.snd))
 
         if node.op == "=":
             self.mips_code.append("seq $a0, $a0, $a1")
@@ -157,26 +162,94 @@ class MIPS:
             self.mips_code.append("slt $a0, $a0, $a1")
         elif node.op == "<=":
             self.mips_code.append("sle $a0, $a0, $a1")
+        elif node.op == ">":
+            self.mips_code.append("sgt $a0, $a0, $a1")
+        elif node.op == "=>":
+            self.mips_code.append("sge $a0, $a0, $a1")
 
         # Return value
-        # self.mips_code.append("sw $a0 {}($sp)".format())
+        self.mips_code.append("sw $a0 $sp")
 
     @visitor.when(node.CILNBool)
     def visit(self, node: node.CILNBool):
-        self.mips_code.append("lw $a0, {}($sp)".format(node.fst))
+        self.mips_code.append("lw $a0, {}($sp)".format(4 * node.fst))
 
         self.mips_code.append("not $a0, $a0")
 
-    # Return value
-    # self.mips_code.append("sw $a0 {}($sp)".format())
+        # Return value
+        self.mips_code.append("sw $a0 $sp")
 
     @visitor.when(node.CILNArith)
     def visit(self, node: node.CILNArith):
-        self.mips_code.append("lw $a0, {}($sp)".format(node.fst))
+        self.mips_code.append("lw $a0, {}($sp)".format(4 * node.fst))
 
         self.mips_code.append("li $a1, 1")
 
         self.mips_code.append("sub $a0, $a1, $a0")
 
         # Return value
-        # self.mips_code.append("sw $a0 {}($sp)".format())
+        self.mips_code.append("sw $a0 $sp")
+
+    @visitor.when(node.CILJump)
+    def visit(self, node: node.CILJump):
+        self.mips_code.append("j {}".format(node.label))
+
+    @visitor.when(node.CILLabel)
+    def visit(self, node: node.CILLabel):
+        self.mips_code.append("{}:".format(node.label))
+
+    @visitor.when(node.CILIf)
+    def visit(self, node: node.CILIf):
+        self.visit(node.predicate)
+        self.mips_code.append("move $t0, $a0")
+        self.mips_code.append("li $t1, 1")
+        self.mips_code.append("beq $t0, $t1, {}".format(node.if_tag))
+        self.visit(node.else_body)
+        self.mips_code.append("j {}".format(node.end_tag))
+        self.mips_code.append("{}:".format(node.if_tag))
+        self.visit(node.then_body)
+
+    @visitor.when(node.CILWhile)
+    def visit(self, node: node.CILWhile):
+        self.mips_code.append("{}:".format(node.while_tag))
+        self.visit(node.predicate)
+        self.mips_code.append("move $t0, $a0")
+        self.mips_code.append("li $t1, 1")
+        self.mips_code.append("bne $t0, $t1, {}".format(node.end_tag))
+        self.visit(node.body)
+        self.mips_code.append("j {}".format(node.while_tag))
+        self.mips_code.append("{}:".format(node.end_tag))
+
+    @visitor.when(node.CILAlocate)
+    def visit(self, node: node.CILAlocate):
+        self.mips_code.append("li $v0, 9")
+        self.mips_code.append("la $a0, {}".format(4 * node.ctype))
+        self.mips_code.append("syscall")
+        # $v0 contains address of allocated memory
+
+    @visitor.when(node.CILInteger)
+    def visit(self, node: node.CILInteger):
+        self.mips_code.append("lw $a0, {}($sp)".format(4 * node.value))
+        self.mips_code.append("sw $a0, {}($sp)".format(4 * node.value))
+
+    @visitor.when(node.CILBoolean)
+    def visit(self, node: node.CILBoolean):
+        if node.value:
+            self.mips_code.append("li $a0, 1")
+        else:
+            self.mips_code.append("li $a0, 0")
+        self.mips_code.append("sw $a0, 4($sp)")
+
+    @visitor.when(node.CILString)
+    def visit(self, node: node.CILString):
+        self.mips_code.append("la $t5, msg{}".format(node.pos))
+
+    @visitor.when(node.CILDynamicDispatch)
+    def visit(self, node: node.CILDynamicDispatch):
+        self.mips_code.append("lw #t0, ($sp)")
+        self.mips_code.append()
+        pass
+
+    @visitor.when(node.CILStaticDispatch)
+    def visit(self, node: node.CILStaticDispatch):
+        self.mips_code.append("jal {}".format(node.method))

@@ -36,13 +36,11 @@ class CILJump(CILNode):
     def __init__(self, label: str):
         self.label = label
 
-
-class CILPush(CILNode):
+class CILProgram(CILNode):
     def __init__(self):
         pass
 
-
-class CILPop(CILNode):
+class CILType(CILNode):
     def __init__(self):
         pass
 
@@ -121,16 +119,16 @@ class CILFormal(CILExpression):
         self.dest = dest
 
 
-class CILIf(CILExpression):
+class CILIf(CILExpression): # Listo
     def __init__(self, predicate, then_body, else_body, key):
         self.predicate = predicate
-        self.then_body = then_body
         self.else_body = else_body
+        self.then_body = then_body
         self.if_tag = f'.if.start.{key}'
         self.end_tag = f'.if.end.{key}'
 
 
-class CILWhile(CILExpression):
+class CILWhile(CILExpression):  # Listo
     def __init__(self, predicate, body, key):
         self.predicate = predicate
         self.body = body
@@ -153,7 +151,7 @@ class CILGetLocal(CILExpression):
         self.name = local_name
 
 
-class CILInteger(CILExpression):
+class CILInteger(CILExpression): # Listo
     def __init__(self, value):
         self.value = value
 
