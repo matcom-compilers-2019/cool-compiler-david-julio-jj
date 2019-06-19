@@ -107,9 +107,8 @@ class CILNew(CILExpression):
 
 
 class CILAttribute(CILExpression):
-    def __init__(self, class_name: str, attr_name: str, exp_code: list):
-        self.class_name = class_name
-        self.attr_name = attr_name
+    def __init__(self, offset: int, exp_code: list):
+        self.offset = offset
         self.exp_code = exp_code
 
 
