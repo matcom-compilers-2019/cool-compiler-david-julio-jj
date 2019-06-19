@@ -40,8 +40,9 @@ class CheckSemantic:
 
         bit_mask[type_map['Object']] = True
         sorted = {}
-        self_type = type_list[type_map['SELF_TYPE']]
-        sorted[self_type.name] = self_type
+        if 'SELF_TYPE' in type_map:
+            self_type = type_list[type_map['SELF_TYPE']]
+            sorted[self_type.name] = self_type
         object_type = type_list[type_map['Object']]
         sorted[object_type.name] = object_type
         for i in range(len(type_list)):
@@ -360,6 +361,21 @@ class CheckSemantic:
 
     @visitor.when(ast.Case)
     def visit(self, node: ast.Case, scope: Scope):
+        t = list(scope.get_types().keys())
+        t.reverse()
+
+        def get_by_(tp, l: ast.Action):
+            for i in l:
+                if tp == i.action_type:
+                    return i
+
+        k = []
+        for i in t:
+            n = get_by_(i, node.actions)
+            if n:
+                k.append(n)
+
+        node.actions = k
         self.visit(node.expr, scope)
         list_type = []
         for item in node.actions:

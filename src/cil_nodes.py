@@ -8,13 +8,16 @@ class DotData(CILNode):
 
 
 class DotType(CILNode):
-    def __init__(self, cType, attributes, methods):
+    def __init__(self, cType, attributes, methods, t_in, t_out):
         self.cType = cType
         self.attributes = attributes
         self.methods = methods
+        self.t_in = t_in
+        self.t_out = t_out
 
     def __str__(self):
         r = f'type {self.cType} {"{"}\n'
+        r += f'\tin {self.t_in}\n\tout{self.t_out}\n'
         for i in self.attributes:
             r += f'\tattribute {i}\n'
         for i in self.methods:
@@ -36,9 +39,11 @@ class CILJump(CILNode):
     def __init__(self, label: str):
         self.label = label
 
+
 class CILProgram(CILNode):
     def __init__(self):
         pass
+
 
 class CILType(CILNode):
     def __init__(self):

@@ -214,7 +214,8 @@ class Cool2cil:
                 attrs = []
                 for a in t[i].attributes:
                     attrs.append(list(a.keys())[0])
-                self.dtpe.append(cil_node.DotType(t[i].name, attrs, meths))
+                t1 = self.tree[t[i].name]
+                self.dtpe.append(cil_node.DotType(t[i].name, attrs, meths, t1[0], t1[1]))
 
         for i in node.classes:
             self.visit(i, None)
