@@ -54,6 +54,31 @@ class Unique_name_generator:
 
 
 class Cool2cil:
+
+    def _build_tree(self, scope):
+        t = scope.get_types().copy()
+        t.pop('SELF_TYPE')
+        tree = {i: [] for i in t}
+        tree.pop('Int')
+        tree.pop('Bool')
+        for i in t:
+            if t[i].parent and t[i].name not in ['Int', 'Bool']:
+                tree[t[i].parent.name] += [t[i].name]
+        return tree
+
+    def dfs(self, ty):
+        t = {x: [-1, -1] for x in ty}
+        self._dfs('Object', ty, 0, t)
+        return t
+
+    def _dfs(self, node, dic_type, time, tree):
+        tree[node][0] = time
+        n_t = time + 1
+        for i in dic_type[node]:
+            n_t = self._dfs(i, dic_type, n_t, tree)
+        tree[node][1] = n_t
+        return n_t + 1
+
     def calc_static(self):
         r = 0
         for i in self.data:
@@ -109,6 +134,7 @@ class Cool2cil:
         tp.methods = t
 
     def __init__(self):
+        self.tree = None
         self.constructors = {}
         self.data = []
         self.dtpe = []
@@ -116,6 +142,20 @@ class Cool2cil:
         self.vtable = vTable()
         self.name_generator = Unique_name_generator()
         self.keys_generator = Unique_name_generator()
+
+    def _dispatch(self, ctype, method):
+        for i in self.dtpe:
+            if i.cType == ctype:
+                for j in range(len(i.methods)):
+                    if i.methods[j].split('.')[1] == method:
+                        return j
+
+    def _att_offset(self, ct, att):
+        for i in self.dtpe:
+            if i.cType == ct:
+                for j in range(len(i.attributes)):
+                    if i.attributes[j] == att:
+                        return j
 
     @visitor.on('node')
     def visit(self, node, scope):
@@ -134,6 +174,8 @@ class Cool2cil:
         node.classes = list(map(lambda x: self.get_node_by_type(x, node.classes), list(new_types.keys())[6:]))
         scope_root.set_types(new_types)
         t = scope_root.get_types()
+        self.tree = self._build_tree(scope_root)
+        self.tree = self.dfs(self.tree)
         for i in list(new_types.keys())[1:6]:
             if i != 'Int' and i != 'Bool':
                 new_types[i].fix_methods()
@@ -231,7 +273,7 @@ class Cool2cil:
             tmp = self.visit(item, scope)
             codes += tmp[1]
         codes.append(tmp[1])
-        codes.append(cil_node.CILDynamicDispatch(len(node.arguments), node.method))
+        codes.append(cil_node.CILDynamicDispatch(len(node.arguments), self._dispatch(node.instance.static_type.name, node.method)))
         return var, codes
 
     @visitor.when(ast.StaticDispatch)
@@ -251,7 +293,7 @@ class Cool2cil:
     def visit(self, node: ast.ClassAttribute, scope):
         if node.init_expr:
             tmp = self.visit(node.init_expr, scope)
-            return tmp[0], [cil_node.CILAttribute(node.attr_type, node.name, tmp[1])]
+            return tmp[0], [cil_node.CILAttribute(self._att_offset(node.static_type.name, node.name), tmp[1])]
         return [], []
 
     @visitor.when(ast.NewObject)
@@ -262,7 +304,7 @@ class Cool2cil:
         t = [cil_node.CILAlocate(node.static_type)]
         for i in c:
             t += i.exp_code
-            t.append(cil_node.CILInitAttr(i.attr_name))
+            t.append(cil_node.CILInitAttr(i.offset))
         return [], t
 
     @visitor.when(ast.Integer)
@@ -368,16 +410,16 @@ class Cool2cil:
         if_visit = self.visit(node.then_body, scope)
         else_visit = self.visit(node.else_body, scope)
         int_key = self.keys_generator.generate('if', True)
-        return predicate_visit[0] + if_visit[0] + else_visit[0],\
-            [cil_node.CILIf(predicate_visit[1], if_visit[1], else_visit[1], int_key)]
+        return predicate_visit[0] + if_visit[0] + else_visit[0], \
+               [cil_node.CILIf(predicate_visit[1], if_visit[1], else_visit[1], int_key)]
 
     @visitor.when(ast.WhileLoop)
     def visit(self, node: ast.WhileLoop, scope: CILScope):
         predicate_visit = self.visit(node.predicate, scope)
         body_visit = self.visit(node.body, scope)
         int_key = self.keys_generator.generate('while', True)
-        return predicate_visit[0] + body_visit[0],\
-            [cil_node.CILWhile(predicate_visit[1],body_visit[1], int_key)]
+        return predicate_visit[0] + body_visit[0], \
+               [cil_node.CILWhile(predicate_visit[1],body_visit[1], int_key)]
 
     @visitor.when(ast.Object)
     def visit(self, node: ast.Object, scope: CILScope):
