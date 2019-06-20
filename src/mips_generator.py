@@ -106,6 +106,20 @@ $L1:                        # Result is in $v0
     lw      $fp, 16($sp)    # Restore $fp
     addiu   $sp, $sp, 32    # Pop stack
     jr      $ra             # Return to caller
+    
+
+.inerithed:
+    move [fp + 12], eax
+    move [fp + 16], ebx
+    move [eax], eax
+    move [eax], ecx
+    move [eax + 4], edx
+    move [ebx], eax
+    move [ebx + 4], ebx
+    ge ecx, eax, eax
+    le ebx, edx, ebx
+    and eax, ebx, eax
+    push eax
 """
 
 
@@ -134,7 +148,7 @@ class MIPS:
             self.mips_code.append("msg{}:   .asscii     \"{}\"".format(pos, s_data))
 
     @visitor.on('node')
-    def visit(self, node, scope):
+    def visit(self, node):
         pass
 
     @visitor.when(node.CILArithm)
@@ -316,3 +330,4 @@ class MIPS:
 
         for code in node.body:
             self.visit(code)
+
