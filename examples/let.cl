@@ -17,7 +17,7 @@ class A {
       }
    };
 
-   method3(num : Int) : Int {  -- negate
+   method3(num : Int) : C {  -- negate
       (let x : Int <- 1, y : Int <- 2 in
 	 {
             y;

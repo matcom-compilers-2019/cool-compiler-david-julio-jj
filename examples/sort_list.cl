@@ -21,7 +21,7 @@ Because the sort used is a quadratic space insertion sort, sorting
 moderately large lists will cause spim to run out of memory.
 *)
 
-class List inherits IO {
+Class List inherits IO { 
         (* Since abort() returns Object, we need something of
 	   type Bool at the end of the block to satisfy the typechecker. 
            This code is unreachable, since abort() halts the program. *)
@@ -140,9 +140,4 @@ class Main inherits IO {
 	     iota(in_int()).rev().sort().print_list();
 	   }
 	};
-};			    
-
-
-
-
-
+};
