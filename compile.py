@@ -45,4 +45,6 @@ if __name__ == '__main__':
         cil_object.visit(ast, scope_root)
         with open(f'{argv[2]}', 'w') as fd:
             temp = fd.write('hello_world')
-            self.visit(tipe)
+        mips = mips_generator(cil_object)
+        for line in mips.mips_code:
+            print(line)

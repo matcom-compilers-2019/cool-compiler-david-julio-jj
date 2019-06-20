@@ -140,9 +140,12 @@ class MIPS:
         code = ".text\
                 .glob main"
 
-        exit_code = "li $v0, 10 \
+        exit_code = "exit:  \
+                     li $v0, 10 \
                      syscall"
         pos = 0
+        
+        self.mips_code.append(code)
         
         self.visit(self.main)
         self.visit(cil_node.CILDynamicDispatch(0, ".Main.main"))
@@ -336,7 +339,6 @@ class MIPS:
         for code in node.body:
             self.visit(code)
 
-<<<<<<< HEAD
         self.mips_code.append("lw $t0 -4($sp)")
         self.mips_code.append("la $sp, $fp")
         self.mips_code.append("addu $sp, $sp, 8")
@@ -344,5 +346,3 @@ class MIPS:
         self.mips_code.append("lw $fp, 4($sp)")
         self.mips_code.append("sw $t0, -4($sp)")
         self.mips_code.append("jr $ra")
-=======
->>>>>>> 3784c5a5c2abc11fd8f17a31be75b5b2ce40b4e9
