@@ -106,6 +106,20 @@ $L1:                        # Result is in $v0
     lw      $fp, 16($sp)    # Restore $fp
     addiu   $sp, $sp, 32    # Pop stack
     jr      $ra             # Return to caller
+    
+
+.inerithed:
+    move [fp + 12], eax
+    move [fp + 16], ebx
+    move [eax], eax
+    move [eax], ecx
+    move [eax + 4], edx
+    move [ebx], eax
+    move [ebx + 4], ebx
+    ge ecx, eax, eax
+    le ebx, edx, ebx
+    and eax, ebx, eax
+    push eax
 """
 
 
@@ -322,6 +336,7 @@ class MIPS:
         for code in node.body:
             self.visit(code)
 
+<<<<<<< HEAD
         self.mips_code.append("lw $t0 -4($sp)")
         self.mips_code.append("la $sp, $fp")
         self.mips_code.append("addu $sp, $sp, 8")
@@ -329,3 +344,5 @@ class MIPS:
         self.mips_code.append("lw $fp, 4($sp)")
         self.mips_code.append("sw $t0, -4($sp)")
         self.mips_code.append("jr $ra")
+=======
+>>>>>>> 3784c5a5c2abc11fd8f17a31be75b5b2ce40b4e9

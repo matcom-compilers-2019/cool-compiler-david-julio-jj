@@ -148,7 +148,7 @@ class Cool2cil:
             if i.cType == ctype:
                 for j in range(len(i.methods)):
                     if i.methods[j].split('.')[1] == method:
-                        return j
+                        return j + 8
 
     def _att_offset(self, ct, att):
         for i in self.dtpe:
