@@ -1,4 +1,4 @@
-Object.copy:
+.Object.copy:
 lw $a1, -4($sp)
 lw $a0, -8($sp)
 li $v0, 9
@@ -18,26 +18,26 @@ _copy.end:
 jr $ra
 
 #Cambiado(Funciona)
-Object.abort:
+.Object.abort:
 li $v0, 10
 syscall
 
 #Cambiado(funciona)
-IO.out_string:
+.IO.out_string:
 li $v0, 4
-lw $a0, -4($sp)
+lw $a0, -16($sp)
 syscall
 jr $ra
 
 #Cambiado(Funciona)
-IO.out_int:
+.IO.out_int:
 li $v0, 1
-lw $a0, -4($sp)
+lw $a0, -16($sp)
 syscall
 jr $ra
 
 
-IO.in_string:
+.IO.in_string:
 move $a3, $ra
 la $a0, buffer
 li $a1, 65536
@@ -68,13 +68,13 @@ move $ra, $a3
 jr $ra
 
 
-IO.in_int:
+.IO.in_int:
 li $v0, 5
 syscall
 jr $ra
 
 #(Cambiado)
-String.length:
+.String.length:
 lw $a0, -4($sp)
 _stringlength.loop:
 lb $a1, 0($a0)
@@ -87,7 +87,7 @@ subu $v0, $a0, $a1
 jr $ra
 
 
-String.concat:
+.String.concat:
 move $a2, $ra
 jal String.length
 move $v1, $v0
@@ -123,7 +123,7 @@ move $ra, $a2
 jr $ra
 
 #(Cambiado)
-String.substr:
+.String.substr:
 lw $a0, -12($sp)
 addiu $a0, $a0, 1
 li $v0, 9

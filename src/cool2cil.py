@@ -79,11 +79,10 @@ class Cool2cil:
         tree[node][1] = n_t
         return n_t + 1
 
-    def calc_static(self):
-        r = 0
-        for i in self.data:
-            r += len(i)
-        return r
+    def calc_static(self, type):
+        for i in self.dtpe:
+            if i.cType == type:
+                return len(i.attributes)
 
     def sort_type(self, type_list: dict):
         type_list = list(type_list.values())
@@ -148,7 +147,7 @@ class Cool2cil:
             if i.cType == ctype:
                 for j in range(len(i.methods)):
                     if i.methods[j].split('.')[1] == method:
-                        return j + 8
+                        return j
 
     def _att_offset(self, ct, att):
         for i in self.dtpe:
@@ -193,7 +192,8 @@ class Cool2cil:
             p_type = scope.getType(j.parent)
             scope.getType(j.name).add_method(*tuple(scope.getType('Object').methods))
             scope.getType(j.name).add_attrib(*tuple(p_type.attributes))
-            scope.getType(j.name).add_method(*tuple(p_type.methods))
+            for i in p_type.methods:
+                self.replace(i, scope.getType(j.name))
             for i in attribs:
                 scope.getType(j.name).add_attrib({i.name: scope.getType(i.attr_type)})
             for i in methods:
@@ -269,12 +269,15 @@ class Cool2cil:
         args = []
         var = []
         codes = []
-        tmp = self.visit(node.instance, scope)
         for item in node.arguments:
             tmp = self.visit(item, scope)
             codes += tmp[1]
-        codes.append(tmp[1])
-        codes.append(cil_node.CILDynamicDispatch(len(node.arguments), self._dispatch(node.instance.static_type.name, node.method)))
+        tmp = self.visit(node.instance, scope)
+        codes += tmp[1]
+        t = node.static_type.name
+        if t == 'SELF_TYPE':
+            t = scope.classname
+        codes.append(cil_node.CILDynamicDispatch(len(node.arguments), self._dispatch(t, node.method)))
         return var, codes
 
     @visitor.when(ast.StaticDispatch)
@@ -302,11 +305,11 @@ class Cool2cil:
         if node.type == 'Int' or node.type == 'Bool':
             return [], [cil_node.CILDecInt()]
         c = self.constructors[node.static_type.name]
-        t = [cil_node.CILAlocate(node.static_type)]
+        t = []
         for i in c:
             t += i.exp_code
             t.append(cil_node.CILInitAttr(self._att_offset(scope.classname, i.offset)))
-        return [], t
+        return [], cil_node.CILNew(t, node.type, self.calc_static(node.static_type))
 
     @visitor.when(ast.Integer)
     def visit(self, node: ast.Integer, scope):
@@ -452,4 +455,4 @@ class Cool2cil:
 
     @visitor.when(ast.Self)
     def visit(self, node: ast.Self, scope: CILScope):
-        return [], [cil_node.CILDef]
+        return [], [cil_node.CILSelf()]

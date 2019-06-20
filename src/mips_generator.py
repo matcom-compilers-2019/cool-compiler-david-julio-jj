@@ -128,7 +128,13 @@ class MIPS:
         self.dotType = CILObject.dtpe
         self.dotCode = CILObject.code
         self.dotData = CILObject.data
-        self.main = CILObject.constructors["Main"]
+        self.CILObject = CILObject
+        c = CILObject.constructors['Main']
+        t = []
+        for i in c:
+            t += i.exp_code
+            t.append(cil_node.CILInitAttr(CILObject._att_offset('Main', i.offset)))
+        self.main = cil_node.CILNew(t, 'Main', CILObject.calc_static('Main'))
         self.vars = []
         self.arguments = []
         self.mips_code = []
@@ -137,29 +143,39 @@ class MIPS:
         """
         Visits nodes in self.dot*
         """
-        code = ".text\n\
-                .glob main\n"
+        code = ".text\n" \
+               ".globl main\n   "
 
         exit_code = "exit:  \
                      li $v0, 10 \
                      syscall"
         pos = 0
-        
+
         self.mips_code.append(code)
-        
+
+        self.mips_code.append("# Start self.visit(self.main)\n")
+        self.mips_code.append("main:")
         self.visit(self.main)
-        self.visit(cil_node.CILDynamicDispatch(0, ".Main.main"))
-        
-        
+
+        self.mips_code.append("# Start self.visit(cil_node.CILDynamicDispatch())\n")
+        self.visit(cil_node.CILDynamicDispatch(0, self.CILObject._dispatch('Main', 'main')))
 
         for in_code in self.dotCode:
+            print(in_code)
             self.visit(in_code)
-        
+
         self.mips_code.append("# Start .data segment (data!)")
         self.mips_code.append(".data")
         for s_data in self.dotData:
-            self.mips_code.append('msg{}:   .asscii     "{}"'.format(pos, s_data))
-            pos+=1
+            self.mips_code.append("msg{}: .asciiz \"{}\"".format(pos, s_data))
+            pos += 1
+
+        for tipe in self.dotType:
+            words = f"{tipe.cType}: .word {tipe.t_in}, {tipe.t_out}"
+            for method in tipe.methods:
+                words += ", " + "." + method
+
+            self.mips_code.append(words)
 
     @visitor.on('node')
     def visit(self, node):
@@ -255,13 +271,8 @@ class MIPS:
         self.mips_code.append("j {}".format(node.while_tag))
         self.mips_code.append("{}:".format(node.end_tag))
 
-    @visitor.when(cil_node.CILAlocate)
-    def visit(self, node: cil_node.CILAlocate):
-        self.mips_code.append("li $v0, 9")
-        self.mips_code.append("li $a0, {}".format(4 * (node.ctype + 4)))
-        self.mips_code.append("syscall")
-        # $v0 contains address of allocated memory
-        self.mips_code.append("sw $v0, 0($sp)")
+    # @visitor.when(cil_node.CILAlocate)
+    # def visit(self, node: cil_node.CILAlocate):
 
     @visitor.when(cil_node.CILInitAttr)
     def visit(self, node: cil_node.CILAttribute):
@@ -273,13 +284,30 @@ class MIPS:
 
     @visitor.when(cil_node.CILNew)
     def visit(self, node: cil_node.CILNew):
-        self.mips_code.append("subu $sp, $sp, 8")
-        self.mips_code.append("sw $ra, 8($sp)")
-        self.mips_code.append("sw $fp, 4($sp)")
-        self.mips_code.append("la $fp, $sp")
+        self.mips_code.append("sw $ra, ($sp)")
+        self.mips_code.append("addu $sp, $sp, 4")
+        self.mips_code.append("sw $fp, ($sp)")
+        self.mips_code.append("addu $sp, $sp, 4")
+        self.mips_code.append("move $fp, $sp")
+
+        self.mips_code.append("li $v0, 9")
+        self.mips_code.append("li $a0, {}".format(4 * (node.size + 1)))
+        self.mips_code.append("syscall")
+        # $v0 contains address of allocated memory
+        self.mips_code.append("sw $v0, 0($sp)")
+        self.mips_code.append("addu $sp, $sp ,4")
+
+        self.mips_code.append(f"la $t0, {node.ctype}")
+        self.mips_code.append("sw $t0, ($v0)")
 
         for attr in node.attributes:
             self.visit(attr)
+
+    @visitor.when(cil_node.CILSelf)
+    def visit(self, node: cil_node.CILSelf):
+        self.mips_code.append("lw $a0, -12($fp)")
+        self.mips_code.append("sw $a0, 0($sp)")
+        self.mips_code.append("addu $sp, $sp, 4")
 
     @visitor.when(cil_node.CILInteger)
     def visit(self, node: cil_node.CILInteger):
@@ -292,41 +320,46 @@ class MIPS:
             self.mips_code.append("li $a0, 1")
         else:
             self.mips_code.append("li $a0, 0")
-        self.mips_code.append("sw $a0, 4($sp)")
+        self.mips_code.append("sw $a0, 0($sp)")
+        self.mips_code.append("addu $sp, $sp, 4")
 
     @visitor.when(cil_node.CILString)
     def visit(self, node: cil_node.CILString):
         self.mips_code.append("la $t5, msg{}".format(node.pos))
+        self.mips_code.append("sw $t5, 0($sp)")
+        self.mips_code.append("addu $sp, $sp, 4")
 
     @visitor.when(cil_node.CILDynamicDispatch)
     def visit(self, node: cil_node.CILDynamicDispatch):
-        self.mips_code.append("lw $t0, ($sp)")
-        self.mips_code.append("la $t1, $t0")
-        self.mips_code.append("la $t2, {}($t1)".format(4 * (node.c_args + 1)))
+        self.mips_code.append("lw $t0, -4($sp)")
+        self.mips_code.append("lw $t1, ($t0)")
+        self.mips_code.append("lw $t2, {}($t1)".format(4 * (node.method + 2)))
 
-        self.mips_code.append("subu $sp, $sp, 8")
-        self.mips_code.append("sw $ra, 8($sp)")
-        self.mips_code.append("sw $fp, 4($sp)")
-        self.mips_code.append("la $fp, $sp")
+        self.mips_code.append("sw $ra, ($sp)")
+        self.mips_code.append("addu $sp, $sp, 4")
+        self.mips_code.append("sw $fp, ($sp)")
+        self.mips_code.append("addu $sp, $sp, 4")
+        self.mips_code.append("move $fp, $sp")
 
-        self.mips_code.append("j ($t2)")
+        self.mips_code.append("j $t2")
 
-        self.mips_code.append("lw $t0 -4($sp)")
+        self.mips_code.append("lw $t0, -4($sp)")
         self.mips_code.append("addu $sp, $sp, -{}".format(node.c_args))
-        self.mips_code.append("sw $to -4($sp)")
+        self.mips_code.append("sw $t0, -4($sp)")
 
     @visitor.when(cil_node.CILStaticDispatch)
     def visit(self, node: cil_node.CILStaticDispatch):
-        self.mips_code.append("subu $sp, $sp, 8")
-        self.mips_code.append("sw $ra, 8($sp)")
-        self.mips_code.append("sw $fp, 4($sp)")
-        self.mips_code.append("la $fp, $sp")
+        self.mips_code.append("sw $ra, ($sp)")
+        self.mips_code.append("addu $sp, $sp, 4")
+        self.mips_code.append("sw $fp, ($sp)")
+        self.mips_code.append("addu $sp, $sp, 4")
+        self.mips_code.append("move $fp, $sp")
 
         self.mips_code.append("j {}".format(node.method))
 
-        self.mips_code.append("lw $t0 -4($sp)")
+        self.mips_code.append("lw $t0, -4($sp)")
         self.mips_code.append("addu $sp, $sp, -{}".format(node.c_args))
-        self.mips_code.append("sw $to -4($sp)")
+        self.mips_code.append("sw $t0, -4($sp)")
 
     @visitor.when(cil_node.CILMethod)
     def visit(self, node: cil_node.CILMethod):
@@ -339,10 +372,12 @@ class MIPS:
         for code in node.body:
             self.visit(code)
 
-        self.mips_code.append("lw $t0 -4($sp)")
-        self.mips_code.append("la $sp, $fp")
-        self.mips_code.append("addu $sp, $sp, 8")
-        self.mips_code.append("lw $ra, 8($sp)")
-        self.mips_code.append("lw $fp, 4($sp)")
-        self.mips_code.append("sw $t0, -4($sp)")
+        self.mips_code.append("move $sp, $fp")
+        self.mips_code.append("lw $fp, ($sp)")
+        self.mips_code.append("subu $sp, $sp, 4")
+        self.mips_code.append("lw $ra, ($sp)")
+        self.mips_code.append("subu $sp, $sp, 4")
+
+        # self.mips_code.append("lw $fp, 4($sp)")
+        # self.mips_code.append("sw $t0, -4($sp)")
         self.mips_code.append("jr $ra")

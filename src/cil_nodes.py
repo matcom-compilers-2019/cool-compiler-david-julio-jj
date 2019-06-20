@@ -89,7 +89,7 @@ class CILInitAttr(CILExpression):
 
 
 class CILDynamicDispatch(CILExpression):
-    def __init__(self, c_args: int, method_name: str):
+    def __init__(self, c_args: int, method_name: int):
         self.c_args = c_args
         self.method = method_name
 
@@ -106,9 +106,10 @@ class CILLet(CILExpression):
 
 
 class CILNew(CILExpression):
-    def __init__(self, attributes, ctype):
+    def __init__(self, attributes, ctype, size):
         self.attributes = attributes
         self.ctype = ctype
+        self.size = size
 
 
 class CILAttribute(CILExpression):
@@ -222,6 +223,6 @@ class CILAction(CILExpression):
         self.body = body
 
 
-class CILDef(CILExpression):
+class CILSelf(CILExpression):
     def __init__(self):
         pass
