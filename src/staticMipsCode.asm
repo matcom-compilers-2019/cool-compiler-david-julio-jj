@@ -25,14 +25,20 @@ syscall
 #Cambiado(funciona)
 .IO.out_string:
 li $v0, 4
-lw $a0, -16($sp)
+lw $a0, 16($sp)
 syscall
+addu $sp, $sp, 4
+lw $fp, ($sp)
+addu $sp, $sp, 4
+lw $a0, 4($sp)
+sw $a0, ($sp)
+subu $sp, $sp, 4
 jr $ra
 
 #Cambiado(Funciona)
 .IO.out_int:
 li $v0, 1
-lw $a0, -16($sp)
+lw $a0, 16($sp)
 syscall
 jr $ra
 

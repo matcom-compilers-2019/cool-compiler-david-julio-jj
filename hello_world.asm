@@ -25,14 +25,20 @@ syscall
 #Cambiado(funciona)
 .IO.out_string:
 li $v0, 4
-lw $a0, -16($sp)
+lw $a0, 16($sp)
 syscall
+addu $sp, $sp, 4
+lw $fp, ($sp)
+addu $sp, $sp, 4
+lw $a0, 4($sp)
+sw $a0, ($sp)
+subu $sp, $sp, 4
 jr $ra
 
 #Cambiado(Funciona)
 .IO.out_int:
 li $v0, 1
-lw $a0, -4($sp)
+lw $a0, 16($sp)
 syscall
 jr $ra
 
@@ -183,61 +189,83 @@ jr $ra
 # Start self.visit(self.main)
 
 main:
-sw $ra, ($sp)
-addu $sp, $sp, 4
-sw $fp, ($sp)
-addu $sp, $sp, 4
-move $fp, $sp
 li $v0, 9
 li $a0, 4
 syscall
 sw $v0, 0($sp)
-addu $sp, $sp ,4
+subu $sp, $sp ,4
 la $t0, Main
 sw $t0, ($v0)
 # Start self.visit(cil_node.CILDynamicDispatch())
 
-lw $t0, -4($sp)
+lw $t0, 4($sp)
 lw $t1, ($t0)
 lw $t2, 36($t1)
 sw $ra, ($sp)
-addu $sp, $sp, 4
+subu $sp, $sp, 4
 sw $fp, ($sp)
-addu $sp, $sp, 4
+subu $sp, $sp, 4
 move $fp, $sp
-j $t2
-lw $t0, -4($sp)
-addu $sp, $sp, -0
-sw $t0, -4($sp)
+jal $t2
+lw $t0, 4($sp)
+addu $sp, $sp, 8
+sw $t0, ($sp)
+subu $sp, $sp, 4
 .Main.main:
-addu $sp, $sp, 0
+subu $sp, $sp, 0
 la $t5, msg0
 sw $t5, 0($sp)
-addu $sp, $sp, 4
-lw $a0, -12($fp)
+subu $sp, $sp, 4
+lw $a0, 12($fp)
 sw $a0, 0($sp)
-addu $sp, $sp, 4
-lw $t0, -4($sp)
+subu $sp, $sp, 4
+lw $t0, 4($sp)
 lw $t1, ($t0)
 lw $t2, 20($t1)
 sw $ra, ($sp)
-addu $sp, $sp, 4
+subu $sp, $sp, 4
 sw $fp, ($sp)
-addu $sp, $sp, 4
+subu $sp, $sp, 4
 move $fp, $sp
-j $t2
-lw $t0, -4($sp)
-addu $sp, $sp, -1
-sw $t0, -4($sp)
+jal $t2
+lw $t0, 4($sp)
+addu $sp, $sp, 12
+sw $t0, ($sp)
+subu $sp, $sp, 4
+la $t5, msg1
+sw $t5, 0($sp)
+subu $sp, $sp, 4
+lw $a0, 12($fp)
+sw $a0, 0($sp)
+subu $sp, $sp, 4
+lw $t0, 4($sp)
+lw $t1, ($t0)
+lw $t2, 20($t1)
+sw $ra, ($sp)
+subu $sp, $sp, 4
+sw $fp, ($sp)
+subu $sp, $sp, 4
+move $fp, $sp
+jal $t2
+lw $t0, 4($sp)
+addu $sp, $sp, 12
+sw $t0, ($sp)
+subu $sp, $sp, 4
+lw $a0, 4($sp)
+addu, $sp, $sp, 8
+sw $a0, ($sp)
+subu, $sp, $sp, 4
 move $sp, $fp
+addu $sp, $sp, 4
 lw $fp, ($sp)
-subu $sp, $sp, 4
+addu $sp, $sp, 4
 lw $ra, ($sp)
-subu $sp, $sp, 4
 jr $ra
 # Start .data segment (data!)
 .data
-msg0: .asciiz "Hello, World.
+msg0: .asciiz "Hello World. 
+"
+msg1: .asciiz "Hello World. 
 "
 Object: .word 0, 7, .Object.abort, .Object.type_name, .Object.copy
 String: .word 1, 2, .Object.abort, .Object.type_name, .Object.copy, .String.length, .String.concat, .String.substr
