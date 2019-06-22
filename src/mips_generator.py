@@ -299,8 +299,9 @@ class MIPS:
 
     @visitor.when(cil_node.CILInitAttr)
     def visit(self, node: cil_node.CILInitAttr):
+        self.mips_code.append("# Init Attr")
         self.mips_code.append("lw $t0, 4($sp)")
-        self.mips_code.append("lw $t1, 12($fp)")
+        self.mips_code.append("lw $t1, 8($sp)")
         self.mips_code.append("addi $t1, $t1, 8")
         self.mips_code.append("sw $t0, {}($t1)".format(node.offset))
         self.mips_code.append("addu $sp, $sp, 4")
@@ -314,11 +315,14 @@ class MIPS:
         # self.mips_code.append("move $fp, $sp")
 
         self.mips_code.append("li $v0, 9")
-        self.mips_code.append("li $a0, {}".format(4 * (node.size + 1)))
+        self.mips_code.append("li $a0, {}".format(4 * (node.size + 2)))
         self.mips_code.append("syscall")
         # $v0 contains address of allocated memory
         self.mips_code.append("sw $v0, 0($sp)")
         self.mips_code.append("subu $sp, $sp ,4")
+        # Push node.size
+        self.mips_code.append("li $t0, {}".format(node.size))
+        self.mips_code.append("sw $t0, 4($v0)")
 
         for attr in node.attributes:
             self.visit(attr)
