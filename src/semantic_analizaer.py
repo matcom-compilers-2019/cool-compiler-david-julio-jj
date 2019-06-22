@@ -63,13 +63,14 @@ class CheckSemantic:
 
     def check_ciclic_inheritance(self, type_list: dict):
         type_list = list(type_list.values())
+        type_list.reverse()
         type_map = {}
         for i in range(len(type_list)):
             ctype = type_list[i]
             type_map[ctype.name] = i
 
+        bit_mask = [False] * len(type_list)
         for i in range(len(type_list)):
-            bit_mask = [False] * len(type_list)
             ctype = type_list[i]
             if not bit_mask[i] and not ctype.name == 'Object' and not ctype.name == 'SELF_TYPE':
                 self.check_ciclic_inheritance_(ctype, type_map, bit_mask)
