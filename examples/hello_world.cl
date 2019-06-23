@@ -1,5 +1,5 @@
 class Main inherits IO {
-   main(): Int {
-	in_int()
+   main(): SELF_TYPE {
+	out_int((5 * 4) + 3)
    };
 };

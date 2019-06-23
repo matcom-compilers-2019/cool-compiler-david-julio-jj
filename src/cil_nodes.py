@@ -157,7 +157,7 @@ class CILGetLocal(CILExpression):
         self.name = local_name
 
 
-class CILInteger(CILExpression): # Listo
+class CILInteger(CILExpression):  # Listo
     def __init__(self, value):
         self.value = value
 

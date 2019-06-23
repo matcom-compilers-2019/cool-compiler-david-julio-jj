@@ -191,8 +191,11 @@ class MIPS:
         self.visit(node.fst)
         self.visit(node.snd)
 
-        self.mips_code.append("lw $a0, 4($sp)")  # offset?
-        self.mips_code.append("lw $a1, 8($sp)")
+        self.mips_code.append("lw $t0, 4($sp)")  # offset?
+        self.mips_code.append("lw $t1, 8($sp)")
+
+        self.mips_code.append("lw $a0, 8($t0)")
+        self.mips_code.append("lw $a1, 8($t1)")
 
         if node.op == "+":
             self.mips_code.append("add $a0, $a0, $a1")
@@ -206,7 +209,19 @@ class MIPS:
             self.mips_code.append("mflo $a0")
 
         # Return value
-        self.mips_code.append("sw $a0 0($sp)")
+        self.mips_code.append("li $v0, 9")
+        self.mips_code.append("li $a0, {}".format(12))
+        self.mips_code.append("syscall")
+
+        self.mips_code.append(f"la $t0, {node.ctype}")
+        self.mips_code.append("sw $t0, ($v0)")
+
+        self.mips_code.append("li $t0, 1")
+        self.mips_code.append("sw $t0, 4($v0)")
+
+        self.mips_code.append("sw $a0, 8($v0)")
+        self.mips_code.append("sw $v0, ($sp)")
+
         self.mips_code.append("subu $sp, $sp, 4")
 
     @visitor.when(cil_node.CILBoolOp)
@@ -346,8 +361,20 @@ class MIPS:
 
     @visitor.when(cil_node.CILInteger)
     def visit(self, node: cil_node.CILInteger):
+        self.mips_code.append("li $v0, 9")
+        self.mips_code.append("li $a0, {}".format(12))
+        self.mips_code.append("syscall")
+
+        self.mips_code.append(f"la $t0, {node.ctype}")
+        self.mips_code.append("sw $t0, ($v0)")
+
+        self.mips_code.append("li $t0, 1")
+        self.mips_code.append("sw $t0, 4($v0)")
+
         self.mips_code.append("li $a0, {}".format(node.value))
-        self.mips_code.append("sw $a0, 0($sp)")
+        self.mips_code.append("sw $a0, 8($v0)")
+        self.mips_code.append("sw $v0, ($sp)")
+
         self.mips_code.append("subu $sp, $sp, 4")
 
     @visitor.when(cil_node.CILBoolean)
