@@ -40,6 +40,12 @@ jr $ra
 li $v0, 1
 lw $a0, 16($sp)
 syscall
+addu $sp, $sp, 4
+lw $fp, ($sp)
+addu $sp, $sp, 4
+lw $a0, 4($sp)
+sw $a0, ($sp)
+subu $sp, $sp, 4
 jr $ra
 
 
@@ -190,21 +196,12 @@ jr $ra
 
 main:
 li $v0, 9
-li $a0, 12
+li $a0, 8
 syscall
 sw $v0, 0($sp)
 subu $sp, $sp ,4
-li $t0, 1
+li $t0, 0
 sw $t0, 4($v0)
-li $a0, 4
-sw $a0, 0($sp)
-subu $sp, $sp, 4
-# Init Attr
-lw $t0, 4($sp)
-lw $t1, 8($sp)
-addi $t1, $t1, 8
-sw $t0, 0($t1)
-addu $sp, $sp, 4
 la $t0, Main
 sw $t0, ($v0)
 # Start self.visit(cil_node.CILDynamicDispatch())
@@ -262,8 +259,24 @@ lw $t0, 4($sp)
 addu $sp, $sp, 12
 sw $t0, ($sp)
 subu $sp, $sp, 4
+lw $a0, 12($fp)
+sw $a0, 0($sp)
+subu $sp, $sp, 4
+lw $t0, 4($sp)
+lw $t1, ($t0)
+lw $t2, 32($t1)
+sw $ra, ($sp)
+subu $sp, $sp, 4
+sw $fp, ($sp)
+subu $sp, $sp, 4
+move $fp, $sp
+jal $t2
+lw $t0, 4($sp)
+addu $sp, $sp, 8
+sw $t0, ($sp)
+subu $sp, $sp, 4
 lw $a0, 4($sp)
-addu, $sp, $sp, 8
+addu, $sp, $sp, 12
 sw $a0, ($sp)
 subu, $sp, $sp, 4
 move $sp, $fp
@@ -278,7 +291,9 @@ msg0: .asciiz "Hello World.
 "
 msg1: .asciiz "Hello World. 
 "
-Object: .word 0, 7, .Object.abort, .Object.type_name, .Object.copy
-String: .word 1, 2, .Object.abort, .Object.type_name, .Object.copy, .String.length, .String.concat, .String.substr
-IO: .word 3, 6, .Object.abort, .Object.type_name, .Object.copy, .IO.out_string, .IO.out_int, .IO.in_string, .IO.in_int
-Main: .word 4, 5, .Object.abort, .Object.type_name, .Object.copy, .IO.out_string, .IO.out_int, .IO.in_string, .IO.in_int, .Main.main
+Object: .word 0, 11, .Object.abort, .Object.type_name, .Object.copy
+Int: .word 1, 2
+Bool: .word 3, 4
+String: .word 5, 6, .Object.abort, .Object.type_name, .Object.copy, .String.length, .String.concat, .String.substr
+IO: .word 7, 10, .Object.abort, .Object.type_name, .Object.copy, .IO.out_string, .IO.out_int, .IO.in_string, .IO.in_int
+Main: .word 8, 9, .Object.abort, .Object.type_name, .Object.copy, .IO.out_string, .IO.out_int, .IO.in_string, .IO.in_int, .Main.main

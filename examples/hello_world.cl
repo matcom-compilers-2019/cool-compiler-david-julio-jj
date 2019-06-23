@@ -1,10 +1,9 @@
 class Main inherits IO {
-   x : Int <- 4;
-
-   main(): SELF_TYPE {
-	{
-	out_string("Hello World. \n");
-	out_string("Hello World. \n");
-	}
+   main(): Int {
+       {
+            out_string("Hello World. \n");
+            out_string("Hello World. \n");
+            in_int();
+       }
    };
 };
