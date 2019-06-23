@@ -183,9 +183,25 @@ li $v0, 1
 jr $ra
 # Start Mips Generated Code
 
+# Inherithed Method
+.inerithed:
+lw $a0, 4($sp)
+lw $a1, 8($sp)
+lw $a0, ($a0)
+lw $a2, ($a0)
+lw $a3, 4($a0)
+lw $a0, ($a1)
+lw $a1, 4($a1)
+sge $t0, $a2, $a0
+sle $t1, $a1, $a3
+and $a0, $t0, $t1
+sw $a0, ($sp)
+subu $sp, $sp, 4
+
+
 .text
 .globl main
-   
+
 # Start self.visit(self.main)
 
 main:

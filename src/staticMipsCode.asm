@@ -40,6 +40,12 @@ jr $ra
 li $v0, 1
 lw $a0, 16($sp)
 syscall
+addu $sp, $sp, 4
+lw $fp, ($sp)
+addu $sp, $sp, 4
+lw $a0, 4($sp)
+sw $a0, ($sp)
+subu $sp, $sp, 4
 jr $ra
 
 
@@ -49,9 +55,9 @@ la $a0, buffer
 li $a1, 65536
 li $v0, 8
 syscall
-addiu $sp, $sp, -4
 sw $a0, 0($sp)
-jal String.length
+subu $sp, $sp, 4
+jal .String.length
 addiu $sp, $sp, 4
 move $a2, $v0
 addiu $a2, $a2, -1
@@ -79,16 +85,15 @@ li $v0, 5
 syscall
 jr $ra
 
-#(Cambiado)
 .String.length:
-lw $a0, -4($sp)
+lw $a0, 4($sp)
 _stringlength.loop:
 lb $a1, 0($a0)
 beqz $a1, _stringlength.end
 addiu $a0, $a0, 1
 j _stringlength.loop
 _stringlength.end:
-lw $a1, -4($sp)
+lw $a1, 4($sp)
 subu $v0, $a0, $a1
 jr $ra
 

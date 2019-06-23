@@ -1,6 +1,6 @@
 # lextab.py. This file automatically created by PLY (version 3.9). Don't edit!
 _tabversion   = '3.8'
-_lextokens    = set(('DOT', 'WHILE', 'INTEGER', 'LET', 'NEW', 'CLASS', 'ESAC', 'AT', 'LTEQ', 'ARROW', 'ELSE', 'DIVIDE', 'LT', 'INT_COMP', 'FI', 'IF', 'IN', 'LPAREN', 'OF', 'THEN', 'TYPE', 'ASSIGN', 'ISVOID', 'MULTIPLY', 'LBRACE', 'COLON', 'RPAREN', 'SELF', 'EQ', 'INHERITS', 'LOOP', 'MINUS', 'STRING', 'PLUS', 'COMMA', 'ID', 'NOT', 'POOL', 'SEMICOLON', 'RBRACE', 'CASE', 'BOOLEAN'))
+_lextokens    = set(('CLASS', 'IN', 'AT', 'OF', 'ELSE', 'RBRACE', 'IF', 'ARROW', 'FI', 'PLUS', 'LPAREN', 'THEN', 'ID', 'SEMICOLON', 'MULTIPLY', 'WHILE', 'TYPE', 'DOT', 'LT', 'INHERITS', 'ASSIGN', 'COLON', 'ESAC', 'BOOLEAN', 'DIVIDE', 'ISVOID', 'COMMA', 'INT_COMP', 'CASE', 'NOT', 'LBRACE', 'NEW', 'INTEGER', 'RPAREN', 'EQ', 'POOL', 'LET', 'SELF', 'MINUS', 'LOOP', 'LTEQ', 'STRING'))
 _lexreflags   = 0
 _lexliterals  = ''
 _lexstateinfo = {'INITIAL': 'inclusive', 'STRING': 'exclusive', 'COMMENT': 'exclusive'}
