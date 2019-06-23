@@ -59,10 +59,8 @@ class Cool2cil:
         t = scope.get_types().copy()
         t.pop('SELF_TYPE')
         tree = {i: [] for i in t}
-        tree.pop('Int')
-        tree.pop('Bool')
         for i in t:
-            if t[i].parent and t[i].name not in ['Int', 'Bool']:
+            if t[i].parent:
                 tree[t[i].parent.name] += [t[i].name]
         return tree
 
@@ -176,12 +174,11 @@ class Cool2cil:
         self.tree = self._build_tree(scope_root)
         self.tree = self.dfs(self.tree)
         for i in list(new_types.keys())[1:6]:
-            if i != 'Int' and i != 'Bool':
-                new_types[i].fix_methods()
-                tp = new_types[i].methods
-                if i != 'Object':
-                    new_types[i].methods = []
-                    new_types[i].add_method(*tuple(new_types['Object'].methods + tp))
+            new_types[i].fix_methods()
+            tp = new_types[i].methods
+            if i != 'Object':
+                new_types[i].methods = []
+                new_types[i].add_method(*tuple(new_types['Object'].methods + tp))
 
         for j in node.classes:
             scope = Scope(j.name, scope_root)
@@ -206,16 +203,15 @@ class Cool2cil:
                 }}
                 self.replace(m, scope.getType(j.name))
         for i in list(t.keys())[1:]:
-            if i != 'Int' and i != 'Bool':
-                self.constructors[i] = []
-                meths = []
-                for m in t[i].methods:
-                    meths.append(list(m.keys())[0])
-                attrs = []
-                for a in t[i].attributes:
-                    attrs.append(list(a.keys())[0])
-                t1 = self.tree[t[i].name]
-                self.dtpe.append(cil_node.DotType(t[i].name, attrs, meths, t1[0], t1[1]))
+            self.constructors[i] = []
+            meths = []
+            for m in t[i].methods:
+                meths.append(list(m.keys())[0])
+            attrs = []
+            for a in t[i].attributes:
+                attrs.append(list(a.keys())[0])
+            t1 = self.tree[t[i].name]
+            self.dtpe.append(cil_node.DotType(t[i].name, attrs, meths, t1[0], t1[1]))
 
         for i in node.classes:
             self.visit(i, None)
@@ -274,7 +270,7 @@ class Cool2cil:
             codes += tmp[1]
         tmp = self.visit(node.instance, scope)
         codes += tmp[1]
-        t = node.static_type.name
+        t = node.instance.static_type.name
         if t == 'SELF_TYPE':
             t = scope.classname
         codes.append(cil_node.CILDynamicDispatch(len(node.arguments), self._dispatch(t, node.method)))
@@ -303,7 +299,7 @@ class Cool2cil:
     @visitor.when(ast.NewObject)
     def visit(self, node: ast.NewObject, scope):
         if node.type == 'Int' or node.type == 'Bool':
-            return [], [cil_node.CILDecInt()]
+            return [], [cil_node.CILNew([], node.static_type, self.calc_static(node.static_type))]
         c = self.constructors[node.static_type.name]
         t = []
         for i in c:

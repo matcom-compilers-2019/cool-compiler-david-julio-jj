@@ -40,6 +40,12 @@ jr $ra
 li $v0, 1
 lw $a0, 16($sp)
 syscall
+addu $sp, $sp, 4
+lw $fp, ($sp)
+addu $sp, $sp, 4
+lw $a0, 4($sp)
+sw $a0, ($sp)
+subu $sp, $sp, 4
 jr $ra
 
 
