@@ -513,7 +513,7 @@ class MIPS:
     def visit(self, node: cil_node.CILFormal):
         index = self.vars.index(node.dest)
         self.mips_code.append(f"lw $t0, -{4*index}($fp)")
-        if not node.has_init_expr:
+        if not node.load:
             self.mips_code.append("li $t1, 0")
             self.mips_code.append("sw $t1, ($t0)")
         else:

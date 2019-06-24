@@ -69,11 +69,6 @@ class CILStaticDispatch(CILExpression):
         self.method = f'.{classname}.{method_name}'
 
 
-class CILLet(CILExpression):
-    def __init__(self, c_args):
-        self.c_args = c_args
-
-
 class CILNew(CILExpression):
     def __init__(self, attributes, ctype, size):
         self.attributes = attributes
