@@ -134,18 +134,19 @@ class MIPS:
 
         inherithed = "# Inherithed Method\n" \
                      ".inerithed:\n" \
-                     "lw $a0, 4($sp)\n" \
-                     "lw $a1, 8($sp)\n" \
+                     "lw $a0, 8($sp)\n" \
+                     "lw $a1, 4($sp)\n" \
                      "lw $a0, ($a0)\n" \
                      "lw $a2, ($a0)\n" \
                      "lw $a3, 4($a0)\n" \
                      "lw $a0, ($a1)\n" \
                      "lw $a1, 4($a1)\n" \
-                     "sge $t0, $a2, $a0\n" \
+                     "sge $t0, $a0, $a2\n" \
                      "sle $t1, $a1, $a3\n" \
                      "and $a0, $t0, $t1\n" \
                      "sw $a0, ($sp)\n" \
                      "subu $sp, $sp, 4\n" \
+                     "jr $ra" \
                      "\n"
         # $a0 -> eax
         # $a1 -> ebx
@@ -270,14 +271,7 @@ class MIPS:
         # Return value
         self.mips_code.append("sw $a0 $sp")
 
-    @visitor.when(cil_node.CILJump)
-    def visit(self, node: cil_node.CILJump):
-        self.mips_code.append("j {}".format(node.label))
-
-    @visitor.when(cil_node.CILLabel)
-    def visit(self, node: cil_node.CILLabel):
-        self.mips_code.append("{}:".format(node.label))
-
+        
     @visitor.when(cil_node.CILIf)
     def visit(self, node: cil_node.CILIf):
         self.visit(node.predicate)
@@ -311,11 +305,32 @@ class MIPS:
 
     @visitor.when(cil_node.CILCase)
     def visit(self, node: cil_node.CILCase):
-        pass
+
+        self.visit(node.instance)
+
+        for i in node.actions:
+            self.visit(i)
+
+        # Pop node.instance
 
     @visitor.when(cil_node.CILAction)
     def visit(self, node: cil_node.CILAction):
-        pass
+        self.mips_code.append(f"la $a0, {node.ctype}")
+        # self.mips_code.append("lw $t0, 4($sp)")
+        self.mips_code.append("sw $a0, ($sp)")
+        self.mips_code.append("subu $sp, $sp, 4")
+
+        self.mips_code.append("jal .inerithed")
+
+        self.mips_code.append("lw $a0, 4($sp)")
+        self.mips_code.append("addu $sp, $sp, 8")
+
+        self.mips_code.append("li $t0, 0")
+        self.mips_code.append("beq $a0, $ti, {}".format(node.if_action_tag))
+
+        self.visit(node.body)
+
+
 
     @visitor.when(cil_node.CILLet)
     def visit(self, node: cil_node.CILLet):

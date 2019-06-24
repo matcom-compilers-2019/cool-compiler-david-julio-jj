@@ -268,6 +268,8 @@ class Cool2cil:
         for item in node.arguments:
             tmp = self.visit(item, scope)
             codes += tmp[1]
+            if item.static_type.name in ['Int', 'Bool']:
+                codes += [cil_node.CILCopy()]
         tmp = self.visit(node.instance, scope)
         codes += tmp[1]
         t = node.instance.static_type.name
