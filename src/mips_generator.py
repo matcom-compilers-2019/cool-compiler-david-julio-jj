@@ -271,14 +271,7 @@ class MIPS:
         # Return value
         self.mips_code.append("sw $a0 $sp")
 
-    @visitor.when(cil_node.CILJump)
-    def visit(self, node: cil_node.CILJump):
-        self.mips_code.append("j {}".format(node.label))
-
-    @visitor.when(cil_node.CILLabel)
-    def visit(self, node: cil_node.CILLabel):
-        self.mips_code.append("{}:".format(node.label))
-
+        
     @visitor.when(cil_node.CILIf)
     def visit(self, node: cil_node.CILIf):
         self.visit(node.predicate)
