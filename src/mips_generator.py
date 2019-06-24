@@ -200,19 +200,19 @@ class MIPS:
         self.mips_code.append("addiu $sp, $sp, 8")
 
         if node.op == "+":
-            self.mips_code.append("add $a0, $a0, $a1")
+            self.mips_code.append("add $a1, $a0, $a1")
         elif node.op == "-":
-            self.mips_code.append("sub $a0, $a0, $a1")
+            self.mips_code.append("sub $a1, $a0, $a1")
         elif node.op == "*":
             self.mips_code.append("mult $a0, $a1")
-            self.mips_code.append("mflo $a0")
+            self.mips_code.append("mflo $a1")
         elif node.op == "/":
             self.mips_code.append("div $a0, $a1")
-            self.mips_code.append("mflo $a0")
+            self.mips_code.append("mflo $a1")
 
         # Return value
         self.mips_code.append("li $v0, 9")
-        self.mips_code.append("li $a1, 12")
+        self.mips_code.append("li $a0, 12")
         self.mips_code.append("syscall")
 
         self.mips_code.append(f"la $t0, Int")
@@ -221,7 +221,7 @@ class MIPS:
         self.mips_code.append("li $t0, 1")
         self.mips_code.append("sw $t0, 4($v0)")
 
-        self.mips_code.append("sw $a0, 8($v0)")
+        self.mips_code.append("sw $a1, 8($v0)")
         self.mips_code.append("sw $v0, ($sp)")
 
         self.mips_code.append("subu $sp, $sp, 4")
@@ -233,8 +233,8 @@ class MIPS:
         self.visit(node.fst[0])
         self.visit(node.snd[0])
 
-        self.mips_code.append("lw $t0, 4($sp)")
-        self.mips_code.append("lw $t1, 8($sp)")
+        self.mips_code.append("lw $t0, 8($sp)")
+        self.mips_code.append("lw $t1, 4($sp)")
 
         self.mips_code.append("lw $a0, 8($t0)")
         self.mips_code.append("lw $a1, 8($t1)")
@@ -242,19 +242,15 @@ class MIPS:
         self.mips_code.append("addiu $sp, $sp, 8")
 
         if node.op == "=":
-            self.mips_code.append("seq $a0, $a0, $a1")
+            self.mips_code.append("seq $a1, $a0, $a1")
         elif node.op == "<":
-            self.mips_code.append("slt $a0, $a0, $a1")
+            self.mips_code.append("slt $a1, $a0, $a1")
         elif node.op == "<=":
-            self.mips_code.append("sle $a0, $a0, $a1")
-        elif node.op == ">":
-            self.mips_code.append("sgt $a0, $a0, $a1")
-        elif node.op == "=>":
-            self.mips_code.append("sge $a0, $a0, $a1")
+            self.mips_code.append("sle $a1, $a0, $a1")
 
         # Return value
         self.mips_code.append("li $v0, 9")
-        self.mips_code.append("li $a1, {}".format(12))
+        self.mips_code.append("li $a0, 12")
         self.mips_code.append("syscall")
 
         self.mips_code.append(f"la $t0, Bool")
@@ -263,7 +259,7 @@ class MIPS:
         self.mips_code.append("li $t0, 1")
         self.mips_code.append("sw $t0, 4($v0)")
 
-        self.mips_code.append("sw $a0, 8($v0)")
+        self.mips_code.append("sw $a1, 8($v0)")
         self.mips_code.append("sw $v0, ($sp)")
 
         self.mips_code.append("subu $sp, $sp, 4")
@@ -290,33 +286,38 @@ class MIPS:
 
     @visitor.when(cil_node.CILIf)
     def visit(self, node: cil_node.CILIf):
-        self.visit(node.predicate[0])
+        for i in node.predicate:
+            self.visit(i)
 
-        self.mips_code.append("lw $t0, 4($sp)")
-        self.mips_code.append("lw $a0, 8($t0)")
+        self.mips_code.append("lw $t4, 4($sp)")
+        self.mips_code.append("lw $t5, 8($t4)")
 
         self.mips_code.append("li $t1, 1")
-        self.mips_code.append("beq $a0, $t1, {}".format(node.if_tag))
-        self.visit(node.else_body[0])
+        self.mips_code.append("beq $t5, $t1, {}".format(node.if_tag))
+        for i in node.else_body:
+            self.visit(i)
 
         self.mips_code.append("j {}".format(node.end_tag))
 
         self.mips_code.append("{}:".format(node.if_tag))
-        self.visit(node.then_body[0])
+        for i in node.then_body:
+            self.visit(i)
 
         self.mips_code.append("{}:".format(node.end_tag))
 
     @visitor.when(cil_node.CILWhile)
     def visit(self, node: cil_node.CILWhile):
         self.mips_code.append("{}:".format(node.while_tag))
-        self.visit(node.predicate)
+        for i in node.predicate:
+            self.visit(i)
 
-        self.mips_code.append("lw $t0, 16($sp)")
+        self.mips_code.append("lw $t0, 4($sp)")
         self.mips_code.append("lw $a0, 8($t0)")
 
         self.mips_code.append("li $t1, 1")
         self.mips_code.append("bne $a0, $t1, {}".format(node.end_tag))
-        self.visit(node.body)
+        for i in node.body:
+            self.visit(i)
 
         self.mips_code.append("j {}".format(node.while_tag))
         self.mips_code.append("{}:".format(node.end_tag))
@@ -381,6 +382,7 @@ class MIPS:
         self.mips_code.append("sw $t0, 4($v0)")
 
         for attr in node.attributes:
+            print("attr: " + str(attr))
             self.visit(attr)
 
         self.mips_code.append(f"la $t0, {node.ctype}")
@@ -502,13 +504,17 @@ class MIPS:
         # self.mips_code.append("sw $t0, -4($sp)")
         self.mips_code.append("jr $ra")
 
+    @visitor.when(cil_node.CILCopy)
+    def visit(self, node: cil_node.CILCopy):
+        self.mips_code.append("jal .Object.copy")
 
     @visitor.when(cil_node.CILGetAttr)
     def visit(self, node: cil_node.CILGetAttr):
         self.mips_code.append("lw $t0, 12($fp)")
         self.mips_code.append("addu $t0, $t0, 8")
         self.mips_code.append(f"addu $t0, $t0, {4*node.offset}")
-        self.mips_code.append("sw $t0, (sp)")
+        self.mips_code.append("lw $t0, ($t0)")
+        self.mips_code.append("sw $t0, ($sp)")
         self.mips_code.append("subu $sp, $sp, 4")
 
     @visitor.when(cil_node.CILGetLocal)

@@ -319,7 +319,8 @@ class Cool2cil:
 
     @visitor.when(ast.Boolean)
     def visit(self, node: ast.Boolean, scope):
-        return [], [cil_node.CILBoolean(node.content)]
+        value = 1 if node.content else 0
+        return [], [cil_node.CILBoolean(value)]
 
     @visitor.when(ast.String)
     def visit(self, node: ast.String, scope):
@@ -354,19 +355,19 @@ class Cool2cil:
     def visit(self, node: ast.Equal, scope):
         fst = self.visit(node.first, scope)
         snd = self.visit(node.second, scope)
-        return fst[0] + snd[0], [cil_node.CILArithm(fst[1], snd[1], '=')]
+        return fst[0] + snd[0], [cil_node.CILBoolOp(fst[1], snd[1], '=')]
 
     @visitor.when(ast.LessThan)
     def visit(self, node: ast.LessThan, scope):
         fst = self.visit(node.first, scope)
         snd = self.visit(node.second, scope)
-        return fst[0] + snd[0], [cil_node.CILArithm(fst[1], snd[1], '<')]
+        return fst[0] + snd[0], [cil_node.CILBoolOp(fst[1], snd[1], '<')]
 
     @visitor.when(ast.LessThanOrEqual)
     def visit(self, node: ast.LessThanOrEqual, scope):
         fst = self.visit(node.first, scope)
         snd = self.visit(node.second, scope)
-        return fst[0] + snd[0], [cil_node.CILArithm(fst[1], snd[1], '<=')]
+        return fst[0] + snd[0], [cil_node.CILBoolOp(fst[1], snd[1], '<=')]
 
     @visitor.when(ast.IntegerComplement)
     def visit(self, node: ast.IntegerComplement, scope):
