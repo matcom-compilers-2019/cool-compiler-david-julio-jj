@@ -414,7 +414,7 @@ class MIPS:
 
     @visitor.when(cil_node.CILGetAttr)
     def visit(self, node: cil_node.CILGetAttr):
-        self.mips_code.append("lw $t0, 12(fp)")
+        self.mips_code.append("lw $t0, 12($fp)")
         self.mips_code.append("addu $t0, $t0, 8")
         self.mips_code.append(f"addu $t0, $t0, {4*node.offset}")
         self.mips_code.append("sw $t0, (sp)")
@@ -424,9 +424,29 @@ class MIPS:
     def visit(self, node: cil_node.CILGetLocal):
         if node.name in self.arguments:
             index = self.arguments.index(node.name)
-            self.mips_code.append(f"lw $t0, {12 + 4*index}(fp)")
+            self.mips_code.append(f"lw $t0, {12 + 4*index}($fp)")
         elif node.name in self.vars:
             index = self.vars.index(node.name)
-            self.mips_code.append(f"lw $t0, -{4*index}(fp)")
-        self.mips_code.append("sw $t0, (sp)")
+            self.mips_code.append(f"lw $t0, -{4*index}($fp)")
+        self.mips_code.append("sw $t0, ($sp)")
         self.mips_code.append("subu $sp, $sp, 4")
+
+    @visitor.when(cil_node.CILSetAttr)
+    def visit(self, node: cil_node.CILSetAttr):
+        self.mips_code.append("lw $t0, 12($fp)")
+        self.mips_code.append("addu $t0, $t0, 8")
+        self.mips_code.append(f"addu $t0, $t0, {4*node.offset}")
+
+        self.mips_code.append("lw $t1, 4($sp)")
+        self.mips_code.append("sw $t1, ($t0)")
+
+    @visitor.when(cil_node.CILAssignment)
+    def visit(self, node: cil_node.CILAssignment):
+        if node.dest in self.arguments:
+            index = self.arguments.index(node.dest)
+            self.mips_code.append(f"lw $t0, {12 + 4*index}($fp)")
+        elif node.dest in self.vars:
+            index = self.vars.index(node.dest)
+            self.mips_code.append(f"lw $t0, -{4*index}($fp)")
+        self.mips_code.append("lw $t1, 4($sp)")
+        self.mips_code.append("sw $t1, ($t0)")
