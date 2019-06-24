@@ -192,19 +192,19 @@ jr $ra
 
 # Inherithed Method
 .inerithed:
-lw $a0, 4($sp)
-lw $a1, 8($sp)
+lw $a0, 8($sp)
+lw $a1, 4($sp)
 lw $a0, ($a0)
 lw $a2, ($a0)
 lw $a3, 4($a0)
 lw $a0, ($a1)
 lw $a1, 4($a1)
-sge $t0, $a2, $a0
+sge $t0, $a0, $a2
 sle $t1, $a1, $a3
 and $a0, $t0, $t1
 sw $a0, ($sp)
 subu $sp, $sp, 4
-
+jr $ra
 
 .text
 .globl main
@@ -241,17 +241,20 @@ subu $sp, $sp, 0
 li $v0, 9
 li $a0, 12
 syscall
-la $t0, Int
+la $t0, String
 sw $t0, ($v0)
 li $t0, 1
 sw $t0, 4($v0)
-li $a0, 1
+la $a0, msg0
 sw $a0, 8($v0)
 sw $v0, ($sp)
 subu $sp, $sp, 4
+lw $a0, 12($fp)
+sw $a0, 0($sp)
+subu $sp, $sp, 4
 lw $t0, 4($sp)
 lw $t1, ($t0)
-lw $t2, 8($t1)
+lw $t2, 20($t1)
 sw $ra, ($sp)
 subu $sp, $sp, 4
 sw $fp, ($sp)
@@ -259,11 +262,78 @@ subu $sp, $sp, 4
 move $fp, $sp
 jal $t2
 lw $t0, 4($sp)
-addu $sp, $sp, 8
+addu $sp, $sp, 12
 sw $t0, ($sp)
 subu $sp, $sp, 4
+li $v0, 9
+li $a0, 12
+syscall
+la $t0, Int
+sw $t0, ($v0)
+li $t0, 1
+sw $t0, 4($v0)
+li $a0, 4
+sw $a0, 8($v0)
+sw $v0, ($sp)
+subu $sp, $sp, 4
+li $v0, 9
+li $a0, 12
+syscall
+la $t0, Int
+sw $t0, ($v0)
+li $t0, 1
+sw $t0, 4($v0)
+li $a0, 5
+sw $a0, 8($v0)
+sw $v0, ($sp)
+subu $sp, $sp, 4
+lw $t0, 8($sp)
+lw $t1, 4($sp)
+lw $a0, 8($t0)
+lw $a1, 8($t1)
+addiu $sp, $sp, 8
+sle $a0, $a0, $a1
+li $v0, 9
+li $a1, 12
+syscall
+la $t0, Int
+sw $t0, ($v0)
+li $t0, 1
+sw $t0, 4($v0)
+sw $a0, 8($v0)
+sw $v0, ($sp)
+subu $sp, $sp, 4
+lw $t0, 4($sp)
+lw $a0, 8($t0)
+li $t1, 1
+beq $a0, $t1, .if.start.1
+li $v0, 9
+li $a0, 12
+syscall
+la $t0, String
+sw $t0, ($v0)
+li $t0, 1
+sw $t0, 4($v0)
+la $a0, msg2
+sw $a0, 8($v0)
+sw $v0, ($sp)
+subu $sp, $sp, 4
+j .if.end.1
+.if.start.1:
+li $v0, 9
+li $a0, 12
+syscall
+la $t0, String
+sw $t0, ($v0)
+li $t0, 1
+sw $t0, 4($v0)
+la $a0, msg1
+sw $a0, 8($v0)
+sw $v0, ($sp)
+subu $sp, $sp, 4
+.if.end.1:
 lw $a0, 4($sp)
-addu, $sp, $sp, 4
+addu, $sp, $sp, 8
 sw $a0, ($sp)
 subu, $sp, $sp, 4
 move $sp, $fp
@@ -274,6 +344,12 @@ lw $ra, ($sp)
 jr $ra
 # Start .data segment (data!)
 .data
+msg0: .asciiz "enter a string
+"
+msg1: .asciiz "Correcto 4 es menor que 5
+"
+msg2: .asciiz "Incorrecto 4 es mayoer que 5
+"
 Object: .word 0, 11, .Object.abort, .Object.type_name, .Object.copy
 Int: .word 1, 2, .Object.abort, .Object.type_name, .Object.copy
 Bool: .word 3, 4, .Object.abort, .Object.type_name, .Object.copy
