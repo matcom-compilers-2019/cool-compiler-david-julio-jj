@@ -165,8 +165,9 @@ class CILDecInt(CILExpression):
 
 
 class CILIsVoid(CILExpression):
-    def __init__(self, exp):
-        self.exp = exp
+    def __init__(self, key):
+        self.void_tag = f"isvoid.init.{key}"
+        self.end_tag = f"isvoid.end.{key}"
 
 
 class CILCase(CILExpression):
