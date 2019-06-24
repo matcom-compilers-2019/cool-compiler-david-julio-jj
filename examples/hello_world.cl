@@ -1,5 +1,5 @@
 class Main inherits IO {
-   x:Int <- 8;
+   x:Int;
    main(): Object {
        {
             1.abort();
