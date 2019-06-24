@@ -211,7 +211,7 @@ class CheckSemantic:
 
     @visitor.when(ast.Self)
     def visit(self, node: ast.Self, scope: Scope):
-        node.static_type = scope.getType('SELF_TYPE')
+        node.static_type = scope.getType(scope.classname)
         return scope.getType('SELF_TYPE')
 
     @visitor.when(ast.NewObject)
@@ -408,7 +408,8 @@ class CheckSemantic:
         exp_type = self.visit(node.integer_expr, scope)
         if not exp_type.name == "Int":
             raise CheckSemanticError(f'{exp_type.name} doest\' match with Int')
-        int_type = scope.getType('Int')        
+        int_type = scope.getType('Int')
+        node.static_type = int_type
         return int_type
 
     @visitor.when(ast.BooleanComplement)
@@ -417,6 +418,7 @@ class CheckSemantic:
         if not exp_type.name == 'Bool':
             raise CheckSemanticError(f'{exp_type.name} doest\' match wiht Int')
         bool_type = scope.getType('Bool')
+        node.static_type = bool_type
         return bool_type
 
     @visitor.when(ast.Addition)
@@ -426,6 +428,7 @@ class CheckSemantic:
         if not left_type.name == 'Int' or not right_type.name == 'Int':
             raise CheckSemanticError(f'expressions type must to be Int')
         int_type = scope.getType('Int')
+        node.static_type = int_type
         return int_type
 
     @visitor.when(ast.Subtraction)
@@ -435,6 +438,7 @@ class CheckSemantic:
         if not left_type.name == 'Int' or not right_type.name == 'Int':
             raise CheckSemanticError(f'expressions type must to be Int')
         int_type = scope.getType('Int')
+        node.static_type = int_type
         return int_type
 
     @visitor.when(ast.Multiplication)
@@ -444,6 +448,7 @@ class CheckSemantic:
         if not left_type.name == 'Int' or not right_type.name == 'Int':
             raise CheckSemanticError(f'expressions type must to be Int')
         int_type = scope.getType('Int')
+        node.static_type = int_type
         return int_type
 
     @visitor.when(ast.Division)
@@ -453,6 +458,7 @@ class CheckSemantic:
         if not left_type.name == 'Int' or not right_type.name == 'Int':
             raise CheckSemanticError(f'expressions type must be Int')
         int_type = scope.getType('Int')
+        node.static_type = int_type
         return int_type
     
     @visitor.when(ast.Equal)
@@ -466,6 +472,7 @@ class CheckSemantic:
         if not left_type.name == right_type.name:
             raise CheckSemanticError(f'In equal expressions type must be the same type')
         bool_type = scope.getType('Bool')
+        node.static_type = bool_type
         return bool_type
 
     @visitor.when(ast.LessThan)
@@ -484,4 +491,5 @@ class CheckSemantic:
         if not left_type.name == 'Int' or not right_type.name == 'Int':
             raise CheckSemanticError(f'expressions type must be Int')
         bool_type = scope.getType('Bool')
+        node.static_type = bool_type
         return bool_type
