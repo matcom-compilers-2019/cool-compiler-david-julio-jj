@@ -355,9 +355,6 @@ class MIPS:
 
         self.mips_code.append(f'j {node.action_tag}')
 
-    @visitor.when(cil_node.CILLet)
-    def visit(self, node: cil_node.CILLet):
-        pass
 
     @visitor.when(cil_node.CILBlock)
     def visit(self, node: cil_node.CILBlock):
