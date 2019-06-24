@@ -360,7 +360,7 @@ class MIPS:
         self.mips_code.append("lw $t0, 4($sp)")
         self.mips_code.append("lw $t1, 8($sp)")
         self.mips_code.append("addi $t1, $t1, 8")
-        self.mips_code.append("sw $t0, {}($t1)".format(node.offset))
+        self.mips_code.append("sw $t0, {}($t1)".format(4 * node.offset))
         self.mips_code.append("addu $sp, $sp, 4")
 
     @visitor.when(cil_node.CILNew)

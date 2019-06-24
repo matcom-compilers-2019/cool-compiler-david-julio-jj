@@ -1,6 +1,12 @@
 class Main inherits IO {
-    x : Int;
+    x : String;
+    y : Int;
     main() : Object {
-        in_int()
+        {
+            x <- "Pepe";
+            y <- x.length();
+            out_string(x);
+            out_int(y);
+        }
     };
 };

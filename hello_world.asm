@@ -33,12 +33,14 @@ li $v0, 4
 lw $t0, 16($fp)
 lw $a0, 8($t0)
 syscall
+
 addu $sp, $sp, 4
 lw $fp, ($sp)
 addu $sp, $sp, 4
 lw $a0, 4($sp)
 sw $a0, ($sp)
 subu $sp, $sp, 4
+
 jr $ra
 
 #Cambiado(Funciona)
@@ -47,24 +49,30 @@ li $v0, 1
 lw $t0, 16($fp)
 lw $a0, 8($t0)
 syscall
+
 addu $sp, $sp, 4
 lw $fp, ($sp)
 addu $sp, $sp, 4
 lw $a0, 4($sp)
+
 sw $a0, ($sp)
 subu $sp, $sp, 4
+
 jr $ra
 
 
 .IO.in_string:
 move $a3, $ra
+
 la $a0, buffer
 li $a1, 65536
 li $v0, 8
 syscall
+
 sw $a0, 0($sp)
 subu $sp, $sp, 4
 jal .String.length
+
 addiu $sp, $sp, 4
 move $a2, $v0
 addiu $a2, $a2, -1
@@ -86,22 +94,64 @@ sb $zero, 0($v1)
 move $ra, $a3
 jr $ra
 
-
+# Pincha
 .IO.in_int:
 li $v0, 5
 syscall
+
+move $t3, $v0
+
+li $v0, 9
+li $a0, 12
+syscall
+la $t0, Int
+sw $t0, ($v0)
+li $t0, 1
+sw $t0, 4($v0)
+sw $t3, 8($v0)
+
+addu $sp, $sp, 4
+lw $fp, ($sp)
+addu $sp, $sp, 4
+lw $a0, 4($sp)
+
+sw $v0, ($sp)
+subu $sp, $sp, 4
+
 jr $ra
 
 .String.length:
-lw $a0, 4($sp)
+lw $a0, 16($sp)
+lw $a0, 8($a0)
+li $a1, 0
 _stringlength.loop:
-lb $a1, 0($a0)
-beqz $a1, _stringlength.end
+lb $a2, 0($a0)
+beqz $a2, _stringlength.end
 addiu $a0, $a0, 1
+addiu $a1, $a1, 1
 j _stringlength.loop
+
 _stringlength.end:
-lw $a1, 4($sp)
-subu $v0, $a0, $a1
+li $v0, 9
+li $a0, 12
+syscall
+
+la $t0, Int
+sw $t0, ($v0)
+
+li $t0, 1
+sw $t0, 4($v0)
+
+sw $a1, 8($v0)
+
+addu $sp, $sp, 4
+lw $fp, ($sp)
+addu $sp, $sp, 4
+lw $a0, 4($sp)
+
+sw $v0, ($sp)
+subu $sp, $sp, 4
+
 jr $ra
 
 
@@ -218,13 +268,13 @@ subu $sp, $sp, 4
 
 main:
 li $v0, 9
-li $a0, 12
+li $a0, 16
 syscall
 sw $v0, 0($sp)
 subu $sp, $sp ,4
 la $t0, Main
 sw $t0, ($v0)
-li $t0, 1
+li $t0, 2
 sw $t0, 4($v0)
 li $v0, 9
 li $a0, 12
@@ -233,7 +283,7 @@ la $t0, Int
 sw $t0, ($v0)
 li $t0, 1
 sw $t0, 4($v0)
-li $a0, 4
+li $a0, 0
 sw $a0, 8($v0)
 sw $v0, ($sp)
 subu $sp, $sp, 4
@@ -242,6 +292,23 @@ lw $t0, 4($sp)
 lw $t1, 8($sp)
 addi $t1, $t1, 8
 sw $t0, 0($t1)
+addu $sp, $sp, 4
+li $v0, 9
+li $a0, 12
+syscall
+la $t0, Int
+sw $t0, ($v0)
+li $t0, 1
+sw $t0, 4($v0)
+li $a0, 0
+sw $a0, 8($v0)
+sw $v0, ($sp)
+subu $sp, $sp, 4
+# Init Attr
+lw $t0, 4($sp)
+lw $t1, 8($sp)
+addi $t1, $t1, 8
+sw $t0, 4($t1)
 addu $sp, $sp, 4
 # Start self.visit(cil_node.CILDynamicDispatch())
 
@@ -263,11 +330,11 @@ subu $sp, $sp, 0
 li $v0, 9
 li $a0, 12
 syscall
-la $t0, Int
+la $t0, String
 sw $t0, ($v0)
 li $t0, 1
 sw $t0, 4($v0)
-li $a0, 5
+la $a0, msg0
 sw $a0, 8($v0)
 sw $v0, ($sp)
 subu $sp, $sp, 4
@@ -282,28 +349,51 @@ addu $t0, $t0, 0
 lw $t0, ($t0)
 sw $t0, ($sp)
 subu $sp, $sp, 4
+lw $t0, 4($sp)
+lw $t1, ($t0)
+lw $t2, 20($t1)
+sw $ra, ($sp)
+subu $sp, $sp, 4
+sw $fp, ($sp)
+subu $sp, $sp, 4
+move $fp, $sp
+jal $t2
+lw $t0, 4($sp)
+addu $sp, $sp, 8
+sw $t0, ($sp)
+subu $sp, $sp, 4
+lw $t0, 12($fp)
+addu $t0, $t0, 8
+addu $t0, $t0, 4
+lw $t1, 4($sp)
+sw $t1, ($t0)
 lw $t0, 12($fp)
 addu $t0, $t0, 8
 addu $t0, $t0, 0
 lw $t0, ($t0)
 sw $t0, ($sp)
 subu $sp, $sp, 4
-lw $t0, 8($sp)
-lw $t1, 4($sp)
-lw $a0, 8($t0)
-lw $a1, 8($t1)
-addiu $sp, $sp, 8
-mult $a0, $a1
-mflo $a1
-li $v0, 9
-li $a0, 12
-syscall
-la $t0, Int
-sw $t0, ($v0)
-li $t0, 1
-sw $t0, 4($v0)
-sw $a1, 8($v0)
-sw $v0, ($sp)
+lw $a0, 12($fp)
+sw $a0, 0($sp)
+subu $sp, $sp, 4
+lw $t0, 4($sp)
+lw $t1, ($t0)
+lw $t2, 20($t1)
+sw $ra, ($sp)
+subu $sp, $sp, 4
+sw $fp, ($sp)
+subu $sp, $sp, 4
+move $fp, $sp
+jal $t2
+lw $t0, 4($sp)
+addu $sp, $sp, 12
+sw $t0, ($sp)
+subu $sp, $sp, 4
+lw $t0, 12($fp)
+addu $t0, $t0, 8
+addu $t0, $t0, 4
+lw $t0, ($t0)
+sw $t0, ($sp)
 subu $sp, $sp, 4
 jal .Object.copy
 lw $a0, 12($fp)
@@ -323,7 +413,7 @@ addu $sp, $sp, 12
 sw $t0, ($sp)
 subu $sp, $sp, 4
 lw $a0, 4($sp)
-addu, $sp, $sp, 8
+addu, $sp, $sp, 16
 sw $a0, ($sp)
 subu, $sp, $sp, 4
 move $sp, $fp
@@ -334,6 +424,7 @@ lw $ra, ($sp)
 jr $ra
 # Start .data segment (data!)
 .data
+msg0: .asciiz "Pepe"
 Object: .word 0, 11, .Object.abort, .Object.type_name, .Object.copy
 Int: .word 1, 2, .Object.abort, .Object.type_name, .Object.copy
 Bool: .word 3, 4, .Object.abort, .Object.type_name, .Object.copy
