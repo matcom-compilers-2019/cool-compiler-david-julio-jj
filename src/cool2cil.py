@@ -41,8 +41,8 @@ class Unique_name_generator:
     def generate(self, var: str, just_int=False):
         value = 1
         if var in self.name_keys:
-            value = self.name_keys[var]
             self.name_keys[var] += 1
+            value = self.name_keys[var]
         else:
             self.name_keys[var] = 1
         if just_int:
@@ -407,13 +407,14 @@ class Cool2cil:
             codes += tmp[1]
             codes.append(cil_node.CILFormal(new_name))
         elif node.static_type in ['Bool', 'Int', 'String']:
-            node.static_type = node.static_type.name
             c = self.constructors[node.static_type]
             t = []
             for i in c:
                 t += i.exp_code
-                t.append(cil_node.CILInitAttr(self._att_offset(scope.classname, i.offset)))
-            codes = [cil_node.CILNew(t, node.static_type, self.calc_static(node.static_type)), cil_node.CILFormal(new_name)]
+                t.append(cil_node.CILInitAttr(self._att_offset(node.static_type, i.offset)))
+            codes = [
+                cil_node.CILNew(t, node.static_type, self.calc_static(node.static_type)), cil_node.CILFormal(new_name)
+            ]
         else:
             codes = [cil_node.CILFormal(new_name, False)]
         return var, codes
@@ -467,6 +468,7 @@ class Cool2cil:
     @visitor.when(ast.Action)
     def visit(self, node: ast.Action, scope):
         new_name = self.name_generator.generate(node.name)
+        print(new_name)
         scope.add_var(new_name)
         t = self.visit(node.body, scope)
         return [new_name] + t[0], [cil_node.CILAction(new_name, node.action_type, t[1])]

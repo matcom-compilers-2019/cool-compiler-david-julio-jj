@@ -58,10 +58,12 @@ jr $ra
 
 .IO.in_string:
 move $a3, $ra
+
 la $a0, buffer
 li $a1, 65536
 li $v0, 8
 syscall
+
 sw $a0, 0($sp)
 subu $sp, $sp, 4
 jal .String.length
