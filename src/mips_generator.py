@@ -476,7 +476,6 @@ class MIPS:
         # self.mips_code.append("sw $t0, -4($sp)")
         self.mips_code.append("jr $ra")
 
-
     @visitor.when(cil_node.CILGetAttr)
     def visit(self, node: cil_node.CILGetAttr):
         self.mips_code.append("lw $t0, 12($fp)")
