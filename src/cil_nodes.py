@@ -2,11 +2,6 @@ class CILNode:
     pass
 
 
-class DotData(CILNode):
-    def __init__(self):
-        self.strings = []
-
-
 class DotType(CILNode):
     def __init__(self, cType, attributes, methods, t_in, t_out):
         self.cType = cType
@@ -25,35 +20,9 @@ class DotType(CILNode):
         return r
 
 
-class DotCode(CILNode):
-    def __init__(self):
-        self.methods = []
-
-
-class CILLabel(CILNode):
-    def __init__(self, label: str):
-        self.label = label
-
-
-class CILJump(CILNode):
-    def __init__(self, label: str):
-        self.label = label
-
-
 class CILProgram(CILNode):
     def __init__(self):
         pass
-
-
-class CILType(CILNode):
-    def __init__(self):
-        pass
-
-
-class CILReadS(CILNode):
-    def ___init__(self, offset: int, register: str):
-        self.offset = offset
-        self.register = register
 
 
 class CILMethod(CILNode):
@@ -140,11 +109,6 @@ class CILWhile(CILExpression):  # Listo
         self.body = body
         self.while_tag = f'.while.start.{key}'
         self.end_tag = f'.if.end.{key}'
-
-
-class CILObject(CILExpression):
-    def __init__(self, name):
-        self.name = name
 
 
 class CILGetAttr(CILExpression):
