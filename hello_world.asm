@@ -213,12 +213,29 @@ jr $ra
 
 main:
 li $v0, 9
-li $a0, 8
+li $a0, 12
 syscall
 sw $v0, 0($sp)
 subu $sp, $sp ,4
-li $t0, 0
+li $t0, 1
 sw $t0, 4($v0)
+li $v0, 9
+li $a0, 12
+syscall
+la $t0, Int
+sw $t0, ($v0)
+li $t0, 1
+sw $t0, 4($v0)
+li $a0, 8
+sw $a0, 8($v0)
+sw $v0, ($sp)
+subu $sp, $sp, 4
+# Init Attr
+lw $t0, 4($sp)
+lw $t1, 8($sp)
+addi $t1, $t1, 8
+sw $t0, 0($t1)
+addu $sp, $sp, 4
 la $t0, Main
 sw $t0, ($v0)
 # Start self.visit(cil_node.CILDynamicDispatch())

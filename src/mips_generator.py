@@ -134,19 +134,18 @@ class MIPS:
 
         inherithed = "# Inherithed Method\n" \
                      ".inerithed:\n" \
-                     "lw $a0, 8($sp)\n" \
-                     "lw $a1, 4($sp)\n" \
+                     "lw $a0, 4($sp)\n" \
+                     "lw $a1, 8($sp)\n" \
                      "lw $a0, ($a0)\n" \
                      "lw $a2, ($a0)\n" \
                      "lw $a3, 4($a0)\n" \
                      "lw $a0, ($a1)\n" \
                      "lw $a1, 4($a1)\n" \
-                     "sge $t0, $a0, $a2\n" \
+                     "sge $t0, $a2, $a0\n" \
                      "sle $t1, $a1, $a3\n" \
                      "and $a0, $t0, $t1\n" \
                      "sw $a0, ($sp)\n" \
                      "subu $sp, $sp, 4\n" \
-                     "jr $ra" \
                      "\n"
         # $a0 -> eax
         # $a1 -> ebx
@@ -324,13 +323,7 @@ class MIPS:
 
     @visitor.when(cil_node.CILCase)
     def visit(self, node: cil_node.CILCase):
-
-        self.visit(node.instance)
-
-        for i in node.actions:
-            self.visit(i)
-
-        # Pop node.instance
+        pass
 
     @visitor.when(cil_node.CILAction)
     def visit(self, node: cil_node.CILAction):
@@ -509,6 +502,7 @@ class MIPS:
         # self.mips_code.append("sw $t0, -4($sp)")
         self.mips_code.append("jr $ra")
 
+
     @visitor.when(cil_node.CILGetAttr)
     def visit(self, node: cil_node.CILGetAttr):
         self.mips_code.append("lw $t0, 12($fp)")
@@ -547,3 +541,15 @@ class MIPS:
             self.mips_code.append(f"lw $t0, -{4*index}($fp)")
         self.mips_code.append("lw $t1, 4($sp)")
         self.mips_code.append("sw $t1, ($t0)")
+
+    @visitor.when(cil_node.CILFormal)
+    def visit(self, node: cil_node.CILFormal):
+        index = self.vars.index(node.dest)
+        self.mips_code.append(f"lw $t0, -{4*index}($fp)")
+        if not node.has_init_expr:
+            self.mips_code.append("li $t1, 0")
+            self.mips_code.append("sw $t1, ($t0)")
+        else:
+            self.mips_code.append("lw $t1, 4($sp)")
+            self.mips_code.append("sw $t1, ($t0)")
+            self.mips_code.append("addu $sp, $sp, 4")

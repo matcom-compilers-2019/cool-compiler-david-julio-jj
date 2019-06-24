@@ -88,9 +88,8 @@ class CILAttribute(CILExpression):
 
 
 class CILFormal(CILExpression):
-    def __init__(self, dest: str, default_int=False, default_bool=False):
-        self.default_int = default_int
-        self.default_bool = default_bool
+    def __init__(self, dest: str, load=True):
+        self.load = load
         self.dest = dest
 
 
@@ -182,9 +181,18 @@ class CILCase(CILExpression):
 
 
 class CILAction(CILExpression):
-    def __init__(self, ctype, body):
+    def __init__(self, id, ctype, body):
+        self.id = id
         self.ctype = ctype
         self.body = body
+        self.case_tag = None
+        self.action_tag = None
+
+    def set_case_tag(self, key):
+        self.case_tag = f"case.end.{key}"
+
+    def set_action_tag(self, key):
+        self.action_tag = f"action.{key}"
 
 
 class CILSelf(CILExpression):
