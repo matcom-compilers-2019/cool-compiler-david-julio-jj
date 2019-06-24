@@ -114,6 +114,8 @@ class CheckSemantic:
             attribs = filter(lambda x: type(x) is ast.ClassAttribute, j.features)
             attribs = list(attribs)
             p_type = scope.getType(j.parent)
+            if p_type.name in ['Int', 'Bool', 'String']:
+                raise CheckSemanticError(f'Any type can\'t inheriths from {p_type}')
             for i in p_type.attributes:
                 try:
                     scope.getType(j.name).add_attrib(i)

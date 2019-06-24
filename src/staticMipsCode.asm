@@ -27,18 +27,46 @@ jr $ra
 li $v0, 10
 syscall
 
+.Object.type_name:
+lw $t3, 16($fp)
+lw $t4, 8($t0)
+
+li $v0, 9
+li $a0, 12
+syscall
+la $t0, String
+sw $t0, ($v0)
+li $t0, 1
+sw $t0, 4($v0)
+la $a0, ($t4)
+sw $a0, 8($v0)
+
+addu $sp, $sp, 4
+lw $fp, ($sp)
+addu $sp, $sp, 4
+lw $a0, 4($sp)
+
+sw $v0, ($sp)
+subu $sp, $sp, 4
+
+jr $ra
+
+
+
 #Cambiado(funciona)
 .IO.out_string:
 li $v0, 4
 lw $t0, 16($fp)
 lw $a0, 8($t0)
 syscall
+
 addu $sp, $sp, 4
 lw $fp, ($sp)
 addu $sp, $sp, 4
 lw $a0, 4($sp)
 sw $a0, ($sp)
 subu $sp, $sp, 4
+
 jr $ra
 
 #Cambiado(Funciona)
@@ -47,24 +75,30 @@ li $v0, 1
 lw $t0, 16($fp)
 lw $a0, 8($t0)
 syscall
+
 addu $sp, $sp, 4
 lw $fp, ($sp)
 addu $sp, $sp, 4
 lw $a0, 4($sp)
+
 sw $a0, ($sp)
 subu $sp, $sp, 4
+
 jr $ra
 
 
 .IO.in_string:
 move $a3, $ra
+
 la $a0, buffer
 li $a1, 65536
 li $v0, 8
 syscall
+
 sw $a0, 0($sp)
 subu $sp, $sp, 4
 jal .String.length
+
 addiu $sp, $sp, 4
 move $a2, $v0
 addiu $a2, $a2, -1
@@ -86,22 +120,64 @@ sb $zero, 0($v1)
 move $ra, $a3
 jr $ra
 
-
+# Pincha
 .IO.in_int:
 li $v0, 5
 syscall
+
+move $t3, $v0
+
+li $v0, 9
+li $a0, 12
+syscall
+la $t0, Int
+sw $t0, ($v0)
+li $t0, 1
+sw $t0, 4($v0)
+sw $t3, 8($v0)
+
+addu $sp, $sp, 4
+lw $fp, ($sp)
+addu $sp, $sp, 4
+lw $a0, 4($sp)
+
+sw $v0, ($sp)
+subu $sp, $sp, 4
+
 jr $ra
 
 .String.length:
-lw $a0, 4($sp)
+lw $a0, 16($sp)
+lw $a0, 8($a0)
+li $a1, 0
 _stringlength.loop:
-lb $a1, 0($a0)
-beqz $a1, _stringlength.end
+lb $a2, 0($a0)
+beqz $a2, _stringlength.end
 addiu $a0, $a0, 1
+addiu $a1, $a1, 1
 j _stringlength.loop
+
 _stringlength.end:
-lw $a1, 4($sp)
-subu $v0, $a0, $a1
+li $v0, 9
+li $a0, 12
+syscall
+
+la $t0, Int
+sw $t0, ($v0)
+
+li $t0, 1
+sw $t0, 4($v0)
+
+sw $a1, 8($v0)
+
+addu $sp, $sp, 4
+lw $fp, ($sp)
+addu $sp, $sp, 4
+lw $a0, 4($sp)
+
+sw $v0, ($sp)
+subu $sp, $sp, 4
+
 jr $ra
 
 

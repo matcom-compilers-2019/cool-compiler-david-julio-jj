@@ -1,8 +1,12 @@
 class Main inherits IO {
+    x : String;
+    y : Int;
     main() : Object {
-        case 4 of
-        a: Bool => out_string("No\n");
-        b: Int => out_string("Si\n");
-        esac
+        {
+            x <- "Pepe";
+            y <- x.length();
+            out_string(x);
+            out_int(y);
+        }
     };
 };

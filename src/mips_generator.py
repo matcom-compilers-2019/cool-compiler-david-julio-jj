@@ -174,8 +174,11 @@ class MIPS:
             self.mips_code.append("msg{}: .asciiz \"{}\"".format(pos, s_data))
             pos += 1
 
-        for tipe in self.dotType:
-            words = f"{tipe.cType}: .word {tipe.t_in}, {tipe.t_out}"
+        for i in range(len(self.dotType)):
+            self.mips_code.append(f"type_str{i}: .asciiz \"{self.dotType[i].cType}\"")
+        for i in range(len(self.dotType)):
+            tipe = self.dotType[i]
+            words = f"{tipe.cType}: .word {tipe.t_in}, {tipe.t_out}, type_str{i}"
             for method in tipe.methods:
                 words += ", " + "." + method
 
@@ -324,7 +327,7 @@ class MIPS:
 
     @visitor.when(cil_node.CILCase)
     def visit(self, node: cil_node.CILCase):
-        self.visit(node.instance)
+        self.visit(node.instance[0])
 
         for i in node.actions:
             self.visit(i[0])
@@ -341,7 +344,7 @@ class MIPS:
         self.mips_code.append("jal .inerithed")
 
         self.mips_code.append("lw $a0, 4($sp)")
-        self.mips_code.append("addu $sp, $sp, 8")
+        self.mips_code.append("addu $sp, $sp, 4")
 
         self.mips_code.append("li $t0, 0")
         self.mips_code.append("beq $a0, $t0, {}".format(node.action_tag))
@@ -350,11 +353,13 @@ class MIPS:
         self.mips_code.append(f"addu $sp, $sp, 4")
         i = self.vars.index(node.id)
         self.mips_code.append(f"sw $t0, -{i*4}($fp)")
-        self.visit(node.body)
+
+        for i in node.body:
+            self.visit(i)
+
         self.mips_code.append(f"j {node.case_tag}")
 
-        self.mips_code.append(f'j {node.action_tag}')
-
+        self.mips_code.append(f'{node.action_tag}:')
 
     @visitor.when(cil_node.CILBlock)
     def visit(self, node: cil_node.CILBlock):
@@ -369,7 +374,7 @@ class MIPS:
         self.mips_code.append("lw $t0, 4($sp)")
         self.mips_code.append("lw $t1, 8($sp)")
         self.mips_code.append("addi $t1, $t1, 8")
-        self.mips_code.append("sw $t0, {}($t1)".format(node.offset))
+        self.mips_code.append("sw $t0, {}($t1)".format(4 * node.offset))
         self.mips_code.append("addu $sp, $sp, 4")
 
     @visitor.when(cil_node.CILNew)
@@ -560,13 +565,12 @@ class MIPS:
     @visitor.when(cil_node.CILFormal)
     def visit(self, node: cil_node.CILFormal):
         index = self.vars.index(node.dest)
-        self.mips_code.append(f"lw $t0, -{4*index}($fp)")
         if not node.load:
             self.mips_code.append("li $t1, 0")
-            self.mips_code.append("sw $t1, ($t0)")
+            self.mips_code.append(f"sw $t1, -{4 * index}($fp)")
         else:
             self.mips_code.append("lw $t1, 4($sp)")
-            self.mips_code.append("sw $t1, ($t0)")
+            self.mips_code.append(f"sw $t1, -{4 * index}($fp)")
             self.mips_code.append("addu $sp, $sp, 4")
 
     @visitor.when(cil_node.CILIsVoid)
