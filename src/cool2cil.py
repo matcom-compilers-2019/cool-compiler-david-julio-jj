@@ -390,7 +390,6 @@ class Cool2cil:
             tmp = self.visit(item, new_scope)
             var += tmp[0]
             codes += tmp[1]
-        codes.append(cil_node.CILLet(len(node.declarations)))
         tmp = self.visit(node.body, new_scope)
         var += tmp[0]
         codes += tmp[1]
