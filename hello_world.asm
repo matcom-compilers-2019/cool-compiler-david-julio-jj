@@ -221,50 +221,12 @@ sw $t0, ($sp)
 subu $sp, $sp, 4
 .Main.main:
 subu $sp, $sp, 0
-la $t5, msg0
-sw $t5, 0($sp)
-subu $sp, $sp, 4
-lw $a0, 12($fp)
+li $a0, 1
 sw $a0, 0($sp)
 subu $sp, $sp, 4
 lw $t0, 4($sp)
 lw $t1, ($t0)
-lw $t2, 20($t1)
-sw $ra, ($sp)
-subu $sp, $sp, 4
-sw $fp, ($sp)
-subu $sp, $sp, 4
-move $fp, $sp
-jal $t2
-lw $t0, 4($sp)
-addu $sp, $sp, 12
-sw $t0, ($sp)
-subu $sp, $sp, 4
-la $t5, msg1
-sw $t5, 0($sp)
-subu $sp, $sp, 4
-lw $a0, 12($fp)
-sw $a0, 0($sp)
-subu $sp, $sp, 4
-lw $t0, 4($sp)
-lw $t1, ($t0)
-lw $t2, 20($t1)
-sw $ra, ($sp)
-subu $sp, $sp, 4
-sw $fp, ($sp)
-subu $sp, $sp, 4
-move $fp, $sp
-jal $t2
-lw $t0, 4($sp)
-addu $sp, $sp, 12
-sw $t0, ($sp)
-subu $sp, $sp, 4
-lw $a0, 12($fp)
-sw $a0, 0($sp)
-subu $sp, $sp, 4
-lw $t0, 4($sp)
-lw $t1, ($t0)
-lw $t2, 32($t1)
+lw $t2, 8($t1)
 sw $ra, ($sp)
 subu $sp, $sp, 4
 sw $fp, ($sp)
@@ -276,7 +238,7 @@ addu $sp, $sp, 8
 sw $t0, ($sp)
 subu $sp, $sp, 4
 lw $a0, 4($sp)
-addu, $sp, $sp, 12
+addu, $sp, $sp, 4
 sw $a0, ($sp)
 subu, $sp, $sp, 4
 move $sp, $fp
@@ -287,13 +249,9 @@ lw $ra, ($sp)
 jr $ra
 # Start .data segment (data!)
 .data
-msg0: .asciiz "Hello World. 
-"
-msg1: .asciiz "Hello World. 
-"
 Object: .word 0, 11, .Object.abort, .Object.type_name, .Object.copy
-Int: .word 1, 2
-Bool: .word 3, 4
+Int: .word 1, 2, .Object.abort, .Object.type_name, .Object.copy
+Bool: .word 3, 4, .Object.abort, .Object.type_name, .Object.copy
 String: .word 5, 6, .Object.abort, .Object.type_name, .Object.copy, .String.length, .String.concat, .String.substr
 IO: .word 7, 10, .Object.abort, .Object.type_name, .Object.copy, .IO.out_string, .IO.out_int, .IO.in_string, .IO.in_int
 Main: .word 8, 9, .Object.abort, .Object.type_name, .Object.copy, .IO.out_string, .IO.out_int, .IO.in_string, .IO.in_int, .Main.main

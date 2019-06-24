@@ -485,6 +485,7 @@ class BinaryOperation(Expr):
     def __init__(self):
         super(BinaryOperation, self).__init__()
 
+
 class Addition(BinaryOperation):
     def __init__(self, first, second):
         super(Addition, self).__init__()

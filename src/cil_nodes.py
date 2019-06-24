@@ -226,3 +226,8 @@ class CILAction(CILExpression):
 class CILSelf(CILExpression):
     def __init__(self):
         pass
+
+
+class CILCopy(CILExpression):
+    def __init__(self):
+        pass
