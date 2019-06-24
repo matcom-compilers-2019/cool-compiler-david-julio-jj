@@ -88,9 +88,8 @@ class CILAttribute(CILExpression):
 
 
 class CILFormal(CILExpression):
-    def __init__(self, dest: str, default_int=False, default_bool=False):
-        self.default_int = default_int
-        self.default_bool = default_bool
+    def __init__(self, dest: str, load=True):
+        self.load = load
         self.dest = dest
 
 

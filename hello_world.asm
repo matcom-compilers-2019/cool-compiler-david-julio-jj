@@ -192,19 +192,19 @@ jr $ra
 
 # Inherithed Method
 .inerithed:
-lw $a0, 4($sp)
-lw $a1, 8($sp)
+lw $a0, 8($sp)
+lw $a1, 4($sp)
 lw $a0, ($a0)
 lw $a2, ($a0)
 lw $a3, 4($a0)
 lw $a0, ($a1)
 lw $a1, 4($a1)
-sge $t0, $a2, $a0
+sge $t0, $a0, $a2
 sle $t1, $a1, $a3
 and $a0, $t0, $t1
 sw $a0, ($sp)
 subu $sp, $sp, 4
-
+jr $ra
 
 .text
 .globl main
@@ -213,12 +213,29 @@ subu $sp, $sp, 4
 
 main:
 li $v0, 9
-li $a0, 8
+li $a0, 12
 syscall
 sw $v0, 0($sp)
 subu $sp, $sp ,4
-li $t0, 0
+li $t0, 1
 sw $t0, 4($v0)
+li $v0, 9
+li $a0, 12
+syscall
+la $t0, Int
+sw $t0, ($v0)
+li $t0, 1
+sw $t0, 4($v0)
+li $a0, 8
+sw $a0, 8($v0)
+sw $v0, ($sp)
+subu $sp, $sp, 4
+# Init Attr
+lw $t0, 4($sp)
+lw $t1, 8($sp)
+addi $t1, $t1, 8
+sw $t0, 0($t1)
+addu $sp, $sp, 4
 la $t0, Main
 sw $t0, ($v0)
 # Start self.visit(cil_node.CILDynamicDispatch())
