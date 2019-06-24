@@ -147,7 +147,7 @@ subu $sp, $sp, 4
 jr $ra
 
 .String.length:
-lw $a0, 16($sp)
+lw $a0, 12($fp)
 lw $a0, 8($a0)
 li $a1, 0
 _stringlength.loop:
