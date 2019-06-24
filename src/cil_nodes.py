@@ -88,8 +88,8 @@ class CILAttribute(CILExpression):
 
 
 class CILFormal(CILExpression):
-    def __init__(self, dest: str, has_init_expr=True):
-        self.has_init_expr = has_init_expr
+    def __init__(self, dest: str, load=True):
+        self.load = load
         self.dest = dest
 
 

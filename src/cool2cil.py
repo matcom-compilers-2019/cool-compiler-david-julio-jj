@@ -213,15 +213,21 @@ class Cool2cil:
             t1 = self.tree[t[i].name]
             self.dtpe.append(cil_node.DotType(t[i].name, attrs, meths, t1[0], t1[1]))
 
+        self.constructors['Int'].append(cil_node.CILAttribute('#', [cil_node.CILInteger(0)]))
+        self.constructors['Bool'].append(cil_node.CILAttribute('#', [cil_node.CILBoolean(0)]))
+        self.constructors['String'].append(cil_node.CILAttribute('#', [cil_node.CILString(0)]))
+        self.dtpe[1].attributes.append('#')
+        self.dtpe[2].attributes.append('#')
+        self.dtpe[3].attributes.append('#')
         for i in node.classes:
             self.visit(i, None)
 
     @visitor.when(ast.Class)
     def visit(self, node: ast.Class, scope: CILScope):
-        attr = filter(lambda x: type(x) is ast.ClassAttribute, node.features)
-        attr = list(attr)
-        for method in attr:
-            self.constructors[node.name] += (self.visit(method, CILScope(node.name))[1])
+        attrs = filter(lambda x: type(x) is ast.ClassAttribute, node.features)
+        attrs = list(attrs)
+        for attr in attrs:
+            self.constructors[node.name] += (self.visit(attr, CILScope(node.name))[1])
         methods = filter(lambda x: type(x) is ast.ClassMethod, node.features)
         methods = list(methods)
         for method in methods:
@@ -300,14 +306,12 @@ class Cool2cil:
 
     @visitor.when(ast.NewObject)
     def visit(self, node: ast.NewObject, scope):
-        if node.type == 'Int' or node.type == 'Bool':
-            return [], [cil_node.CILNew([], node.static_type, self.calc_static(node.static_type))]
         c = self.constructors[node.static_type.name]
         t = []
         for i in c:
             t += i.exp_code
             t.append(cil_node.CILInitAttr(self._att_offset(scope.classname, i.offset)))
-        return [], cil_node.CILNew(t, node.type, self.calc_static(node.static_type))
+        return [], [cil_node.CILNew(t, node.type, self.calc_static(node.static_type))]
 
     @visitor.when(ast.Integer)
     def visit(self, node: ast.Integer, scope):
@@ -400,10 +404,16 @@ class Cool2cil:
             var += tmp[0]
             codes += tmp[1]
             codes.append(cil_node.CILAssignment(new_name))
-        elif node.param_type == 'Int':
-            codes.append(cil_node.CILFormal(new_name, True))
-        elif node.param_type == 'Bool':
-            codes.append(cil_node.CILFormal(new_name, False, True))
+        else:
+            node.static_type = node.static_type.name
+            if node.static_type == 'SELF_TYPE':
+                node.static_type = scope.classname
+            c = self.constructors[node.static_type]
+            t = []
+            for i in c:
+                t += i.exp_code
+                t.append(cil_node.CILInitAttr(self._att_offset(scope.classname, i.offset)))
+            codes = [cil_node.CILNew(t, node.static_type, self.calc_static(node.static_type))]
         return var, codes
 
     @visitor.when(ast.If)
