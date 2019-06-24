@@ -466,7 +466,7 @@ class MIPS:
     def visit(self, node: cil_node.CILDynamicDispatch):
         self.mips_code.append("lw $t0, 4($sp)")
         self.mips_code.append("lw $t1, ($t0)")
-        self.mips_code.append("lw $t2, {}($t1)".format(4 * (node.method + 2)))
+        self.mips_code.append("lw $t2, {}($t1)".format(4 * (node.method + 3)))
 
         self.mips_code.append("sw $ra, ($sp)")
         self.mips_code.append("subu $sp, $sp, 4")
@@ -577,10 +577,10 @@ class MIPS:
     def visit(self, node: cil_node.CILIsVoid):
         self.mips_code.append("lw $t0, 4($sp)")
         self.mips_code.append(f"beqz $t0, {node.void_tag}")
-        self.mips_code.append("li $t1, 1")
+        self.mips_code.append("li $t1, 0")
         self.mips_code.append(f"j {node.end_tag}")
         self.mips_code.append(f"{node.void_tag}:")
-        self.mips_code.append("li $t1, 0")
+        self.mips_code.append("li $t1, 1")
         self.mips_code.append(f"{node.end_tag}:")
 
         self.mips_code.append("li $v0, 9")
