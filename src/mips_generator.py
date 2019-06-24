@@ -578,4 +578,17 @@ class MIPS:
         self.mips_code.append(f"{node.void_tag}:")
         self.mips_code.append("li $t1, 0")
         self.mips_code.append(f"{node.end_tag}:")
-        self.mips_code.append("sw $t1, 4($sp)")
+
+        self.mips_code.append("li $v0, 9")
+        self.mips_code.append("li $a0, 12")
+        self.mips_code.append("syscall")
+
+        self.mips_code.append(f"la $t0, Bool")
+        self.mips_code.append("sw $t0, ($v0)")
+
+        self.mips_code.append("li $t0, 1")
+        self.mips_code.append("sw $t0, 4($v0)")
+
+        # self.mips_code.append("li $a0, {}".format(node.value))
+        self.mips_code.append("sw $t1, 8($v0)")
+        self.mips_code.append("sw $v0, 4($sp)")

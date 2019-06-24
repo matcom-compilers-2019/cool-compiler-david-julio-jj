@@ -446,7 +446,7 @@ class Cool2cil:
     def visit(self, node: ast.IsVoid, scope):
         exp = self.visit(node.expr, scope)
         key = self.keys_generator.generate("isvoid@isvoid", True)
-        return exp[0], [cil_node.CILIsVoid(key)]
+        return exp[0], exp[1] + [cil_node.CILIsVoid(key)]
 
     @visitor.when(ast.Case)
     def visit(self, node: ast.Case, scope):
