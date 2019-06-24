@@ -69,11 +69,6 @@ class CILStaticDispatch(CILExpression):
         self.method = f'.{classname}.{method_name}'
 
 
-class CILLet(CILExpression):
-    def __init__(self, c_args):
-        self.c_args = c_args
-
-
 class CILNew(CILExpression):
     def __init__(self, attributes, ctype, size):
         self.attributes = attributes
@@ -170,14 +165,16 @@ class CILDecInt(CILExpression):
 
 
 class CILIsVoid(CILExpression):
-    def __init__(self, exp):
-        self.exp = exp
+    def __init__(self, key):
+        self.void_tag = f"isvoid.init.{key}"
+        self.end_tag = f"isvoid.end.{key}"
 
 
 class CILCase(CILExpression):
-    def __init__(self, instance, actions):
+    def __init__(self, instance, actions, end_tag):
         self.instance = instance
         self.actions = actions
+        self.end_tag = f'case.end.{end_tag}'
 
 
 class CILAction(CILExpression):

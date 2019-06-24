@@ -134,18 +134,18 @@ class MIPS:
 
         inherithed = "# Inherithed Method\n" \
                      ".inerithed:\n" \
-                     "lw $a0, 4($sp)\n" \
-                     "lw $a1, 8($sp)\n" \
+                     "lw $a0, 8($sp)\n" \
+                     "lw $a1, 4($sp)\n" \
                      "lw $a0, ($a0)\n" \
                      "lw $a2, ($a0)\n" \
                      "lw $a3, 4($a0)\n" \
                      "lw $a0, ($a1)\n" \
                      "lw $a1, 4($a1)\n" \
-                     "sge $t0, $a2, $a0\n" \
+                     "sge $t0, $a0, $a2\n" \
                      "sle $t1, $a1, $a3\n" \
                      "and $a0, $t0, $t1\n" \
-                     "sw $a0, ($sp)\n" \
-                     "subu $sp, $sp, 4\n" \
+                     "sw $a0, 4($sp)\n" \
+                     "jr $ra\n" \
                      "\n"
         # $a0 -> eax
         # $a1 -> ebx
@@ -174,8 +174,11 @@ class MIPS:
             self.mips_code.append("msg{}: .asciiz \"{}\"".format(pos, s_data))
             pos += 1
 
-        for tipe in self.dotType:
-            words = f"{tipe.cType}: .word {tipe.t_in}, {tipe.t_out}"
+        for i in range(len(self.dotType)):
+            self.mips_code.append(f"type_str{i}: .asciiz \"{self.dotType[i].cType}\"")
+        for i in range(len(self.dotType)):
+            tipe = self.dotType[i]
+            words = f"{tipe.cType}: .word {tipe.t_in}, {tipe.t_out}, type_str{i}"
             for method in tipe.methods:
                 words += ", " + "." + method
 
@@ -324,28 +327,39 @@ class MIPS:
 
     @visitor.when(cil_node.CILCase)
     def visit(self, node: cil_node.CILCase):
-        pass
+        self.visit(node.instance[0])
+
+        for i in node.actions:
+            self.visit(i[0])
+        # TODO: Exception
+        self.mips_code.append(f"j .Object.abort")
+        self.mips_code.append(f"{node.end_tag}:")
 
     @visitor.when(cil_node.CILAction)
     def visit(self, node: cil_node.CILAction):
         self.mips_code.append(f"la $a0, {node.ctype}")
-        # self.mips_code.append("lw $t0, 4($sp)")
         self.mips_code.append("sw $a0, ($sp)")
         self.mips_code.append("subu $sp, $sp, 4")
 
         self.mips_code.append("jal .inerithed")
 
         self.mips_code.append("lw $a0, 4($sp)")
-        self.mips_code.append("addu $sp, $sp, 8")
+        self.mips_code.append("addu $sp, $sp, 4")
 
         self.mips_code.append("li $t0, 0")
-        self.mips_code.append("beq $a0, $ti, {}".format(node.if_action_tag))
+        self.mips_code.append("beq $a0, $t0, {}".format(node.action_tag))
 
-        self.visit(node.body)
+        self.mips_code.append(f"lw $t0, 4($sp)")
+        self.mips_code.append(f"addu $sp, $sp, 4")
+        i = self.vars.index(node.id)
+        self.mips_code.append(f"sw $t0, -{i*4}($fp)")
 
-    @visitor.when(cil_node.CILLet)
-    def visit(self, node: cil_node.CILLet):
-        pass
+        for i in node.body:
+            self.visit(i)
+
+        self.mips_code.append(f"j {node.case_tag}")
+
+        self.mips_code.append(f'{node.action_tag}:')
 
     @visitor.when(cil_node.CILBlock)
     def visit(self, node: cil_node.CILBlock):
@@ -551,11 +565,21 @@ class MIPS:
     @visitor.when(cil_node.CILFormal)
     def visit(self, node: cil_node.CILFormal):
         index = self.vars.index(node.dest)
-        self.mips_code.append(f"lw $t0, -{4*index}($fp)")
-        if not node.has_init_expr:
+        if not node.load:
             self.mips_code.append("li $t1, 0")
-            self.mips_code.append("sw $t1, ($t0)")
+            self.mips_code.append(f"sw $t1, -{4 * index}($fp)")
         else:
             self.mips_code.append("lw $t1, 4($sp)")
-            self.mips_code.append("sw $t1, ($t0)")
+            self.mips_code.append(f"sw $t1, -{4 * index}($fp)")
             self.mips_code.append("addu $sp, $sp, 4")
+
+    @visitor.when(cil_node.CILIsVoid)
+    def visit(self, node: cil_node.CILIsVoid):
+        self.mips_code.append("lw $t0, 4($sp)")
+        self.mips_code.append(f"beqz $t0, {node.void_tag}")
+        self.mips_code.append("li $t1, 1")
+        self.mips_code.append(f"j {node.end_tag}")
+        self.mips_code.append(f"{node.void_tag}:")
+        self.mips_code.append("li $t1, 0")
+        self.mips_code.append(f"{node.end_tag}:")
+        self.mips_code.append("sw $t1, 4($sp)")
