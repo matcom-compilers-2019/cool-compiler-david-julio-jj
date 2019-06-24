@@ -222,6 +222,8 @@ li $a0, 12
 syscall
 sw $v0, 0($sp)
 subu $sp, $sp ,4
+la $t0, Main
+sw $t0, ($v0)
 li $t0, 1
 sw $t0, 4($v0)
 li $v0, 9
@@ -231,7 +233,7 @@ la $t0, Int
 sw $t0, ($v0)
 li $t0, 1
 sw $t0, 4($v0)
-li $a0, 0
+li $a0, 4
 sw $a0, 8($v0)
 sw $v0, ($sp)
 subu $sp, $sp, 4
@@ -241,8 +243,6 @@ lw $t1, 8($sp)
 addi $t1, $t1, 8
 sw $t0, 0($t1)
 addu $sp, $sp, 4
-la $t0, Main
-sw $t0, ($v0)
 # Start self.visit(cil_node.CILDynamicDispatch())
 
 lw $t0, 4($sp)
@@ -271,16 +271,22 @@ li $a0, 5
 sw $a0, 8($v0)
 sw $v0, ($sp)
 subu $sp, $sp, 4
-li $v0, 9
-li $a0, 12
-syscall
-la $t0, Int
-sw $t0, ($v0)
-li $t0, 1
-sw $t0, 4($v0)
-li $a0, 5
-sw $a0, 8($v0)
-sw $v0, ($sp)
+lw $t0, 12($fp)
+addu $t0, $t0, 8
+addu $t0, $t0, 0
+lw $t1, 4($sp)
+sw $t1, ($t0)
+lw $t0, 12($fp)
+addu $t0, $t0, 8
+addu $t0, $t0, 0
+lw $t0, ($t0)
+sw $t0, ($sp)
+subu $sp, $sp, 4
+lw $t0, 12($fp)
+addu $t0, $t0, 8
+addu $t0, $t0, 0
+lw $t0, ($t0)
+sw $t0, ($sp)
 subu $sp, $sp, 4
 lw $t0, 8($sp)
 lw $t1, 4($sp)
@@ -316,6 +322,10 @@ lw $t0, 4($sp)
 addu $sp, $sp, 12
 sw $t0, ($sp)
 subu $sp, $sp, 4
+lw $a0, 4($sp)
+addu, $sp, $sp, 8
+sw $a0, ($sp)
+subu, $sp, $sp, 4
 move $sp, $fp
 addu $sp, $sp, 4
 lw $fp, ($sp)

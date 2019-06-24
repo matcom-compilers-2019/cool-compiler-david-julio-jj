@@ -377,6 +377,9 @@ class MIPS:
         # $v0 contains address of allocated memory
         self.mips_code.append("sw $v0, 0($sp)")
         self.mips_code.append("subu $sp, $sp ,4")
+
+        self.mips_code.append(f"la $t0, {node.ctype}")
+        self.mips_code.append("sw $t0, ($v0)")
         # Push node.size
         self.mips_code.append("li $t0, {}".format(node.size))
         self.mips_code.append("sw $t0, 4($v0)")
@@ -384,9 +387,6 @@ class MIPS:
         for attr in node.attributes:
             print("attr: " + str(attr))
             self.visit(attr)
-
-        self.mips_code.append(f"la $t0, {node.ctype}")
-        self.mips_code.append("sw $t0, ($v0)")
 
     @visitor.when(cil_node.CILSelf)
     def visit(self, node: cil_node.CILSelf):
