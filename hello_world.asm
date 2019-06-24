@@ -1,3 +1,4 @@
+# Pincha Bien ya
 .Object.copy:
 lw $t1, 4($sp)
 lw $a0, 4($t1)
