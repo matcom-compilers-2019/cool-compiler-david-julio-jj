@@ -1,3 +1,4 @@
+# Pincha Bien ya
 .Object.copy:
 lw $t1, 4($sp)
 lw $a0, 4($t1)
@@ -9,6 +10,7 @@ li $v0, 9
 syscall
 lw $a1, 4($sp)
 move $a3, $v0
+sw $a3, 4($sp)
 _copy.loop:
 lw $a2, 0($a1)
 sw $a2, 0($a3)
@@ -18,7 +20,6 @@ addiu $a3, $a3, 4
 beq $a0, $zero, _copy.end
 j _copy.loop
 _copy.end:
-sw $a3, 4($sp)
 jr $ra
 
 #Cambiado(Funciona)
