@@ -508,3 +508,15 @@ class MIPS:
             self.mips_code.append(f"lw $t0, -{4*index}($fp)")
         self.mips_code.append("lw $t1, 4($sp)")
         self.mips_code.append("sw $t1, ($t0)")
+
+    @visitor.when(cil_node.CILFormal)
+    def visit(self, node: cil_node.CILFormal):
+        index = self.vars.index(node.dest)
+        self.mips_code.append(f"lw $t0, -{4*index}($fp)")
+        if not node.has_init_expr:
+            self.mips_code.append("li $t1, 0")
+            self.mips_code.append("sw $t1, ($t0)")
+        else:
+            self.mips_code.append("lw $t1, 4($sp)")
+            self.mips_code.append("sw $t1, ($t0)")
+            self.mips_code.append("addu $sp, $sp, 4")
