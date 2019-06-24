@@ -1,6 +1,8 @@
 class Main inherits IO {
-    x : Int;
     main() : Object {
-        in_int()
+        case 4 of
+        a: Bool => out_string("No\n");
+        b: Int => out_string("Si\n");
+        esac
     };
 };

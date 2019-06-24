@@ -197,18 +197,18 @@ jr $ra
 
 # Inherithed Method
 .inerithed:
-lw $a0, 4($sp)
-lw $a1, 8($sp)
+lw $a0, 8($sp)
+lw $a1, 4($sp)
 lw $a0, ($a0)
 lw $a2, ($a0)
 lw $a3, 4($a0)
 lw $a0, ($a1)
 lw $a1, 4($a1)
-sge $t0, $a2, $a0
+sge $t0, $a0, $a2
 sle $t1, $a1, $a3
 and $a0, $t0, $t1
-sw $a0, ($sp)
-subu $sp, $sp, 4
+sw $a0, 4($sp)
+jr $ra
 
 
 .text
@@ -218,31 +218,14 @@ subu $sp, $sp, 4
 
 main:
 li $v0, 9
-li $a0, 12
+li $a0, 8
 syscall
 sw $v0, 0($sp)
 subu $sp, $sp ,4
 la $t0, Main
 sw $t0, ($v0)
-li $t0, 1
+li $t0, 0
 sw $t0, 4($v0)
-li $v0, 9
-li $a0, 12
-syscall
-la $t0, Int
-sw $t0, ($v0)
-li $t0, 1
-sw $t0, 4($v0)
-li $a0, 4
-sw $a0, 8($v0)
-sw $v0, ($sp)
-subu $sp, $sp, 4
-# Init Attr
-lw $t0, 4($sp)
-lw $t1, 8($sp)
-addi $t1, $t1, 8
-sw $t0, 0($t1)
-addu $sp, $sp, 4
 # Start self.visit(cil_node.CILDynamicDispatch())
 
 lw $t0, 4($sp)
@@ -259,73 +242,35 @@ addu $sp, $sp, 8
 sw $t0, ($sp)
 subu $sp, $sp, 4
 .Main.main:
-subu $sp, $sp, 0
-li $v0, 9
-li $a0, 12
-syscall
-la $t0, Int
-sw $t0, ($v0)
-li $t0, 1
-sw $t0, 4($v0)
-li $a0, 5
-sw $a0, 8($v0)
-sw $v0, ($sp)
-subu $sp, $sp, 4
-lw $t0, 12($fp)
-addu $t0, $t0, 8
-addu $t0, $t0, 0
-lw $t1, 4($sp)
-sw $t1, ($t0)
-lw $t0, 12($fp)
-addu $t0, $t0, 8
-addu $t0, $t0, 0
-lw $t0, ($t0)
-sw $t0, ($sp)
-subu $sp, $sp, 4
-lw $t0, 12($fp)
-addu $t0, $t0, 8
-addu $t0, $t0, 0
-lw $t0, ($t0)
-sw $t0, ($sp)
-subu $sp, $sp, 4
-lw $t0, 8($sp)
-lw $t1, 4($sp)
-lw $a0, 8($t0)
-lw $a1, 8($t1)
-addiu $sp, $sp, 8
-mult $a0, $a1
-mflo $a1
-li $v0, 9
-li $a0, 12
-syscall
-la $t0, Int
-sw $t0, ($v0)
-li $t0, 1
-sw $t0, 4($v0)
-sw $a1, 8($v0)
-sw $v0, ($sp)
-subu $sp, $sp, 4
-jal .Object.copy
-lw $a0, 12($fp)
-sw $a0, 0($sp)
-subu $sp, $sp, 4
-lw $t0, 4($sp)
-lw $t1, ($t0)
-lw $t2, 24($t1)
-sw $ra, ($sp)
-subu $sp, $sp, 4
-sw $fp, ($sp)
-subu $sp, $sp, 4
-move $fp, $sp
-jal $t2
-lw $t0, 4($sp)
-addu $sp, $sp, 12
-sw $t0, ($sp)
-subu $sp, $sp, 4
-lw $a0, 4($sp)
-addu, $sp, $sp, 8
+subu $sp, $sp, 8
+la $a0, Bool
 sw $a0, ($sp)
-subu, $sp, $sp, 4
+subu $sp, $sp, 4
+jal .inerithed
+lw $a0, 4($sp)
+addu $sp, $sp, 8
+li $t0, 0
+beq $a0, $t0, action.1
+lw $t0, 4($sp)
+addu $sp, $sp, 4
+sw $t0, -0($fp)
+j case.end.1
+j action.1
+la $a0, Int
+sw $a0, ($sp)
+subu $sp, $sp, 4
+jal .inerithed
+lw $a0, 4($sp)
+addu $sp, $sp, 8
+li $t0, 0
+beq $a0, $t0, action.1
+lw $t0, 4($sp)
+addu $sp, $sp, 4
+sw $t0, -4($fp)
+j case.end.1
+j action.1
+j .Object.abort
+case.end.1:
 move $sp, $fp
 addu $sp, $sp, 4
 lw $fp, ($sp)
@@ -334,6 +279,10 @@ lw $ra, ($sp)
 jr $ra
 # Start .data segment (data!)
 .data
+msg0: .asciiz "No
+"
+msg1: .asciiz "Si
+"
 Object: .word 0, 11, .Object.abort, .Object.type_name, .Object.copy
 Int: .word 1, 2, .Object.abort, .Object.type_name, .Object.copy
 Bool: .word 3, 4, .Object.abort, .Object.type_name, .Object.copy

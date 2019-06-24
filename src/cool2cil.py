@@ -460,10 +460,10 @@ class Cool2cil:
             local += t[0]
             action_key = self.keys_generator.generate("case.action", True)
             action = t[1]
-            action.set_case_tag(case_key)
-            action.set_action_tag(action_key)
+            action[0].set_case_tag(case_key)
+            action[0].set_action_tag(action_key)
             actions.append(action)
-        return local, [cil_node.CILCase(instance[1], actions)]
+        return local, [cil_node.CILCase(instance[1], actions, case_key)]
 
     @visitor.when(ast.Action)
     def visit(self, node: ast.Action, scope):
