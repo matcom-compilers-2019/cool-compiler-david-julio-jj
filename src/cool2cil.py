@@ -403,17 +403,17 @@ class Cool2cil:
             tmp = self.visit(node.init_expr, scope)
             var += tmp[0]
             codes += tmp[1]
-            codes.append(cil_node.CILAssignment(new_name))
-        else:
+            codes.append(cil_node.CILFormal(new_name))
+        elif node.static_type in ['Bool', 'Int', 'String']:
             node.static_type = node.static_type.name
-            if node.static_type == 'SELF_TYPE':
-                node.static_type = scope.classname
             c = self.constructors[node.static_type]
             t = []
             for i in c:
                 t += i.exp_code
                 t.append(cil_node.CILInitAttr(self._att_offset(scope.classname, i.offset)))
-            codes = [cil_node.CILNew(t, node.static_type, self.calc_static(node.static_type))]
+            codes = [cil_node.CILNew(t, node.static_type, self.calc_static(node.static_type)), cil_node.CILFormal(new_name)]
+        else:
+            codes = [cil_node.CILFormal(new_name, False)]
         return var, codes
 
     @visitor.when(ast.If)
