@@ -253,6 +253,34 @@ li $a0, 5
 sw $a0, 8($v0)
 sw $v0, ($sp)
 subu $sp, $sp, 4
+li $v0, 9
+li $a0, 12
+syscall
+la $t0, Int
+sw $t0, ($v0)
+li $t0, 1
+sw $t0, 4($v0)
+li $a0, 5
+sw $a0, 8($v0)
+sw $v0, ($sp)
+subu $sp, $sp, 4
+lw $t0, 8($sp)
+lw $t1, 4($sp)
+lw $a0, 8($t0)
+lw $a1, 8($t1)
+addiu $sp, $sp, 8
+mult $a0, $a1
+mflo $a1
+li $v0, 9
+li $a0, 12
+syscall
+la $t0, Int
+sw $t0, ($v0)
+li $t0, 1
+sw $t0, 4($v0)
+sw $a1, 8($v0)
+sw $v0, ($sp)
+subu $sp, $sp, 4
 jal .Object.copy
 lw $a0, 12($fp)
 sw $a0, 0($sp)

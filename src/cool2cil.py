@@ -302,6 +302,8 @@ class Cool2cil:
         if node.init_expr:
             tmp = self.visit(node.init_expr, scope)
             return tmp[0], [cil_node.CILAttribute(node.name, tmp[1])]
+        if node.static_type.name in ['String', 'Int', 'Bool']:
+            return [], [cil_node.CILInteger(0), cil_node.CILInitAttr(0)]
         return [], []
 
     @visitor.when(ast.NewObject)
