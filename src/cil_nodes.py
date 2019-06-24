@@ -171,9 +171,10 @@ class CILIsVoid(CILExpression):
 
 
 class CILCase(CILExpression):
-    def __init__(self, instance, actions):
+    def __init__(self, instance, actions, end_tag):
         self.instance = instance
         self.actions = actions
+        self.end_tag = f'case.end.{end_tag}'
 
 
 class CILAction(CILExpression):
