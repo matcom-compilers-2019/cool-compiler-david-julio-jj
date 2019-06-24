@@ -321,7 +321,8 @@ class Cool2cil:
 
     @visitor.when(ast.Boolean)
     def visit(self, node: ast.Boolean, scope):
-        return [], [cil_node.CILBoolean(node.content)]
+        value = 1 if node.content else 0
+        return [], [cil_node.CILBoolean(value)]
 
     @visitor.when(ast.String)
     def visit(self, node: ast.String, scope):

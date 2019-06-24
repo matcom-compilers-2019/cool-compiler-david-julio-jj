@@ -1,8 +1,5 @@
 class Main inherits IO {
-   x:Int;
-   main(): Object {
-       {
-            1.abort();
-       }
-   };
+    main() : Object {
+        out_int(5)
+    };
 };

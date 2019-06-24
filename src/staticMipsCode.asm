@@ -1,20 +1,24 @@
 .Object.copy:
-lw $a1, -4($sp)
-lw $a0, -8($sp)
+lw $t1, 4($sp)
+lw $a0, 4($t1)
+li $t4, 4
+mult $a0, $t4
+mflo $a0
+addu $a0, $a0, 8
 li $v0, 9
 syscall
-lw $a1, -4($sp)
-lw $a0, 4($a1)
+lw $a1, 4($sp)
 move $a3, $v0
 _copy.loop:
 lw $a2, 0($a1)
 sw $a2, 0($a3)
-addiu $a0, $a0, -1
+addiu $a0, $a0, -4
 addiu $a1, $a1, 4
 addiu $a3, $a3, 4
 beq $a0, $zero, _copy.end
 j _copy.loop
 _copy.end:
+sw $a3, 4($sp)
 jr $ra
 
 #Cambiado(Funciona)
@@ -25,7 +29,7 @@ syscall
 #Cambiado(funciona)
 .IO.out_string:
 li $v0, 4
-lw $t0, 16($sp)
+lw $t0, 16($fp)
 lw $a0, 8($t0)
 syscall
 addu $sp, $sp, 4
@@ -39,7 +43,7 @@ jr $ra
 #Cambiado(Funciona)
 .IO.out_int:
 li $v0, 1
-lw $t0, 16($sp)
+lw $t0, 16($fp)
 lw $a0, 8($t0)
 syscall
 addu $sp, $sp, 4
