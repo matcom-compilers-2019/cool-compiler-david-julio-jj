@@ -25,7 +25,8 @@ syscall
 #Cambiado(funciona)
 .IO.out_string:
 li $v0, 4
-lw $a0, 16($sp)
+lw $t0, 16($sp)
+lw $a0, 8($t0)
 syscall
 addu $sp, $sp, 4
 lw $fp, ($sp)
@@ -38,7 +39,8 @@ jr $ra
 #Cambiado(Funciona)
 .IO.out_int:
 li $v0, 1
-lw $a0, 16($sp)
+lw $t0, 16($sp)
+lw $a0, 8($t0)
 syscall
 addu $sp, $sp, 4
 lw $fp, ($sp)
@@ -55,9 +57,9 @@ la $a0, buffer
 li $a1, 65536
 li $v0, 8
 syscall
-addiu $sp, $sp, -4
 sw $a0, 0($sp)
-jal String.length
+subu $sp, $sp, 4
+jal .String.length
 addiu $sp, $sp, 4
 move $a2, $v0
 addiu $a2, $a2, -1
@@ -85,16 +87,15 @@ li $v0, 5
 syscall
 jr $ra
 
-#(Cambiado)
 .String.length:
-lw $a0, -4($sp)
+lw $a0, 4($sp)
 _stringlength.loop:
 lb $a1, 0($a0)
 beqz $a1, _stringlength.end
 addiu $a0, $a0, 1
 j _stringlength.loop
 _stringlength.end:
-lw $a1, -4($sp)
+lw $a1, 4($sp)
 subu $v0, $a0, $a1
 jr $ra
 
@@ -237,8 +238,16 @@ sw $t0, ($sp)
 subu $sp, $sp, 4
 .Main.main:
 subu $sp, $sp, 0
-la $t5, msg0
-sw $t5, 0($sp)
+li $v0, 9
+li $a0, 12
+syscall
+la $t0, Bool
+sw $t0, ($v0)
+li $t0, 1
+sw $t0, 4($v0)
+la $a0, msg0
+sw $a0, 8($v0)
+sw $v0, ($sp)
 subu $sp, $sp, 4
 lw $a0, 12($fp)
 sw $a0, 0($sp)
@@ -256,45 +265,6 @@ lw $t0, 4($sp)
 addu $sp, $sp, 12
 sw $t0, ($sp)
 subu $sp, $sp, 4
-la $t5, msg1
-sw $t5, 0($sp)
-subu $sp, $sp, 4
-lw $a0, 12($fp)
-sw $a0, 0($sp)
-subu $sp, $sp, 4
-lw $t0, 4($sp)
-lw $t1, ($t0)
-lw $t2, 20($t1)
-sw $ra, ($sp)
-subu $sp, $sp, 4
-sw $fp, ($sp)
-subu $sp, $sp, 4
-move $fp, $sp
-jal $t2
-lw $t0, 4($sp)
-addu $sp, $sp, 12
-sw $t0, ($sp)
-subu $sp, $sp, 4
-lw $a0, 12($fp)
-sw $a0, 0($sp)
-subu $sp, $sp, 4
-lw $t0, 4($sp)
-lw $t1, ($t0)
-lw $t2, 32($t1)
-sw $ra, ($sp)
-subu $sp, $sp, 4
-sw $fp, ($sp)
-subu $sp, $sp, 4
-move $fp, $sp
-jal $t2
-lw $t0, 4($sp)
-addu $sp, $sp, 8
-sw $t0, ($sp)
-subu $sp, $sp, 4
-lw $a0, 4($sp)
-addu, $sp, $sp, 12
-sw $a0, ($sp)
-subu, $sp, $sp, 4
 move $sp, $fp
 addu $sp, $sp, 4
 lw $fp, ($sp)
@@ -305,11 +275,9 @@ jr $ra
 .data
 msg0: .asciiz "Hello World. 
 "
-msg1: .asciiz "Hello World. 
-"
 Object: .word 0, 11, .Object.abort, .Object.type_name, .Object.copy
-Int: .word 1, 2
-Bool: .word 3, 4
+Int: .word 1, 2, .Object.abort, .Object.type_name, .Object.copy
+Bool: .word 3, 4, .Object.abort, .Object.type_name, .Object.copy
 String: .word 5, 6, .Object.abort, .Object.type_name, .Object.copy, .String.length, .String.concat, .String.substr
 IO: .word 7, 10, .Object.abort, .Object.type_name, .Object.copy, .IO.out_string, .IO.out_int, .IO.in_string, .IO.in_int
 Main: .word 8, 9, .Object.abort, .Object.type_name, .Object.copy, .IO.out_string, .IO.out_int, .IO.in_string, .IO.in_int, .Main.main

@@ -25,7 +25,8 @@ syscall
 #Cambiado(funciona)
 .IO.out_string:
 li $v0, 4
-lw $a0, 16($sp)
+lw $t0, 16($sp)
+lw $a0, 8($t0)
 syscall
 addu $sp, $sp, 4
 lw $fp, ($sp)
@@ -38,7 +39,8 @@ jr $ra
 #Cambiado(Funciona)
 .IO.out_int:
 li $v0, 1
-lw $a0, 16($sp)
+lw $t0, 16($sp)
+lw $a0, 8($t0)
 syscall
 addu $sp, $sp, 4
 lw $fp, ($sp)
