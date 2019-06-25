@@ -157,7 +157,7 @@ subu $sp, $sp, 4
 
 jr $ra
 
-
+# Pincha
 .String.concat:
 # pusheando el 1er string para el len
 lw $t0, 12($fp)
