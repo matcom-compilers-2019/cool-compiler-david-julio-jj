@@ -21,7 +21,7 @@ Because the sort used is a quadratic space insertion sort, sorting
 moderately large lists will cause spim to run out of memory.
 *)
 
-Class List inherits IO { 
+class List inherits IO {
         (* Since abort() returns Object, we need something of
 	   type Bool at the end of the block to satisfy the typechecker. 
            This code is unreachable, since abort() halts the program. *)
