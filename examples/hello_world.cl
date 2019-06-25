@@ -1,5 +1,5 @@
 class Main inherits IO {
-    x : String;
+    x : String
     main() : Object {
         {
             x <- 1.type_name();
