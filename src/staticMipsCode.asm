@@ -28,7 +28,8 @@ li $v0, 10
 syscall
 
 .Object.type_name:
-lw $t3, 16($fp)
+lw $t0, 12($fp)
+lw $t0, ($t0)
 lw $t4, 8($t0)
 
 li $v0, 9

@@ -1,5 +1,8 @@
 class Main inherits IO {
     main() : Object {
-        out_int("Hola".length());
+        case 4 of
+        a: Bool => 2;
+        a: Int => out_int(a);
+        esac
     };
 };

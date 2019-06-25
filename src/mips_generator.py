@@ -147,6 +147,15 @@ class MIPS:
                      "sw $a0, 4($sp)\n" \
                      "jr $ra\n" \
                      "\n"
+
+        raiseExc = "# raise exception Method\n"\
+                   ".raise:\n" \
+                   "lw $a0, 4($sp)\n" \
+                   "li $v0, 4\n" \
+                   "syscall\n" \
+                   "li $v0, 10\n" \
+                   "syscall"
+
         # $a0 -> eax
         # $a1 -> ebx
         # $a2 -> ecx
@@ -156,6 +165,7 @@ class MIPS:
 
         self.mips_code.append(inherithed)
         self.mips_code.append(code)
+        self.mips_code.append(raiseExc)
 
         self.mips_code.append("# Start self.visit(self.main)\n")
         self.mips_code.append("main:")
@@ -170,6 +180,10 @@ class MIPS:
 
         self.mips_code.append("# Start .data segment (data!)")
         self.mips_code.append(".data")
+        self.mips_code.append("zero_error: .asciiz \"Divition by zero exception\"")
+        self.mips_code.append("index_error: .asciiz \"Invalid index exception\"")
+        self.mips_code.append("void_error: .asciiz \"Objects must be inizializated before use exception\"")
+        self.mips_code.append("case_error: .asciiz \"Case expression no match exception\"")
         for s_data in self.dotData:
             self.mips_code.append("msg{}: .asciiz \"{}\"".format(pos, s_data))
             pos += 1
@@ -332,7 +346,10 @@ class MIPS:
         for i in node.actions:
             self.visit(i[0])
         # TODO: Exception
-        self.mips_code.append(f"j .Object.abort")
+        self.mips_code.append(f"la $t0, case_error")
+        self.mips_code.append(f"sw $t0, ($sp)")
+        self.mips_code.append(f"subu $sp, $sp, 4")
+        self.mips_code.append(f"j .raise")
         self.mips_code.append(f"{node.end_tag}:")
 
     @visitor.when(cil_node.CILAction)
