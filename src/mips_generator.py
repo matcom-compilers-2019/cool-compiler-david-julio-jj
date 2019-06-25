@@ -68,7 +68,7 @@ main:
     la      $a0,$LC         # Put format string in $a0
     move    $a1,$v0         # Move fact result to $a1
     jal     printf          # Call the print function
-    
+
     lw      $ra,20($sp)     # Restore return address
     lw      $fp,16($sp)     # Restore frame pointer
     addiu   $sp,$sp,32      # Pop stack frame
@@ -77,7 +77,7 @@ main:
     .rdata
 $LC:
     .ascii  “The factorial of 10 is %d\n\000”
-    
+
     .text
 fact:
     subu    $sp, $sp, 32    # Stack frame is 32 bytes long
@@ -85,7 +85,7 @@ fact:
     sw      $fp, 16($sp)    # Save frame pointer
     addiu   $fp, $sp, 28    # Set up frame pointer
     sw      $a0, 0($fp)     # Save argument (n)
-    
+
     lw      $v0,0($fp)      # Load n
     bgtz    $v0,$L2         # Branch if n > 0
     li      $v0,1           # Return 1
@@ -97,7 +97,7 @@ $L2:
     move    $a0,$v0         # Move value to $a0
 
     jal     fact            # Call factorial function
-    
+
     lw      $v1,0($fp)      # Load n
     mul     $v0,$v0,$v1     # Compute fact(n-1) * n
 
@@ -148,7 +148,7 @@ class MIPS:
                      "jr $ra\n" \
                      "\n"
 
-        raiseExc = "# raise exception Method\n"\
+        raiseExc = "# raise exception Method\n" \
                    ".raise:\n" \
                    "lw $a0, 4($sp)\n" \
                    "li $v0, 4\n" \
@@ -173,7 +173,8 @@ class MIPS:
 
         self.mips_code.append("# Start self.visit(cil_node.CILDynamicDispatch())\n")
         self.visit(cil_node.CILDynamicDispatch(0, self.CILObject._dispatch('Main', 'main')))
-
+        # Haciendo abort despues del main
+        self.mips_code.append("j .Object.abort")
         for in_code in self.dotCode:
             print(in_code)
             self.visit(in_code)
@@ -493,7 +494,15 @@ class MIPS:
         self.mips_code.append("jal $t2")
 
         self.mips_code.append("lw $t0, 4($sp)")
-        self.mips_code.append("addu $sp, $sp, {}".format(4 * (node.c_args + 2)))
+        self.mips_code.append("addu $sp, $sp, 4")
+
+        self.mips_code.append("move $sp, $fp")
+        self.mips_code.append("addu $sp, $sp, 4")
+        self.mips_code.append("lw $fp, ($sp)")
+        self.mips_code.append("addu $sp, $sp, 4")
+        self.mips_code.append("lw $ra, ($sp)")
+
+        self.mips_code.append("addu $sp, $sp, {}".format(4 * (node.c_args + 1)))
         self.mips_code.append("sw $t0, ($sp)")
         self.mips_code.append("subu $sp, $sp, 4")
 
@@ -508,7 +517,15 @@ class MIPS:
         self.mips_code.append("jal {}".format(node.method))
 
         self.mips_code.append("lw $t0, 4($sp)")
-        self.mips_code.append("addu $sp, $sp, {}".format(4 * (node.c_args + 2)))
+        self.mips_code.append("addu $sp, $sp, 4")
+
+        self.mips_code.append("move $sp, $fp")
+        self.mips_code.append("addu $sp, $sp, 4")
+        self.mips_code.append("lw $fp, ($sp)")
+        self.mips_code.append("addu $sp, $sp, 4")
+        self.mips_code.append("lw $ra, ($sp)")
+
+        self.mips_code.append("addu $sp, $sp, {}".format(4 * (node.c_args + 1)))
         self.mips_code.append("sw $t0, ($sp)")
         self.mips_code.append("subu $sp, $sp, 4")
 
