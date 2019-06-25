@@ -334,8 +334,8 @@ lw $t0, 4($sp)
 addu $sp, $sp,4
 lw $t1, 4($sp)
 addu $sp, $sp, 4
-subi $t0, $t0, 1
-subi $t1, $t1, 1
+subu $t0, $t0, 1
+subu $t1, $t1, 1
 str_eq_loop:
 addi $t0, $t1, 1			# $t0 = $t1 + 1
 addi $t1, $t1, 1

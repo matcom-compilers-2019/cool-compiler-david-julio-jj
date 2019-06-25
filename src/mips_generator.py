@@ -498,7 +498,7 @@ class MIPS:
         # self.mips_code.append("move $fp, $sp")
 
         self.mips_code.append("li $v0, 9")
-        self.mips_code.append("li $a0, {}".format(4 * (node.size + 2)))
+        self.mips_code.append("li $a0, {}".format(4 * ((4 * node.size) + 2)))
         self.mips_code.append("syscall")
         # $v0 contains address of allocated memory
         self.mips_code.append("sw $v0, 0($sp)")
