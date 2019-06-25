@@ -1,6 +1,6 @@
 # Pincha Bien ya
 .Object.copy:
-lw $t1, 4($sp)
+lw $t1, 12($fp)
 lw $a0, 4($t1)
 li $t4, 4
 mult $a0, $t4
@@ -8,9 +8,10 @@ mflo $a0
 addu $a0, $a0, 8
 li $v0, 9
 syscall
-lw $a1, 4($sp)
+lw $a1, 12($fp)
+sw $v0, ($sp)
+subu $sp, $sp, 4
 move $a3, $v0
-sw $a3, 4($sp)
 _copy.loop:
 lw $a2, 0($a1)
 sw $a2, 0($a3)
@@ -20,6 +21,7 @@ addiu $a3, $a3, 4
 beq $a0, $zero, _copy.end
 j _copy.loop
 _copy.end:
+
 jr $ra
 
 # Cambiado(Funciona)
@@ -261,7 +263,19 @@ jr $ra
 
 #(Cambiado)
 .String.substr:
-lw $a0, -12($sp)
+
+# Cargando indices del substring
+lw $t3, 16($fp)
+lw $t3, 8($t3)
+lw $t4, 20($fp)
+lw $t4, 8($t4)
+
+# Comprobando que no esten cruzados los indices
+sle $t0, $t3, $t4
+beqz $t0 _substrexception
+
+move $a0, $t4
+sub $a0, $a0, $t3
 addiu $a0, $a0, 1
 li $v0, 9
 syscall
@@ -309,6 +323,7 @@ beq $a2, $a3, _stringcmp.equals
 _stringcmp.differents:
 li $v0, 0
 jr $ra
+
 _stringcmp.equals:
 li $v0, 1
 jr $ra
