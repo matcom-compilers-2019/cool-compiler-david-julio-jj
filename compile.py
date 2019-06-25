@@ -43,8 +43,8 @@ if __name__ == '__main__':
         cil_object = cil.Cool2cil()
         scope_root = semantic_object.visit(ast, None)
         cil_object.visit(ast, scope_root)
-        # mips_object = MIPS(cil_object)
-        # mips_object.generate_mips()
+        mips_object = MIPS(cil_object)
+        mips_object.generate_mips()
         inp = ''
         with open('src/staticMipsCode.asm', 'r') as fd:
             temp = fd.read()
