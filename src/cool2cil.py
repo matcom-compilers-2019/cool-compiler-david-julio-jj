@@ -312,7 +312,7 @@ class Cool2cil:
         t = []
         for i in c:
             t += i.exp_code
-            t.append(cil_node.CILInitAttr(self._att_offset(scope.classname, i.offset)))
+            t.append(cil_node.CILInitAttr(self._att_offset(node.static_type.name, i.offset)))
         return [], [cil_node.CILNew(t, node.type, self.calc_static(node.static_type.name))]
 
     @visitor.when(ast.Integer)
