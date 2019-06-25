@@ -357,7 +357,11 @@ class Cool2cil:
     def visit(self, node: ast.Equal, scope):
         fst = self.visit(node.first, scope)
         snd = self.visit(node.second, scope)
-        return fst[0] + snd[0], [cil_node.CILBoolOp(fst[1], snd[1], '=')]
+        if node.first.static_type.name in ['Int', 'Bool']:
+            return fst[0] + snd[0], [cil_node.CILEq(fst[1], snd[1])]
+        if node.first.static_type.name == 'String':
+            return fst[0] + snd[0], [cil_node.CILEqString(fst[1], snd[1])]
+        return fst[0] + snd[0], [cil_node.CILEqObject(fst[1], snd[1])]
 
     @visitor.when(ast.LessThan)
     def visit(self, node: ast.LessThan, scope):

@@ -22,11 +22,12 @@ j _copy.loop
 _copy.end:
 jr $ra
 
-#Cambiado(Funciona)
+# Cambiado(Funciona)
 .Object.abort:
 li $v0, 10
 syscall
 
+# Cambiado(Funciona)
 .Object.type_name:
 lw $t0, 12($fp)
 lw $t0, ($t0)

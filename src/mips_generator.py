@@ -148,13 +148,13 @@ class MIPS:
                      "jr $ra\n" \
                      "\n"
 
-        raiseExc = "# raise exception Method\n"\
-                   ".raise:\n" \
-                   "lw $a0, 4($sp)\n" \
-                   "li $v0, 4\n" \
-                   "syscall\n" \
-                   "li $v0, 10\n" \
-                   "syscall"
+        raise_exc = "# raise exception Method\n"\
+                    ".raise:\n" \
+                    "lw $a0, 4($sp)\n" \
+                    "li $v0, 4\n" \
+                    "syscall\n" \
+                    "li $v0, 10\n" \
+                    "syscall"
 
         # $a0 -> eax
         # $a1 -> ebx
@@ -165,7 +165,7 @@ class MIPS:
 
         self.mips_code.append(inherithed)
         self.mips_code.append(code)
-        self.mips_code.append(raiseExc)
+        self.mips_code.append(raise_exc)
 
         self.mips_code.append("# Start self.visit(self.main)\n")
         self.mips_code.append("main:")
@@ -224,6 +224,11 @@ class MIPS:
             self.mips_code.append("mult $a0, $a1")
             self.mips_code.append("mflo $a1")
         elif node.op == "/":
+            self.mips_code.append("la $t0, zero_error")
+            self.mips_code.append("sw $t0, ($sp)")
+            self.mips_code.append("subu $sp, $sp, 4")
+            self.mips_code.append("beqz $a1, .raise")
+            self.mips_code.append("addu $sp, $sp, 4")
             self.mips_code.append("div $a0, $a1")
             self.mips_code.append("mflo $a1")
 
@@ -233,6 +238,63 @@ class MIPS:
         self.mips_code.append("syscall")
 
         self.mips_code.append(f"la $t0, Int")
+        self.mips_code.append("sw $t0, ($v0)")
+
+        self.mips_code.append("li $t0, 1")
+        self.mips_code.append("sw $t0, 4($v0)")
+
+        self.mips_code.append("sw $a1, 8($v0)")
+        self.mips_code.append("sw $v0, ($sp)")
+
+        self.mips_code.append("subu $sp, $sp, 4")
+
+    @visitor.when(cil_node.CILEq)
+    def visit(self, node: cil_node.CILEq):
+        self.visit(node.fst[0])
+        self.visit(node.snd[0])
+
+        self.mips_code.append("lw $t0, 8($sp)")
+        self.mips_code.append("lw $t1, 4($sp)")
+
+        self.mips_code.append("lw $a0, 8($t0)")
+        self.mips_code.append("lw $a1, 8($t1)")
+
+        self.mips_code.append("addiu $sp, $sp, 8")
+
+        self.mips_code.append("seq $a1, $a0, $a1")
+
+        self.mips_code.append("li $v0, 9")
+        self.mips_code.append("li $a0, 12")
+        self.mips_code.append("syscall")
+
+        self.mips_code.append(f"la $t0, Bool")
+        self.mips_code.append("sw $t0, ($v0)")
+
+        self.mips_code.append("li $t0, 1")
+        self.mips_code.append("sw $t0, 4($v0)")
+
+        self.mips_code.append("sw $a1, 8($v0)")
+        self.mips_code.append("sw $v0, ($sp)")
+
+        self.mips_code.append("subu $sp, $sp, 4")
+
+    @visitor.when(cil_node.CILEqObject)
+    def visit(self, node: cil_node.CILEqObject):
+        self.visit(node.fst[0])
+        self.visit(node.snd[0])
+
+        self.mips_code.append("lw $a0, 8($sp)")
+        self.mips_code.append("lw $a1, 4($sp)")
+
+        self.mips_code.append("addiu $sp, $sp, 8")
+
+        self.mips_code.append("seq $a1, $a0, $a1")
+
+        self.mips_code.append("li $v0, 9")
+        self.mips_code.append("li $a0, 12")
+        self.mips_code.append("syscall")
+
+        self.mips_code.append(f"la $t0, Bool")
         self.mips_code.append("sw $t0, ($v0)")
 
         self.mips_code.append("li $t0, 1")
@@ -342,7 +404,12 @@ class MIPS:
     @visitor.when(cil_node.CILCase)
     def visit(self, node: cil_node.CILCase):
         self.visit(node.instance[0])
-
+        self.mips_code.append(f"la $t0, void_error")
+        self.mips_code.append(f"sw $t0, ($sp)")
+        self.mips_code.append(f"lw $t0, 4($sp)")
+        self.mips_code.append(f"subu $sp, $sp, 4")
+        self.mips_code.append(f"beqz $t0, .raise")
+        self.mips_code.append(f"addu $sp, $sp, 4")
         for i in node.actions:
             self.visit(i[0])
         # TODO: Exception
@@ -419,7 +486,7 @@ class MIPS:
             self.visit(attr)
 
     @visitor.when(cil_node.CILSelf)
-    def visit(self, node: cil_node.CILSelf):
+    def visit(self, _):
         self.mips_code.append("lw $a0, 12($fp)")
         self.mips_code.append("sw $a0, 0($sp)")
         self.mips_code.append("subu $sp, $sp, 4")
@@ -481,6 +548,11 @@ class MIPS:
     @visitor.when(cil_node.CILDynamicDispatch)
     def visit(self, node: cil_node.CILDynamicDispatch):
         self.mips_code.append("lw $t0, 4($sp)")
+        self.mips_code.append(f"la $t1, void_error")
+        self.mips_code.append(f"sw $t1, ($sp)")
+        self.mips_code.append(f"subu $sp, $sp, 4")
+        self.mips_code.append(f"beqz $t0, .raise")
+        self.mips_code.append(f"addu $sp, $sp, 4")
         self.mips_code.append("lw $t1, ($t0)")
         self.mips_code.append("lw $t2, {}($t1)".format(4 * (node.method + 3)))
 
@@ -499,6 +571,12 @@ class MIPS:
 
     @visitor.when(cil_node.CILStaticDispatch)
     def visit(self, node: cil_node.CILStaticDispatch):
+        self.mips_code.append("lw $t0, 4($sp)")
+        self.mips_code.append(f"la $t1, void_error")
+        self.mips_code.append(f"sw $t1, ($sp)")
+        self.mips_code.append(f"subu $sp, $sp, 4")
+        self.mips_code.append(f"beqz $t0, .raise")
+        self.mips_code.append(f"addu $sp, $sp, 4")
         self.mips_code.append("sw $ra, ($sp)")
         self.mips_code.append("subu $sp, $sp, 4")
         self.mips_code.append("sw $fp, ($sp)")
@@ -535,7 +613,7 @@ class MIPS:
         self.mips_code.append("jr $ra")
 
     @visitor.when(cil_node.CILCopy)
-    def visit(self, node: cil_node.CILCopy):
+    def visit(self, _):
         self.mips_code.append("jal .Object.copy")
 
     @visitor.when(cil_node.CILGetAttr)
