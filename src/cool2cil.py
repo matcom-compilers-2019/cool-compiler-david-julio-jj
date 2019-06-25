@@ -452,12 +452,11 @@ class Cool2cil:
     @visitor.when(ast.Case)
     def visit(self, node: ast.Case, scope):
         instance = self.visit(node.expr, scope)
-        new_scope = CILScope(scope.classname, scope)
         actions = []
         local = instance[0]
         case_key = self.keys_generator.generate("case", True)
         for i in node.actions:
-            t = self.visit(i, new_scope)
+            t = self.visit(i, scope)
             local += t[0]
             action_key = self.keys_generator.generate("case.action", True)
             action = t[1]
@@ -468,9 +467,10 @@ class Cool2cil:
 
     @visitor.when(ast.Action)
     def visit(self, node: ast.Action, scope):
+        new_scope = CILScope(scope.classname, scope)
         new_name = self.name_generator.generate(node.name)
-        scope.add_var(new_name)
-        t = self.visit(node.body, scope)
+        new_scope.add_var(new_name)
+        t = self.visit(node.body, new_scope)
         return [new_name] + t[0], [cil_node.CILAction(new_name, node.action_type, t[1])]
 
     @visitor.when(ast.Self)
