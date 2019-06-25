@@ -249,6 +249,33 @@ class MIPS:
 
         self.mips_code.append("subu $sp, $sp, 4")
 
+    @visitor.when(cil_node.CILEqString)
+    def visit(self, node: cil_node.CILEqString):
+        self.visit(node.fst[0])
+        self.visit(node.snd[0])
+
+        self.mips_code.append("lw $t0, 8($sp)")
+        self.mips_code.append("lw $t1, 4($sp)")
+
+        self.mips_code.append("lw $a0, 8($t0)")
+        self.mips_code.append("lw $a1, 8($t1)")
+
+        self.mips_code.append("addiu $sp, $sp, 8")
+
+        self.mips_code.append("sw $ra, ($sp)")
+        self.mips_code.append("subu $sp, $sp, 4")
+        self.mips_code.append("sw $a0, ($sp)")
+        self.mips_code.append("subu $sp, $sp, 4")        
+        self.mips_code.append("sw $a1, ($sp)")
+        self.mips_code.append("subu $sp, $sp, 4")
+
+        self.mips_code.append("jal str_eq")
+        self.mips_code.append("lw $t0, 4($sp)")
+        self.mips_code.append("addu $sp, $sp, 4")
+        self.mips_code.append("lw $ra, 4($sp)")
+        self.mips_code.append("sw $t0, ($sp)")
+        self.mips_code.append("subu $sp, $sp, 4")
+
     @visitor.when(cil_node.CILEq)
     def visit(self, node: cil_node.CILEq):
         self.visit(node.fst[0])
