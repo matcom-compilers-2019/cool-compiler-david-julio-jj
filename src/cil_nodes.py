@@ -137,6 +137,24 @@ class CILArithm(CILExpression):
         self.op = op
 
 
+class CILEqObject(CILExpression):
+    def __init__(self, fst, snd):
+        self.fst = fst
+        self.snd = snd
+
+
+class CILEqString(CILExpression):
+    def __init__(self, fst, snd):
+        self.fst = fst
+        self.snd = snd
+
+
+class CILEq(CILExpression):
+    def __init__(self, fst, snd):
+        self.fst = fst
+        self.snd = snd
+
+
 class CILBoolOp(CILExpression):
     def __init__(self, fst, snd, op):
         self.fst = fst
