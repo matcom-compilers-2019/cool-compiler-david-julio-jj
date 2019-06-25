@@ -33,9 +33,9 @@ class CoolLexer(object):
                  debuglog=None,
                  errorlog=None):
 
-        self.lexer = None  # ply lexer instance
-        self.tokens = ()  # ply tokens collection
-        self.reserved = {}  # ply reserved keywords map
+        self.lexer = None       # ply lexer instance
+        self.tokens = ()        # ply tokens collection
+        self.reserved = {}      # ply reserved keywords map
         self.last_token = None  # last returned token
 
         # Save Flags - PRIVATE PROPERTIES
@@ -169,6 +169,14 @@ class CoolLexer(object):
     def t_newline(self, t):
         t.lexer.lineno += len(t.value)
 
+    def t_error(self, t):
+        """
+        Error Handling and Reporting Rule.
+        """
+        # print("Illegal character! Line: {0}, character: {1}".format(t.lineno, t.value[0]))
+        print("Illegal character! Line: {0}, character: {1}".format(t.lineno, t.value[0]))
+        t.lexer.skip(1)
+
     # Ignore Whitespace Character Rule
     t_ignore = ' \t\r\f'
 
@@ -262,13 +270,6 @@ class CoolLexer(object):
 
     # COMMENT error handler
     def t_COMMENT_error(self, t):
-        t.lexer.skip(1)
-
-    def t_error(self, t):
-        """
-        Error Handling and Reporting Rule.
-        """
-        print("Illegal character! Line: {0}, character: {1}".format(t.lineno, t.value[0]))
         t.lexer.skip(1)
 
     # ################# END OF LEXICAL ANALYSIS RULES DECLARATION ######################

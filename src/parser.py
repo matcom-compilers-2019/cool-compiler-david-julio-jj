@@ -449,7 +449,15 @@ class CoolParser(object):
         if self.parser is None:
             raise ValueError("Parser was not build, try building it first with the build() method.")
 
-        return self.parser.parse(program_source_code)
+        parser_result = self.parser.parse(program_source_code)
+
+        if self.error_list != []:
+            print("Errors were found in Parser: \n")
+            for error in self.error_list:
+                print(error)
+            raise Exception("Parser Error")
+
+        return parser_result
 
 
 def make_parser(**kwargs) -> CoolParser:

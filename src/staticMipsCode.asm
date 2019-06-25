@@ -29,6 +29,17 @@ syscall
 
 # Cambiado(Funciona)
 .Object.type_name:
+<<<<<<< HEAD
+# Object.TypeName
+lw $t3, 12($fp)
+
+addu $sp, $sp, 4
+lw $fp, ($sp)
+addu $sp, $sp, 4
+lw $a0, 4($sp)
+
+sw $t3, ($sp)
+=======
 lw $t0, 12($fp)
 lw $t0, ($t0)
 lw $t4, 8($t0)
@@ -44,6 +55,7 @@ la $a0, ($t4)
 sw $a0, 8($v0)
 
 sw $v0, ($sp)
+>>>>>>> eb4eec7c3d78a4d373f0c77b0fb13439fd2bce79
 subu $sp, $sp, 4
 
 jr $ra
@@ -130,7 +142,11 @@ subu $sp, $sp, 4
 jr $ra
 
 .String.length:
+<<<<<<< HEAD
+lw $a0, 16($fp)
+=======
 lw $a0, 12($fp)
+>>>>>>> eb4eec7c3d78a4d373f0c77b0fb13439fd2bce79
 lw $a0, 8($a0)
 li $a1, 0
 _stringlength.loop:
