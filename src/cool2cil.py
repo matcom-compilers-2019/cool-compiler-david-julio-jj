@@ -312,8 +312,8 @@ class Cool2cil:
         t = []
         for i in c:
             t += i.exp_code
-            t.append(cil_node.CILInitAttr(self._att_offset(scope.classname, i.offset)))
-        return [], [cil_node.CILNew(t, node.type, self.calc_static(node.static_type))]
+            t.append(cil_node.CILInitAttr(self._att_offset(node.static_type.name, i.offset)))
+        return [], [cil_node.CILNew(t, node.type, self.calc_static(node.static_type.name))]
 
     @visitor.when(ast.Integer)
     def visit(self, node: ast.Integer, scope):
@@ -357,7 +357,11 @@ class Cool2cil:
     def visit(self, node: ast.Equal, scope):
         fst = self.visit(node.first, scope)
         snd = self.visit(node.second, scope)
-        return fst[0] + snd[0], [cil_node.CILBoolOp(fst[1], snd[1], '=')]
+        if node.first.static_type.name in ['Int', 'Bool']:
+            return fst[0] + snd[0], [cil_node.CILEq(fst[1], snd[1])]
+        if node.first.static_type.name == 'String':
+            return fst[0] + snd[0], [cil_node.CILEqString(fst[1], snd[1])]
+        return fst[0] + snd[0], [cil_node.CILEqObject(fst[1], snd[1])]
 
     @visitor.when(ast.LessThan)
     def visit(self, node: ast.LessThan, scope):
@@ -406,14 +410,14 @@ class Cool2cil:
             var += tmp[0]
             codes += tmp[1]
             codes.append(cil_node.CILFormal(new_name))
-        elif node.static_type in ['Bool', 'Int', 'String']:
-            c = self.constructors[node.static_type]
+        elif node.static_type.name in ['Bool', 'Int', 'String']:
+            c = self.constructors[node.static_type.name]
             t = []
             for i in c:
                 t += i.exp_code
-                t.append(cil_node.CILInitAttr(self._att_offset(node.static_type, i.offset)))
+                t.append(cil_node.CILInitAttr(self._att_offset(node.static_type.name, i.offset)))
             codes = [
-                cil_node.CILNew(t, node.static_type, self.calc_static(node.static_type)), cil_node.CILFormal(new_name)
+                cil_node.CILNew(t, node.static_type, self.calc_static(node.static_type.name)), cil_node.CILFormal(new_name)
             ]
         else:
             codes = [cil_node.CILFormal(new_name, False)]
@@ -447,17 +451,16 @@ class Cool2cil:
     def visit(self, node: ast.IsVoid, scope):
         exp = self.visit(node.expr, scope)
         key = self.keys_generator.generate("isvoid@isvoid", True)
-        return exp[0], [cil_node.CILIsVoid(key)]
+        return exp[0], exp[1] + [cil_node.CILIsVoid(key)]
 
     @visitor.when(ast.Case)
     def visit(self, node: ast.Case, scope):
         instance = self.visit(node.expr, scope)
-        new_scope = CILScope(scope.classname, scope)
         actions = []
         local = instance[0]
         case_key = self.keys_generator.generate("case", True)
         for i in node.actions:
-            t = self.visit(i, new_scope)
+            t = self.visit(i, scope)
             local += t[0]
             action_key = self.keys_generator.generate("case.action", True)
             action = t[1]
@@ -468,10 +471,10 @@ class Cool2cil:
 
     @visitor.when(ast.Action)
     def visit(self, node: ast.Action, scope):
+        new_scope = CILScope(scope.classname, scope)
         new_name = self.name_generator.generate(node.name)
-        print(new_name)
-        scope.add_var(new_name)
-        t = self.visit(node.body, scope)
+        new_scope.add_var(new_name)
+        t = self.visit(node.body, new_scope)
         return [new_name] + t[0], [cil_node.CILAction(new_name, node.action_type, t[1])]
 
     @visitor.when(ast.Self)

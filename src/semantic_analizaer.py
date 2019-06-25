@@ -69,8 +69,8 @@ class CheckSemantic:
             ctype = type_list[i]
             type_map[ctype.name] = i
 
-        bit_mask = [False] * len(type_list)
         for i in range(len(type_list)):
+            bit_mask = [False] * len(type_list)
             ctype = type_list[i]
             if not bit_mask[i] and not ctype.name == 'Object' and not ctype.name == 'SELF_TYPE':
                 self.check_ciclic_inheritance_(ctype, type_map, bit_mask)
@@ -314,8 +314,8 @@ class CheckSemantic:
     def visit(self, node: ast.Formal, scope: Scope):
         scope.defineSymbol(node.name, scope.getType(node.param_type), True)
         t = self.visit(node.init_expr, scope)
-        node.static_type = node.param_type
         if not t:
+            node.static_type = scope.getType(node.param_type) if node.param_type != 'SELF_TYPE' else scope.getType(scope.classname)
             return
         if node.param_type == 'SELF_TYPE' and t.name == 'SELF_TYPE':
             return

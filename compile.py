@@ -23,13 +23,13 @@ if __name__ == '__main__':
             ast = parser_object.parse(inp)
             semantic_object = check_semantic.CheckSemantic()
             cil_object = cil.Cool2cil()
-            try:
-                scope_root = semantic_object.visit(ast, None)
-                cil_object.visit(ast, scope_root)
-                mg = MIPS(cil_object)
-                print(f'{i} ok')
-            except BaseException as e:
-                print(f'{i} {e}')
+            # try:
+            scope_root = semantic_object.visit(ast, None)
+            cil_object.visit(ast, scope_root)
+            # mg = MIPS(cil_object)
+            print(f'{i} ok')
+            # except BaseException as e:
+            #     print(f'{i} {e}')
     else:
         with open(f'{argv[1]}', 'r') as fd:
             inp = ''
