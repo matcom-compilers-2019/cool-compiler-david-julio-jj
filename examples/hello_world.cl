@@ -12,12 +12,12 @@ class A2I{
 };
 
 class Main inherits IO{
-    a : A2I;
     main() : Object {
-        {
-            a <- new A2I;
-            a.init(3);
-            out_int(a.get_value());
-        }
+        if "H" = "H"
+        then
+            out_string("siiii")
+        else
+            out_string("Noooo")
+        fi
     };
 };
