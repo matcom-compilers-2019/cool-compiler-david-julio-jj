@@ -28,25 +28,15 @@ li $v0, 10
 syscall
 
 .Object.type_name:
-lw $t3, 16($fp)
-lw $t4, 8($t0)
-
-li $v0, 9
-li $a0, 12
-syscall
-la $t0, String
-sw $t0, ($v0)
-li $t0, 1
-sw $t0, 4($v0)
-la $a0, ($t4)
-sw $a0, 8($v0)
+# Object.TypeName
+lw $t3, 12($fp)
 
 addu $sp, $sp, 4
 lw $fp, ($sp)
 addu $sp, $sp, 4
 lw $a0, 4($sp)
 
-sw $v0, ($sp)
+sw $t3, ($sp)
 subu $sp, $sp, 4
 
 jr $ra
@@ -147,7 +137,7 @@ subu $sp, $sp, 4
 jr $ra
 
 .String.length:
-lw $a0, 16($sp)
+lw $a0, 16($fp)
 lw $a0, 8($a0)
 li $a1, 0
 _stringlength.loop:
