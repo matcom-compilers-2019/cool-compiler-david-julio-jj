@@ -416,7 +416,6 @@ class MIPS:
         self.mips_code.append("sw $t0, 4($v0)")
 
         for attr in node.attributes:
-            print("attr: " + str(attr))
             self.visit(attr)
 
     @visitor.when(cil_node.CILSelf)
