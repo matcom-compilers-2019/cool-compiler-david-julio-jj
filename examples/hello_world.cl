@@ -7,7 +7,7 @@ class A2I{
         }
     };
     get_value():Int{
-        value;
+        value
     };
 };
 
