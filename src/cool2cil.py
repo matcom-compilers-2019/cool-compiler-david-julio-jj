@@ -275,7 +275,7 @@ class Cool2cil:
             tmp = self.visit(item, scope)
             codes += tmp[1]
             if item.static_type.name in ['Int', 'Bool']:
-                codes += [cil_node.CILCopy()]
+                codes += [cil_node.CILDynamicDispatch(0, self._dispatch(item.static_type.name, "copy"))]
         tmp = self.visit(node.instance, scope)
         codes += tmp[1]
         t = node.instance.static_type.name
