@@ -173,7 +173,8 @@ class MIPS:
 
         self.mips_code.append("# Start self.visit(cil_node.CILDynamicDispatch())\n")
         self.visit(cil_node.CILDynamicDispatch(0, self.CILObject._dispatch('Main', 'main')))
-
+        # Haciendo abort despues del main
+        self.mips_code.append("j .Object.abort")
         for in_code in self.dotCode:
             print(in_code)
             self.visit(in_code)
@@ -565,7 +566,15 @@ class MIPS:
         self.mips_code.append("jal $t2")
 
         self.mips_code.append("lw $t0, 4($sp)")
-        self.mips_code.append("addu $sp, $sp, {}".format(4 * (node.c_args + 2)))
+        self.mips_code.append("addu $sp, $sp, 4")
+
+        self.mips_code.append("move $sp, $fp")
+        self.mips_code.append("addu $sp, $sp, 4")
+        self.mips_code.append("lw $fp, ($sp)")
+        self.mips_code.append("addu $sp, $sp, 4")
+        self.mips_code.append("lw $ra, ($sp)")
+
+        self.mips_code.append("addu $sp, $sp, {}".format(4 * (node.c_args + 1)))
         self.mips_code.append("sw $t0, ($sp)")
         self.mips_code.append("subu $sp, $sp, 4")
 
@@ -586,13 +595,22 @@ class MIPS:
         self.mips_code.append("jal {}".format(node.method))
 
         self.mips_code.append("lw $t0, 4($sp)")
-        self.mips_code.append("addu $sp, $sp, {}".format(4 * (node.c_args + 2)))
+        self.mips_code.append("addu $sp, $sp, 4")
+
+        self.mips_code.append("move $sp, $fp")
+        self.mips_code.append("addu $sp, $sp, 4")
+        self.mips_code.append("lw $fp, ($sp)")
+        self.mips_code.append("addu $sp, $sp, 4")
+        self.mips_code.append("lw $ra, ($sp)")
+
+        self.mips_code.append("addu $sp, $sp, {}".format(4 * (node.c_args + 1)))
         self.mips_code.append("sw $t0, ($sp)")
         self.mips_code.append("subu $sp, $sp, 4")
 
     @visitor.when(cil_node.CILMethod)
     def visit(self, node: cil_node.CILMethod):
         self.vars = node.local
+        node.params.reverse()
         self.arguments = node.params
 
         self.mips_code.append("{}:".format(node.name))

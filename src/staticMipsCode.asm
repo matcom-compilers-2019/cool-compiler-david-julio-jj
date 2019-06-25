@@ -43,11 +43,6 @@ sw $t0, 4($v0)
 la $a0, ($t4)
 sw $a0, 8($v0)
 
-addu $sp, $sp, 4
-lw $fp, ($sp)
-addu $sp, $sp, 4
-lw $a0, 4($sp)
-
 sw $v0, ($sp)
 subu $sp, $sp, 4
 
@@ -62,10 +57,6 @@ lw $t0, 16($fp)
 lw $a0, 8($t0)
 syscall
 
-addu $sp, $sp, 4
-lw $fp, ($sp)
-addu $sp, $sp, 4
-lw $a0, 4($sp)
 sw $a0, ($sp)
 subu $sp, $sp, 4
 
@@ -77,11 +68,6 @@ li $v0, 1
 lw $t0, 16($fp)
 lw $a0, 8($t0)
 syscall
-
-addu $sp, $sp, 4
-lw $fp, ($sp)
-addu $sp, $sp, 4
-lw $a0, 4($sp)
 
 sw $a0, ($sp)
 subu $sp, $sp, 4
@@ -138,11 +124,6 @@ li $t0, 1
 sw $t0, 4($v0)
 sw $t3, 8($v0)
 
-addu $sp, $sp, 4
-lw $fp, ($sp)
-addu $sp, $sp, 4
-lw $a0, 4($sp)
-
 sw $v0, ($sp)
 subu $sp, $sp, 4
 
@@ -172,40 +153,84 @@ sw $t0, 4($v0)
 
 sw $a1, 8($v0)
 
-addu $sp, $sp, 4
-lw $fp, ($sp)
-addu $sp, $sp, 4
-lw $a0, 4($sp)
-
 sw $v0, ($sp)
 subu $sp, $sp, 4
 
 jr $ra
 
-
+# Pincha
 .String.concat:
-move $a2, $ra
-jal String.length
-move $v1, $v0
-addiu $sp, $sp, -4
-jal String.length
-addiu $sp, $sp, 4
-add $v1, $v1, $v0
+# pusheando el 1er string para el len
+lw $t0, 12($fp)
+sw $t0, ($sp)
+subu $sp, $sp, 4
+
+# salvando registros para el dispatch
+sw $ra, ($sp)
+subu $sp, $sp, 4
+sw $fp, ($sp)
+subu $sp, $sp, 4
+move $fp, $sp
+jal .String.length
+
+# cogiendo el resultado del 1er len
+lw $t7, 4($sp)
+lw $t7, 8($t7)
+addu $sp, $sp, 4
+
+# restaurando registros
+move $sp, $fp
+addu $sp, $sp, 4
+lw $fp, ($sp)
+addu $sp, $sp, 4
+lw $ra, ($sp)
+addu $sp, $sp, 4
+
+# pusheando el 2do string para el len
+lw $t0, 16($fp)
+sw $t0, ($sp)
+subu $sp, $sp, 4
+
+# salvando registros para el dispatch again
+sw $ra, ($sp)
+subu $sp, $sp, 4
+sw $fp, ($sp)
+subu $sp, $sp, 4
+move $fp, $sp
+jal .String.length
+
+# cogiendo el resultado del 2do len
+lw $t8, 4($sp)
+lw $t8, 8($t8)
+addu $sp, $sp, 4
+
+# restaurando registros
+move $sp, $fp
+addu $sp, $sp, 4
+lw $fp, ($sp)
+addu $sp, $sp, 4
+lw $ra, ($sp)
+addu $sp, $sp, 4
+
+move $v1, $t7
+add $v1, $v1, $t8
 addi $v1, $v1, 1
 li $v0, 9
 move $a0, $v1
 syscall
 move $v1, $v0
-lw $a0, 0($sp)
+lw $a0, 12($fp)
+lw $a0, 8($a0)
 _stringconcat.loop1:
-lb $a1, 0($a0)
+lb $a1,($a0)
 beqz $a1, _stringconcat.end1
-sb $a1, 0($v1)
+sb $a1, ($v1)
 addiu $a0, $a0, 1
 addiu $v1, $v1, 1
 j _stringconcat.loop1
 _stringconcat.end1:
-lw $a0, -4($sp)
+lw $a0, 16($fp)
+lw $a0, 8($a0)
 _stringconcat.loop2:
 lb $a1, 0($a0)
 beqz $a1, _stringconcat.end2
@@ -215,7 +240,23 @@ addiu $v1, $v1, 1
 j _stringconcat.loop2
 _stringconcat.end2:
 sb $zero, 0($v1)
-move $ra, $a2
+
+move $t1, $v0
+li $v0, 9
+li $a0, 12
+syscall
+
+la $t0, String
+sw $t0, ($v0)
+
+li $t0, 1
+sw $t0, 4($v0)
+
+sw $t1, 8($v0)
+
+sw $v0, ($sp)
+subu $sp, $sp, 4
+
 jr $ra
 
 #(Cambiado)
