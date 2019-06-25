@@ -327,3 +327,44 @@ jr $ra
 _stringcmp.equals:
 li $v0, 1
 jr $ra
+
+# equal for str
+str_eq:
+lw $t0, 4($sp)
+addu $sp, $sp,4
+lw $t1, 4($sp)
+addu $sp, $sp, 4
+subi $t0, $t0, 1
+subi $t1, $t1, 1
+str_eq_loop:
+addi $t0, $t1, 1			# $t0 = $t1 + 1
+addi $t1, $t1, 1
+lb $t3, ($t0)
+lb $t4, ($t1)
+or $t5, $t3, $t4
+beqz $t5, success
+beqz $t3, fail
+beqz $t4, fail
+beq $t3, $t4, str_eq_loop
+fail:
+li $v0, 9
+li $a0, 12
+syscall
+la $t0, Bool
+sw $t0, ($v0)
+li $t0, 0
+sw $t0, 4($v0)
+sw $a1, 8($v0)
+sw $v0, ($sp)
+subu $sp, $sp, 4
+jr $ra
+success:
+la $t0, Bool
+sw $t0, ($v0)
+li $t0, 1
+sw $t0, 4($v0)
+sw $a1, 8($v0)
+sw $v0, ($sp)
+subu $sp, $sp, 4
+jr $ra
+
