@@ -586,6 +586,7 @@ class MIPS:
         self.mips_code.append(f"subu $sp, $sp, 4")
         self.mips_code.append(f"beqz $t0, .raise")
         self.mips_code.append(f"addu $sp, $sp, 4")
+
         self.mips_code.append("sw $ra, ($sp)")
         self.mips_code.append("subu $sp, $sp, 4")
         self.mips_code.append("sw $fp, ($sp)")
@@ -619,12 +620,6 @@ class MIPS:
         for code in node.body:
             print(code)
             self.visit(code)
-
-        self.mips_code.append("move $sp, $fp")
-        self.mips_code.append("addu $sp, $sp, 4")
-        self.mips_code.append("lw $fp, ($sp)")
-        self.mips_code.append("addu $sp, $sp, 4")
-        self.mips_code.append("lw $ra, ($sp)")
 
         # self.mips_code.append("lw $fp, 4($sp)")
         # self.mips_code.append("sw $t0, -4($sp)")

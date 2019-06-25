@@ -12,9 +12,11 @@ class A2I{
 };
 
 class Main inherits IO{
-    main() :Object {
-        let a:A2I <- new A2I in {
-            a.init(2);
+    a : A2I;
+    main() : Object {
+        {
+            a <- new A2I;
+            a.init(3);
             out_int(a.get_value());
         }
     };
