@@ -289,14 +289,14 @@ class Cool2cil:
         args = []
         var = []
         codes = []
-        tmp = self.visit(node.instance, scope)
         for item in node.arguments:
             tmp = self.visit(item, scope)
             codes += tmp[1]
             if item.static_type.name in ['Int', 'Bool']:
                 codes += [cil_node.CILDynamicDispatch(0, self._dispatch(item.static_type.name, "copy"))]
-        codes.append(tmp[1])
-        codes.append(cil_node.CILStaticDispatch(len(node.arguments), scope.classname, node.method))
+        tmp = self.visit(node.instance, scope)
+        codes += tmp[1]
+        codes.append(cil_node.CILStaticDispatch(len(node.arguments), node.dispatch_type, node.method))
         return var, codes
 
     @visitor.when(ast.ClassAttribute)
