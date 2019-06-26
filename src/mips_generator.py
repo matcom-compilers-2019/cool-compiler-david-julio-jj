@@ -670,7 +670,7 @@ class MIPS:
     @visitor.when(cil_node.CILMethod)
     def visit(self, node: cil_node.CILMethod):
         self.vars = node.local
-        node.params.reverse()
+        # node.params.reverse()
         self.arguments = node.params
 
         self.mips_code.append("{}:".format(node.name))
