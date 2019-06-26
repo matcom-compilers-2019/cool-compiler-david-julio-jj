@@ -282,7 +282,7 @@ subu $sp, $sp, 4
 
 jr $ra
 
-#(Cambiado)
+# Pincha
 .String.substr:
 
 # Cargando indices del substring
@@ -291,12 +291,7 @@ lw $t4, 8($t4)
 lw $t3, 20($fp)
 lw $t3, 8($t3)
 
-# Comprobando que no esten cruzados los indices
-sle $t0, $t3, $t4
-beqz $t0 _substrexception
-
 move $a0, $t4
-sub $a0, $a0, $t3
 addiu $a0, $a0, 1
 li $v0, 9
 syscall
@@ -315,11 +310,6 @@ addu $a0, $a0, 1
 subu $t3, $t3, 1
 j _stringsubstr.loop1
 _stringsubstr.end1:
-
-# lw $a0, -4($sp)
-# lw $a1, -8($sp)
-# add $a0, $a0, $a1
-# lw $a2, -12($sp)
 
 _stringsubstr.loop2:
 beqz $a2, _stringsubstr.end2
@@ -351,7 +341,6 @@ subu $sp, $sp, 4
 
 jr $ra
 
-# Es aqui comepinga, escrito por y para Juan Jose
 _substrexception:
 la $a0, index_error
 li $v0, 4
