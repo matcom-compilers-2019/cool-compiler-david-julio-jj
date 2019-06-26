@@ -119,7 +119,7 @@ class MIPS:
         t = []
         for i in c:
             t += i.exp_code
-            t.append(cil_node.CILInitAttr(CILObject._att_offset('Main', i.offset)))
+            t.append(cil_node.CILInitAttr(CILObject._att_offset('Main', i.offset), []))
         self.main = cil_node.CILNew(t, 'Main', CILObject.calc_static('Main'))
         self.vars = []
         self.arguments = []
@@ -205,9 +205,10 @@ class MIPS:
 
     @visitor.when(cil_node.CILArithm)
     def visit(self, node: cil_node.CILArithm):
-
-        self.visit(node.fst[0])
-        self.visit(node.snd[0])
+        for i in node.fst:
+            self.visit(i)
+        for i in node.snd:
+            self.visit(i)
 
         self.mips_code.append("lw $t0, 8($sp)")
         self.mips_code.append("lw $t1, 4($sp)")
@@ -251,8 +252,10 @@ class MIPS:
 
     @visitor.when(cil_node.CILEqString)
     def visit(self, node: cil_node.CILEqString):
-        self.visit(node.fst[0])
-        self.visit(node.snd[0])
+        for i in node.fst:
+            self.visit(i)
+        for i in node.snd:
+            self.visit(i)
 
         self.mips_code.append("lw $t0, 8($sp)")
         self.mips_code.append("lw $t1, 4($sp)")
@@ -278,8 +281,10 @@ class MIPS:
 
     @visitor.when(cil_node.CILEq)
     def visit(self, node: cil_node.CILEq):
-        self.visit(node.fst[0])
-        self.visit(node.snd[0])
+        for i in node.fst:
+            self.visit(i)
+        for i in node.snd:
+            self.visit(i)
 
         self.mips_code.append("lw $t0, 8($sp)")
         self.mips_code.append("lw $t1, 4($sp)")
@@ -308,8 +313,10 @@ class MIPS:
 
     @visitor.when(cil_node.CILEqObject)
     def visit(self, node: cil_node.CILEqObject):
-        self.visit(node.fst[0])
-        self.visit(node.snd[0])
+        for i in node.fst:
+            self.visit(i)
+        for i in node.snd:
+            self.visit(i)
 
         self.mips_code.append("lw $a0, 8($sp)")
         self.mips_code.append("lw $a1, 4($sp)")
@@ -336,9 +343,10 @@ class MIPS:
     @visitor.when(cil_node.CILBoolOp)
     def visit(self, node: cil_node.CILBoolOp):
         # Move values to $a0-$a1
-
-        self.visit(node.fst[0])
-        self.visit(node.snd[0])
+        for i in node.fst:
+            self.visit(i)
+        for i in node.snd:
+            self.visit(i)
 
         self.mips_code.append("lw $t0, 8($sp)")
         self.mips_code.append("lw $t1, 4($sp)")
