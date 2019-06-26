@@ -71,10 +71,11 @@ class CILStaticDispatch(CILExpression):
 
 
 class CILNew(CILExpression):
-    def __init__(self, attributes, ctype, size):
+    def __init__(self, attributes, ctype, size, scope):
         self.attributes = attributes
         self.ctype = ctype
         self.size = size
+        self.scope = scope
 
 
 class CILAttribute(CILExpression):

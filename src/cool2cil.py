@@ -310,10 +310,12 @@ class Cool2cil:
     def visit(self, node: ast.NewObject, scope):
         c = self.constructors[node.static_type.name]
         t = []
+        att = []
         for i in c:
             t += i.exp_code
             t.append(cil_node.CILInitAttr(self._att_offset(node.static_type.name, i.offset), i.scope))
-        return [], [cil_node.CILNew(t, node.type, self.calc_static(node.static_type.name))]
+            att += i.scope
+        return [], [cil_node.CILNew(t, node.type, self.calc_static(node.static_type.name), att)]
 
     @visitor.when(ast.Integer)
     def visit(self, node: ast.Integer, scope):
@@ -417,7 +419,7 @@ class Cool2cil:
                 t += i.exp_code
                 t.append(cil_node.CILInitAttr(self._att_offset(node.static_type.name, i.offset),i.scope))
             codes = [
-                cil_node.CILNew(t, node.static_type, self.calc_static(node.static_type.name)), cil_node.CILFormal(new_name)
+                cil_node.CILNew(t, node.static_type, self.calc_static(node.static_type.name), ["#"]), cil_node.CILFormal(new_name)
             ]
         else:
             codes = [cil_node.CILFormal(new_name, False)]

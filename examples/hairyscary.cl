@@ -43,6 +43,7 @@ class Bazz inherits IO {
 			n : Bar => n;
 		  esac;
 
+     
      i : Object <- printh();
 
      printh() : Int { { out_int(h); 0; } };

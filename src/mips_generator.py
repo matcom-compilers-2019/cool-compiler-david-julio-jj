@@ -117,10 +117,12 @@ class MIPS:
         self.CILObject = CILObject
         c = CILObject.constructors['Main']
         t = []
+        att = []
         for i in c:
             t += i.exp_code
+            att += i.scope
             t.append(cil_node.CILInitAttr(CILObject._att_offset('Main', i.offset), []))
-        self.main = cil_node.CILNew(t, 'Main', CILObject.calc_static('Main'))
+        self.main = cil_node.CILNew(t, 'Main', CILObject.calc_static('Main'),att)
         self.vars = []
         self.arguments = []
         self.mips_code = []

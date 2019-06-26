@@ -4,7 +4,7 @@ class Main inherits IO {
 	then true
 	else if s.length() = 1
 	then true
-	else if s.substr(0, 1) = s.substr(s.length() - 1, 1)
+	else if s.substr(0, 1) = s.substr(s.length() - 1, s.length())
 	then pal(s.substr(1, s.length() -2))
 	else false
 	fi fi fi
