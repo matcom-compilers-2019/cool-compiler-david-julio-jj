@@ -524,7 +524,7 @@ class MIPS:
         self.mips_code.append(f"addu $sp, $sp, 4")
         self.mips_code.append("lw $ra, 4($sp)")
         self.mips_code.append("addu $sp, $sp, 4")
-        self.mips_code.append("beq $a0, $t0, {}".format(node.action_tag))
+        self.mips_code.append("beqz $a0, {}".format(node.action_tag))
 
         i = self.vars.index(node.id)
         self.mips_code.append(f"sw $t0, -{i*4}($fp)")
