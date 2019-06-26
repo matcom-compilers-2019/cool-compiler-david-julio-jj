@@ -1,5 +1,11 @@
-class Main inherits IO{
-    main() : Object {
-        out_string("Hello, world !".substr(1, 4))
-    };
+(*
+ *  A contribution from Anne Sheets (sheets@cory)
+ *
+ *  Tests the arithmetic operations and various other things
+ *)
+
+class Main inherits IO {
+   main() : Object {
+     out_int(in_string().length())
+   };
 };

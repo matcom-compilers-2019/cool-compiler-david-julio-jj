@@ -188,7 +188,7 @@ class MIPS:
         for s_data in self.dotData:
             self.mips_code.append("msg{}: .asciiz \"{}\"".format(pos, s_data))
             pos += 1
-
+        self.mips_code.append("buffer: .space 1024")
         for i in range(len(self.dotType)):
             self.mips_code.append(f"type_str{i}: .asciiz \"{self.dotType[i].cType}\"")
         for i in range(len(self.dotType)):
@@ -670,7 +670,7 @@ class MIPS:
     @visitor.when(cil_node.CILMethod)
     def visit(self, node: cil_node.CILMethod):
         self.vars = node.local
-        node.params.reverse()
+        # node.params.reverse()
         self.arguments = node.params
 
         self.mips_code.append("{}:".format(node.name))

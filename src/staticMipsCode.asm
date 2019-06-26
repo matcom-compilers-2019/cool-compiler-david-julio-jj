@@ -78,36 +78,57 @@ jr $ra
 
 
 .IO.in_string:
-move $a3, $ra
 
 la $a0, buffer
 li $a1, 65536
 li $v0, 8
 syscall
 
-sw $a0, 0($sp)
-subu $sp, $sp, 4
-jal .String.length
+li $a1, 0
+# Calculate the lenght of the string
+_stringlength2.loop:
+lb $a2, 0($a0)
+beqz $a2, _stringlength2.end
+addiu $a0, $a0, 1
+addiu $a1, $a1, 1
+j _stringlength2.loop
+_stringlength2.end:
 
-addiu $sp, $sp, 4
-move $a2, $v0
-addiu $a2, $a2, -1
-move $a0, $v0
+# Temp
 li $v0, 9
+move $a0, $a1
 syscall
+
 move $v1, $v0
 la $a0, buffer
 _in_string.loop:
-beqz $a2, _in_string.end
-lb $a1, 0($a0)
-sb $a1, 0($v1)
+beqz $a1, _in_string.end
+lb $t4, 0($a0)
+sb $t4, 0($v1)
 addiu $a0, $a0, 1
 addiu $v1, $v1, 1
-addiu $a2, $a2, -1
+addiu $a1, $a1, -1
 j _in_string.loop
 _in_string.end:
 sb $zero, 0($v1)
-move $ra, $a3
+
+move $t2, $v0
+
+# Creating the new type String
+li $v0, 9
+li $a0, 12
+syscall
+
+la $t0, String
+sw $t0, ($v0)
+li $t0, 1
+sw $t0, 4($v0)
+move $a0, $t2
+sw $a0, 8($v0)
+
+sw $v0, ($sp)
+subu $sp, $sp, 4
+
 jr $ra
 
 # Pincha

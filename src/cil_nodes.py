@@ -102,7 +102,7 @@ class CILWhile(CILExpression):  # Listo
         self.predicate = predicate
         self.body = body
         self.while_tag = f'.while.start.{key}'
-        self.end_tag = f'.if.end.{key}'
+        self.end_tag = f'.while.end.{key}'
 
 
 class CILGetAttr(CILExpression):
