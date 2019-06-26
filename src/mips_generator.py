@@ -791,13 +791,13 @@ class MIPS:
     @visitor.when(cil_node.CILAssignment)
     def visit(self, node: cil_node.CILAssignment):
         if node.dest in self.arguments:
+            self.mips_code.append("lw $t0, 4($sp)")
             index = self.arguments.index(node.dest)
             self.mips_code.append(f"lw $t0, {12 + 4*index}($fp)")
         elif node.dest in self.vars:
+            self.mips_code.append("lw $t0, 4($sp)")
             index = self.vars.index(node.dest)
-            self.mips_code.append(f"lw $t0, -{4*index}($fp)")
-        self.mips_code.append("lw $t1, 4($sp)")
-        self.mips_code.append("sw $t1, ($t0)")
+            self.mips_code.append(f"sw $t0, -{4*index}($fp)")
 
     @visitor.when(cil_node.CILFormal)
     def visit(self, node: cil_node.CILFormal):
