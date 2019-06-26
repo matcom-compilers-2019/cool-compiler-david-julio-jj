@@ -78,13 +78,12 @@ jr $ra
 
 
 .IO.in_string:
-
 la $a0, buffer
 li $a1, 65536
 li $v0, 8
 syscall
 
-li $a1, 0
+li $a1, 1
 # Calculate the lenght of the string
 _stringlength2.loop:
 lb $a2, 0($a0)
