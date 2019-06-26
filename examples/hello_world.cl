@@ -1,8 +1,4 @@
 class Main inherits IO {
-<<<<<<< HEAD
-    main() : SELF_TYPE {
-	    out_string(in_string())
-=======
     pal(s : String) : Bool {
 	if s.length() = 0
 	then true
@@ -25,6 +21,5 @@ class Main inherits IO {
 	    else out_string("that was not a palindrome\n")
 	    fi;
 	}
->>>>>>> 9d74eb3ebfd2cffc68bec440e23d3f797bd5fcca
     };
 };
