@@ -124,6 +124,7 @@ class MIPS:
         self.vars = []
         self.arguments = []
         self.mips_code = []
+        self.neg_bool = 1
 
     def generate_mips(self):
         """
@@ -148,7 +149,7 @@ class MIPS:
                      "jr $ra\n" \
                      "\n"
 
-        raise_exc = "# raise exception Method\n"\
+        raise_exc = "# raise exception Method\n" \
                     ".raise:\n" \
                     "lw $a0, 4($sp)\n" \
                     "li $v0, 4\n" \
@@ -265,7 +266,7 @@ class MIPS:
         self.mips_code.append("sw $ra, ($sp)")
         self.mips_code.append("subu $sp, $sp, 4")
         self.mips_code.append("sw $a0, ($sp)")
-        self.mips_code.append("subu $sp, $sp, 4")        
+        self.mips_code.append("subu $sp, $sp, 4")
         self.mips_code.append("sw $a1, ($sp)")
         self.mips_code.append("subu $sp, $sp, 4")
 
@@ -377,9 +378,17 @@ class MIPS:
         for elem in node.fst:
             self.visit(elem)
 
-        self.mips_code.append("lw $a1, 4($sp)")
+        self.mips_code.append("lw $t0, 4($sp)")
 
-        self.mips_code.append("not $a1, $a1")
+        self.mips_code.append("lw $a1, 8($t0)")
+
+        self.mips_code.append(f"beqz $a1, .put_one.{self.neg_bool}")
+        self.mips_code.append("li $a1, 0")
+        self.mips_code.append(f"j .is_zero.{self.neg_bool}")
+        self.mips_code.append(f".put_one.{self.neg_bool}:")
+        self.mips_code.append("li $a1, 1")
+        self.mips_code.append(f".is_zero.{self.neg_bool}:")
+        self.neg_bool += 1
 
         self.mips_code.append("li $v0, 9")
         self.mips_code.append("li $a0, 12")
@@ -402,11 +411,13 @@ class MIPS:
         for elem in node.fst:
             self.visit(elem)
 
-        self.mips_code.append("lw $a1, 4($sp)")
+        self.mips_code.append("lw $t0, 4($sp)")
+
+        self.mips_code.append("lw $a0, 8($t0)")
 
         self.mips_code.append("li $a2, 0")
 
-        self.mips_code.append("addu $a1, $a2, $a1")
+        self.mips_code.append("subu $a1, $a2, $a0")
 
         self.mips_code.append("li $v0, 9")
         self.mips_code.append("li $a0, 12")
@@ -679,7 +690,7 @@ class MIPS:
         for code in node.body:
             print(code)
             self.visit(code)
-            
+
         # self.mips_code.append("lw $fp, 4($sp)")
         # self.mips_code.append("sw $t0, -4($sp)")
         self.mips_code.append("jr $ra")
