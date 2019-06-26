@@ -295,7 +295,7 @@ class Cool2cil:
             codes += tmp[1]
             if item.static_type.name in ['Int', 'Bool']:
                 codes += [cil_node.CILDynamicDispatch(0, self._dispatch(item.static_type.name, "copy"))]
-        codes.append(tmp[1])
+        codes += tmp[1]
         codes.append(cil_node.CILStaticDispatch(len(node.arguments), scope.classname, node.method))
         return var, codes
 
@@ -321,12 +321,28 @@ class Cool2cil:
 
     @visitor.when(ast.Integer)
     def visit(self, node: ast.Integer, scope):
-        return [], [cil_node.CILInteger(node.content)]
+        c = self.constructors[node.static_type.name]
+        t = []
+        att = []
+        for i in c:
+            t += i.exp_code
+            t.append(cil_node.CILInitAttr(self._att_offset(node.static_type.name, i.offset), i.scope))
+            att += i.scope
+        new = cil_node.CILNew(t, node.static_type.name, self.calc_static(node.static_type.name), att)
+        return [], [new, cil_node.CILInteger(node.content), cil_node.CILSetAttr(0)]
 
     @visitor.when(ast.Boolean)
     def visit(self, node: ast.Boolean, scope):
         value = 1 if node.content else 0
-        return [], [cil_node.CILBoolean(value)]
+        c = self.constructors[node.static_type.name]
+        t = []
+        att = []
+        for i in c:
+            t += i.exp_code
+            t.append(cil_node.CILInitAttr(self._att_offset(node.static_type.name, i.offset), i.scope))
+            att += i.scope
+        new = cil_node.CILNew(t, node.static_type.name, self.calc_static(node.static_type.name), att)
+        return [], [new, cil_node.CILBoolean(value), cil_node.CILSetAttr(0)]
 
     @visitor.when(ast.String)
     def visit(self, node: ast.String, scope):
