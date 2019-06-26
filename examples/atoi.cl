@@ -107,3 +107,9 @@ numbers are handled correctly.
     };
 
 };
+
+class Main{
+    main():Object{
+        new Object
+    };
+};

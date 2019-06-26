@@ -117,10 +117,12 @@ class MIPS:
         self.CILObject = CILObject
         c = CILObject.constructors['Main']
         t = []
+        att = []
         for i in c:
             t += i.exp_code
-            t.append(cil_node.CILInitAttr(CILObject._att_offset('Main', i.offset)))
-        self.main = cil_node.CILNew(t, 'Main', CILObject.calc_static('Main'))
+            att += i.scope
+            t.append(cil_node.CILInitAttr(CILObject._att_offset('Main', i.offset), []))
+        self.main = cil_node.CILNew(t, 'Main', CILObject.calc_static('Main'),att)
         self.vars = []
         self.arguments = []
         self.mips_code = []
@@ -177,7 +179,7 @@ class MIPS:
         # Haciendo abort despues del main
         self.mips_code.append("j .Object.abort")
         for in_code in self.dotCode:
-            print(in_code)
+            # print(in_code)
             self.visit(in_code)
 
         self.mips_code.append("# Start .data segment (data!)")
@@ -206,9 +208,10 @@ class MIPS:
 
     @visitor.when(cil_node.CILArithm)
     def visit(self, node: cil_node.CILArithm):
-
-        self.visit(node.fst[0])
-        self.visit(node.snd[0])
+        for i in node.fst:
+            self.visit(i)
+        for i in node.snd:
+            self.visit(i)
 
         self.mips_code.append("lw $t0, 8($sp)")
         self.mips_code.append("lw $t1, 4($sp)")
@@ -252,8 +255,10 @@ class MIPS:
 
     @visitor.when(cil_node.CILEqString)
     def visit(self, node: cil_node.CILEqString):
-        self.visit(node.fst[0])
-        self.visit(node.snd[0])
+        for i in node.fst:
+            self.visit(i)
+        for i in node.snd:
+            self.visit(i)
 
         self.mips_code.append("lw $t0, 8($sp)")
         self.mips_code.append("lw $t1, 4($sp)")
@@ -279,8 +284,10 @@ class MIPS:
 
     @visitor.when(cil_node.CILEq)
     def visit(self, node: cil_node.CILEq):
-        self.visit(node.fst[0])
-        self.visit(node.snd[0])
+        for i in node.fst:
+            self.visit(i)
+        for i in node.snd:
+            self.visit(i)
 
         self.mips_code.append("lw $t0, 8($sp)")
         self.mips_code.append("lw $t1, 4($sp)")
@@ -309,8 +316,10 @@ class MIPS:
 
     @visitor.when(cil_node.CILEqObject)
     def visit(self, node: cil_node.CILEqObject):
-        self.visit(node.fst[0])
-        self.visit(node.snd[0])
+        for i in node.fst:
+            self.visit(i)
+        for i in node.snd:
+            self.visit(i)
 
         self.mips_code.append("lw $a0, 8($sp)")
         self.mips_code.append("lw $a1, 4($sp)")
@@ -337,9 +346,10 @@ class MIPS:
     @visitor.when(cil_node.CILBoolOp)
     def visit(self, node: cil_node.CILBoolOp):
         # Move values to $a0-$a1
-
-        self.visit(node.fst[0])
-        self.visit(node.snd[0])
+        for i in node.fst:
+            self.visit(i)
+        for i in node.snd:
+            self.visit(i)
 
         self.mips_code.append("lw $t0, 8($sp)")
         self.mips_code.append("lw $t1, 4($sp)")
@@ -681,14 +691,16 @@ class MIPS:
     @visitor.when(cil_node.CILMethod)
     def visit(self, node: cil_node.CILMethod):
         self.vars = node.local
-        # node.params.reverse()
-        self.arguments = node.params
+        tmp = node.params[1:]
+        tmp.reverse()
+
+        self.arguments = [node.params[0]] + tmp
 
         self.mips_code.append("{}:".format(node.name))
         self.mips_code.append("subu $sp, $sp, {}".format(4 * len(node.local)))
 
         for code in node.body:
-            print(code)
+            # print(code)
             self.visit(code)
 
         # self.mips_code.append("lw $fp, 4($sp)")

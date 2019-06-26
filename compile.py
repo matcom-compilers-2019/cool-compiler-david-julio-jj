@@ -26,7 +26,8 @@ if __name__ == '__main__':
             # try:
             scope_root = semantic_object.visit(ast, None)
             cil_object.visit(ast, scope_root)
-            # mg = MIPS(cil_object)
+            mg = MIPS(cil_object)
+            mg.generate_mips()
             print(f'{i} ok')
             # except BaseException as e:
             #     print(f'{i} {e}')
