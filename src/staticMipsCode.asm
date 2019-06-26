@@ -78,13 +78,12 @@ jr $ra
 
 
 .IO.in_string:
-
 la $a0, buffer
 li $a1, 65536
 li $v0, 8
 syscall
 
-li $a1, 0
+li $a1, 1
 # Calculate the lenght of the string
 _stringlength2.loop:
 lb $a2, 0($a0)
@@ -93,6 +92,8 @@ addiu $a0, $a0, 1
 addiu $a1, $a1, 1
 j _stringlength2.loop
 _stringlength2.end:
+
+subu $a1, $a1, 1
 
 # Temp
 li $v0, 9
@@ -110,6 +111,7 @@ addiu $v1, $v1, 1
 addiu $a1, $a1, -1
 j _in_string.loop
 _in_string.end:
+subu $v1, $v1, 1
 sb $zero, 0($v1)
 
 move $t2, $v0
