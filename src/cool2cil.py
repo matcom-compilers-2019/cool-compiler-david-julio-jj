@@ -213,9 +213,9 @@ class Cool2cil:
             t1 = self.tree[t[i].name]
             self.dtpe.append(cil_node.DotType(t[i].name, attrs, meths, t1[0], t1[1]))
 
-        self.constructors['Int'].append(cil_node.CILAttribute('#', [cil_node.CILInteger(0)]))
-        self.constructors['Bool'].append(cil_node.CILAttribute('#', [cil_node.CILBoolean(0)]))
-        self.constructors['String'].append(cil_node.CILAttribute('#', [cil_node.CILString(0)]))
+        self.constructors['Int'].append(cil_node.CILAttribute('#', [cil_node.CILInteger(0)],[]))
+        self.constructors['Bool'].append(cil_node.CILAttribute('#', [cil_node.CILBoolean(0)],[]))
+        self.constructors['String'].append(cil_node.CILAttribute('#', [cil_node.CILString(0)],[]))
         self.dtpe[1].attributes.append('#')
         self.dtpe[2].attributes.append('#')
         self.dtpe[3].attributes.append('#')
@@ -301,9 +301,9 @@ class Cool2cil:
     def visit(self, node: ast.ClassAttribute, scope):
         if node.init_expr:
             tmp = self.visit(node.init_expr, scope)
-            return tmp[0], [cil_node.CILAttribute(node.name, tmp[1])]
+            return tmp[0], [cil_node.CILAttribute(node.name, tmp[1], tmp[0])]
         if node.static_type.name in ['String', 'Int', 'Bool']:
-            return [], [cil_node.CILAttribute(node.name, [cil_node.CILInteger(0)])]
+            return [], [cil_node.CILAttribute(node.name, [cil_node.CILInteger(0)], tmp[0])]
         return [], []
 
     @visitor.when(ast.NewObject)
@@ -312,7 +312,7 @@ class Cool2cil:
         t = []
         for i in c:
             t += i.exp_code
-            t.append(cil_node.CILInitAttr(self._att_offset(node.static_type.name, i.offset)))
+            t.append(cil_node.CILInitAttr(self._att_offset(node.static_type.name, i.offset), i.scope))
         return [], [cil_node.CILNew(t, node.type, self.calc_static(node.static_type.name))]
 
     @visitor.when(ast.Integer)
@@ -415,7 +415,7 @@ class Cool2cil:
             t = []
             for i in c:
                 t += i.exp_code
-                t.append(cil_node.CILInitAttr(self._att_offset(node.static_type.name, i.offset)))
+                t.append(cil_node.CILInitAttr(self._att_offset(node.static_type.name, i.offset),i.scope))
             codes = [
                 cil_node.CILNew(t, node.static_type, self.calc_static(node.static_type.name)), cil_node.CILFormal(new_name)
             ]

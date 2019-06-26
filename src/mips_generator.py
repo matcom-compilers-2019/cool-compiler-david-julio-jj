@@ -176,7 +176,7 @@ class MIPS:
         # Haciendo abort despues del main
         self.mips_code.append("j .Object.abort")
         for in_code in self.dotCode:
-            print(in_code)
+            # print(in_code)
             self.visit(in_code)
 
         self.mips_code.append("# Start .data segment (data!)")
@@ -498,7 +498,7 @@ class MIPS:
         # self.mips_code.append("move $fp, $sp")
 
         self.mips_code.append("li $v0, 9")
-        self.mips_code.append("li $a0, {}".format(4 * ((4 * node.size) + 2)))
+        self.mips_code.append("li $a0, {}".format(4 * (node.size + 2)))
         self.mips_code.append("syscall")
         # $v0 contains address of allocated memory
         self.mips_code.append("sw $v0, 0($sp)")
@@ -638,14 +638,16 @@ class MIPS:
     @visitor.when(cil_node.CILMethod)
     def visit(self, node: cil_node.CILMethod):
         self.vars = node.local
-        node.params.reverse()
-        self.arguments = node.params
+        tmp = node.params[1:]
+        tmp.reverse()
+
+        self.arguments = [node.params[0]] + tmp
 
         self.mips_code.append("{}:".format(node.name))
         self.mips_code.append("subu $sp, $sp, {}".format(4 * len(node.local)))
 
         for code in node.body:
-            print(code)
+            # print(code)
             self.visit(code)
 
         # self.mips_code.append("lw $fp, 4($sp)")
