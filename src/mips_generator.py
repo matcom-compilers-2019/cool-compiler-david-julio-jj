@@ -373,23 +373,55 @@ class MIPS:
 
     @visitor.when(cil_node.CILNBool)
     def visit(self, node: cil_node.CILNBool):
-        self.mips_code.append("lw $a0, {}($sp)".format(4 * node.fst))
 
-        self.mips_code.append("not $a0, $a0")
+        for elem in node.fst:
+            self.visit(elem)
 
-        # Return value
-        self.mips_code.append("sw $a0 $sp")
+        self.mips_code.append("lw $a1, 4($sp)")
+
+        self.mips_code.append("not $a1, $a1")
+
+        self.mips_code.append("li $v0, 9")
+        self.mips_code.append("li $a0, 12")
+        self.mips_code.append("syscall")
+
+        self.mips_code.append(f"la $t0, Bool")
+        self.mips_code.append("sw $t0, ($v0)")
+
+        self.mips_code.append("li $t0, 1")
+        self.mips_code.append("sw $t0, 4($v0)")
+
+        self.mips_code.append("sw $a1, 8($v0)")
+        self.mips_code.append("sw $v0, ($sp)")
+
+        self.mips_code.append("subu $sp, $sp, 4")
 
     @visitor.when(cil_node.CILNArith)
     def visit(self, node: cil_node.CILNArith):
-        self.mips_code.append("lw $a0, {}($sp)".format(4 * node.fst))
 
-        self.mips_code.append("li $a1, 1")
+        for elem in node.fst:
+            self.visit(elem)
 
-        self.mips_code.append("sub $a0, $a1, $a0")
+        self.mips_code.append("lw $a1, 4($sp)")
 
-        # Return value
-        self.mips_code.append("sw $a0 $sp")
+        self.mips_code.append("li $a2, 0")
+
+        self.mips_code.append("addu $a1, $a2, $a1")
+
+        self.mips_code.append("li $v0, 9")
+        self.mips_code.append("li $a0, 12")
+        self.mips_code.append("syscall")
+
+        self.mips_code.append(f"la $t0, Int")
+        self.mips_code.append("sw $t0, ($v0)")
+
+        self.mips_code.append("li $t0, 1")
+        self.mips_code.append("sw $t0, 4($v0)")
+
+        self.mips_code.append("sw $a1, 8($v0)")
+        self.mips_code.append("sw $v0, ($sp)")
+
+        self.mips_code.append("subu $sp, $sp, 4")
 
     @visitor.when(cil_node.CILIf)
     def visit(self, node: cil_node.CILIf):
@@ -498,7 +530,7 @@ class MIPS:
         # self.mips_code.append("move $fp, $sp")
 
         self.mips_code.append("li $v0, 9")
-        self.mips_code.append("li $a0, {}".format(4 * ((4 * node.size) + 2)))
+        self.mips_code.append("li $a0, {}".format(4 * (node.size + 2)))
         self.mips_code.append("syscall")
         # $v0 contains address of allocated memory
         self.mips_code.append("sw $v0, 0($sp)")
