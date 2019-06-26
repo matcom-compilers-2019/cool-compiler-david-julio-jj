@@ -249,6 +249,33 @@ class MIPS:
 
         self.mips_code.append("subu $sp, $sp, 4")
 
+    @visitor.when(cil_node.CILEqString)
+    def visit(self, node: cil_node.CILEqString):
+        self.visit(node.fst[0])
+        self.visit(node.snd[0])
+
+        self.mips_code.append("lw $t0, 8($sp)")
+        self.mips_code.append("lw $t1, 4($sp)")
+
+        self.mips_code.append("lw $a0, 8($t0)")
+        self.mips_code.append("lw $a1, 8($t1)")
+
+        self.mips_code.append("addiu $sp, $sp, 8")
+
+        self.mips_code.append("sw $ra, ($sp)")
+        self.mips_code.append("subu $sp, $sp, 4")
+        self.mips_code.append("sw $a0, ($sp)")
+        self.mips_code.append("subu $sp, $sp, 4")        
+        self.mips_code.append("sw $a1, ($sp)")
+        self.mips_code.append("subu $sp, $sp, 4")
+
+        self.mips_code.append("jal str_eq")
+        self.mips_code.append("lw $t0, 4($sp)")
+        self.mips_code.append("addu $sp, $sp, 4")
+        self.mips_code.append("lw $ra, 4($sp)")
+        self.mips_code.append("sw $t0, ($sp)")
+        self.mips_code.append("subu $sp, $sp, 4")
+
     @visitor.when(cil_node.CILEq)
     def visit(self, node: cil_node.CILEq):
         self.visit(node.fst[0])
@@ -346,23 +373,55 @@ class MIPS:
 
     @visitor.when(cil_node.CILNBool)
     def visit(self, node: cil_node.CILNBool):
-        self.mips_code.append("lw $a0, {}($sp)".format(4 * node.fst))
 
-        self.mips_code.append("not $a0, $a0")
+        for elem in node.fst:
+            self.visit(elem)
 
-        # Return value
-        self.mips_code.append("sw $a0 $sp")
+        self.mips_code.append("lw $a1, 4($sp)")
+
+        self.mips_code.append("not $a1, $a1")
+
+        self.mips_code.append("li $v0, 9")
+        self.mips_code.append("li $a0, 12")
+        self.mips_code.append("syscall")
+
+        self.mips_code.append(f"la $t0, Bool")
+        self.mips_code.append("sw $t0, ($v0)")
+
+        self.mips_code.append("li $t0, 1")
+        self.mips_code.append("sw $t0, 4($v0)")
+
+        self.mips_code.append("sw $a1, 8($v0)")
+        self.mips_code.append("sw $v0, ($sp)")
+
+        self.mips_code.append("subu $sp, $sp, 4")
 
     @visitor.when(cil_node.CILNArith)
     def visit(self, node: cil_node.CILNArith):
-        self.mips_code.append("lw $a0, {}($sp)".format(4 * node.fst))
 
-        self.mips_code.append("li $a1, 1")
+        for elem in node.fst:
+            self.visit(elem)
 
-        self.mips_code.append("sub $a0, $a1, $a0")
+        self.mips_code.append("lw $a1, 4($sp)")
 
-        # Return value
-        self.mips_code.append("sw $a0 $sp")
+        self.mips_code.append("li $a2, 0")
+
+        self.mips_code.append("addu $a1, $a2, $a1")
+
+        self.mips_code.append("li $v0, 9")
+        self.mips_code.append("li $a0, 12")
+        self.mips_code.append("syscall")
+
+        self.mips_code.append(f"la $t0, Int")
+        self.mips_code.append("sw $t0, ($v0)")
+
+        self.mips_code.append("li $t0, 1")
+        self.mips_code.append("sw $t0, 4($v0)")
+
+        self.mips_code.append("sw $a1, 8($v0)")
+        self.mips_code.append("sw $v0, ($sp)")
+
+        self.mips_code.append("subu $sp, $sp, 4")
 
     @visitor.when(cil_node.CILIf)
     def visit(self, node: cil_node.CILIf):
@@ -586,6 +645,7 @@ class MIPS:
         self.mips_code.append(f"subu $sp, $sp, 4")
         self.mips_code.append(f"beqz $t0, .raise")
         self.mips_code.append(f"addu $sp, $sp, 4")
+
         self.mips_code.append("sw $ra, ($sp)")
         self.mips_code.append("subu $sp, $sp, 4")
         self.mips_code.append("sw $fp, ($sp)")
@@ -619,13 +679,7 @@ class MIPS:
         for code in node.body:
             print(code)
             self.visit(code)
-
-        # self.mips_code.append("move $sp, $fp")
-        # self.mips_code.append("addu $sp, $sp, 4")
-        # self.mips_code.append("lw $fp, ($sp)")
-        # self.mips_code.append("addu $sp, $sp, 4")
-        # self.mips_code.append("lw $ra, ($sp)")
-
+            
         # self.mips_code.append("lw $fp, 4($sp)")
         # self.mips_code.append("sw $t0, -4($sp)")
         self.mips_code.append("jr $ra")

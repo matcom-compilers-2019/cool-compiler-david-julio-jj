@@ -39,7 +39,6 @@ if __name__ == '__main__':
                 temp = fd.read()
         parser_object = parser.make_parser()
         ast = parser_object.parse(inp)
-
         semantic_object = check_semantic.CheckSemantic()
         cil_object = cil.Cool2cil()
         scope_root = semantic_object.visit(ast, None)
