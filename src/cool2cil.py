@@ -431,13 +431,13 @@ class Cool2cil:
             codes += tmp[1]
             codes.append(cil_node.CILFormal(new_name))
         elif node.static_type.name in ['Bool', 'Int', 'String']:
-            c = self.constructors[node.static_type.name]
-            t = []
-            for i in c:
-                t += i.exp_code
-                t.append(cil_node.CILInitAttr(self._att_offset(node.static_type.name, i.offset),i.scope))
+            # c = self.constructors[node.static_type.name]
+            # t = []
+            # for i in c:
+            #     t += i.exp_code
+            #     t.append(cil_node.CILInitAttr(self._att_offset(node.static_type.name, i.offset),i.scope))
             codes = [
-                cil_node.CILNew(t, node.static_type, self.calc_static(node.static_type.name), []), cil_node.CILFormal(new_name)
+                cil_node.CILNew([], node.static_type, self.calc_static(node.static_type.name), []), cil_node.CILFormal(new_name)
             ]
         else:
             codes = [cil_node.CILFormal(new_name, False)]
