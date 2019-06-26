@@ -584,8 +584,11 @@ class MIPS:
         self.mips_code.append("subu $sp, $sp, 4")
         self.mips_code.append("move $fp, $sp")
 
-        print(len(node.scope))
-        self.mips_code.append("subu $sp, $sp, {}".format(4 * len(node.scope)))
+        self.mips_code.append("li $t0, 0")
+        for _ in range(len(node.local)):
+            self.mips_code.append("sw $t0, ($sp)")
+            self.mips_code.append("subu $sp, $sp, 4")
+
         for attr in node.attributes:
             self.visit(attr)
 
@@ -728,7 +731,11 @@ class MIPS:
         self.arguments = [node.params[0]] + tmp
 
         self.mips_code.append("{}:".format(node.name))
-        self.mips_code.append("subu $sp, $sp, {}".format(4 * len(node.local)))
+        self.mips_code.append("li $t0, 0")
+        for _ in range(len(node.local)):
+            self.mips_code.append("sw $t0, ($sp)")
+            self.mips_code.append("subu $sp, $sp, 4")
+        # self.mips_code.append("subu $sp, $sp, {}".format(4 * len(node.local)))
 
         for code in node.body:
             # print(code)
