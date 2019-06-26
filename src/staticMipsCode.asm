@@ -265,10 +265,10 @@ jr $ra
 .String.substr:
 
 # Cargando indices del substring
-lw $t3, 16($fp)
-lw $t3, 8($t3)
-lw $t4, 20($fp)
+lw $t4, 16($fp)
 lw $t4, 8($t4)
+lw $t3, 20($fp)
+lw $t3, 8($t3)
 
 # Comprobando que no esten cruzados los indices
 sle $t0, $t3, $t4
@@ -280,26 +280,59 @@ addiu $a0, $a0, 1
 li $v0, 9
 syscall
 move $v1, $v0
-lw $a0, -4($sp)
-lw $a1, -8($sp)
-add $a0, $a0, $a1
-lw $a2, -12($sp)
-_stringsubstr.loop:
-beqz $a2, _stringsubstr.end
+move $a2, $a0
+subu $a2, $a2, 1
+
+lw $a0, 12($fp)
+lw $a0, 8($a0)
+
+_stringsubstr.loop1:
+beqz $t3 _stringsubstr.end1
+lb $a1, 0($a0)
+beqz $a1 _substrexception
+addu $a0, $a0, 1
+subu $t3, $t3, 1
+j _stringsubstr.loop1
+_stringsubstr.end1:
+
+# lw $a0, -4($sp)
+# lw $a1, -8($sp)
+# add $a0, $a0, $a1
+# lw $a2, -12($sp)
+
+_stringsubstr.loop2:
+beqz $a2, _stringsubstr.end2
 lb $a1, 0($a0)
 beqz $a1, _substrexception
 sb $a1, 0($v1)
 addiu $a0, $a0, 1
 addiu $v1, $v1, 1
 addiu $a2, $a2, -1
-j _stringsubstr.loop
-_stringsubstr.end:
+j _stringsubstr.loop2
+_stringsubstr.end2:
 sb $zero, 0($v1)
+
+move $t1, $v0
+li $v0, 9
+li $a0, 12
+syscall
+
+la $t0, String
+sw $t0, ($v0)
+
+li $t0, 1
+sw $t0, 4($v0)
+
+sw $t1, 8($v0)
+
+sw $v0, ($sp)
+subu $sp, $sp, 4
+
 jr $ra
 
-
+# Es aqui comepinga, escrito por y para Juan Jose
 _substrexception:
-la $a0, strsubstrexception
+la $a0, index_error
 li $v0, 4
 syscall
 li $v0, 10

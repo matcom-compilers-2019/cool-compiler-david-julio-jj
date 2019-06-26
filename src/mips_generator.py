@@ -620,11 +620,11 @@ class MIPS:
             print(code)
             self.visit(code)
 
-        self.mips_code.append("move $sp, $fp")
-        self.mips_code.append("addu $sp, $sp, 4")
-        self.mips_code.append("lw $fp, ($sp)")
-        self.mips_code.append("addu $sp, $sp, 4")
-        self.mips_code.append("lw $ra, ($sp)")
+        # self.mips_code.append("move $sp, $fp")
+        # self.mips_code.append("addu $sp, $sp, 4")
+        # self.mips_code.append("lw $fp, ($sp)")
+        # self.mips_code.append("addu $sp, $sp, 4")
+        # self.mips_code.append("lw $ra, ($sp)")
 
         # self.mips_code.append("lw $fp, 4($sp)")
         # self.mips_code.append("sw $t0, -4($sp)")
