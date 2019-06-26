@@ -1,8 +1,6 @@
 class Main inherits IO{
+    a : String <- "Hola cesar!!!";
     main() : Object {
-            let a : Int in
-            {
-                out_int(a);
-            }
+        out_string(a)
     };
 };
