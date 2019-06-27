@@ -232,6 +232,8 @@ class Cool2cil:
     @visitor.when(ast.Class)
     def visit(self, node: ast.Class, scope: CILScope):
         self.constructors[node.name] = ast.ClassMethod(node.name,[],node.name,ast.Block([]))
+        if node.parent not in ['IO', 'Object']:
+            self.constructors[node.name].body.expr_list += self.constructors[node.parent].body.expr_list[:-1]
         attrs = filter(lambda x: type(x) is ast.ClassAttribute, node.features)
         attrs = list(attrs)
         for attr in attrs:
