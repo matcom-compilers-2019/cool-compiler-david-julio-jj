@@ -1,52 +1,68 @@
-class Main inherits IO {
-    main() : SELF_TYPE {
-	(let c : Complex <- (new Complex).init(1, 1) in
-	    if c.reflect_X().reflect_Y() = c.reflect_0()
-	    then out_string("=)\n")
-	    else out_string("=(\n")
-	    fi
-	)
-    };
+(* hairy  . . .*)
+
+class Foo inherits Bazz {
+     a : Razz <- case self of
+		      n : Razz => (new Bar);
+		      n : Foo => (new Razz);
+		      n : Bar => n;
+   	         esac;
+
+     b : Int <- a.doh() + g.doh() + doh() + printh();
+
+     doh() : Int { (let i : Int <- h in { h <- h + 2; i; } ) };
+
 };
 
-class Complex inherits IO {
-    x : Int;
-    y : Int;
+class Bar inherits Razz {
 
-    init(a : Int, b : Int) : Complex {
-	{
-	    x = a;
-	    y = b;
-	    self;
-	}
-    };
+     c : Int <- doh();
 
-    print() : Object {
-	if y = 0
-	then out_int(x)
-	else out_int(x).out_string("+").out_int(y).out_string("I")
-	fi
-    };
-
-    reflect_0() : Complex {
-	{
-	    x = ~x;
-	    y = ~y;
-	    self;
-	}
-    };
-
-    reflect_X() : Complex {
-	{
-	    y = ~y;
-	    self;
-	}
-    };
-
-    reflect_Y() : Complex {
-	{
-	    x = ~x;
-	    self;
-	}
-    };
+     d : Object <- printh();
 };
+
+
+class Razz inherits Foo {
+
+     e : Bar <- case self of
+		  n : Razz => (new Bar);
+		  n : Bar => n;
+		esac;
+
+     f : Int <- a@Bazz.doh() + g.doh() + e.doh() + doh() + printh();
+
+};
+
+class Bazz inherits IO {
+
+     h : Int <- 1;
+
+     g : Foo  <- case self of
+		     	n : Bazz => (new Foo);
+		     	n : Razz => (new Bar);
+			n : Foo  => (new Razz);
+			n : Bar => n;
+		  esac;
+
+
+     i : Object <- printh();
+
+     printh() : Int { { out_int(h); 0; } };
+
+     doh() : Int { (let i: Int <- h in { h <- h + 1; i; } ) };
+};
+
+(* scary . . . *)
+class Main {
+  a : Bazz <- new Bazz;
+  b : Foo <- new Foo;
+  c : Razz <- new Razz;
+  d : Bar <- new Bar;
+
+  main(): String { "do nothing" };
+
+};
+
+
+
+
+
