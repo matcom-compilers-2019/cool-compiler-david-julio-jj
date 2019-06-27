@@ -115,14 +115,7 @@ class MIPS:
         self.dotCode = CILObject.code
         self.dotData = CILObject.data
         self.CILObject = CILObject
-        c = CILObject.constructors['Main']
-        t = []
-        att = []
-        for i in c:
-            t += i.exp_code
-            att += i.scope
-            t.append(cil_node.CILInitAttr(CILObject._att_offset('Main', i.offset), i.scope))
-        self.main = cil_node.CILNew(t, 'Main', CILObject.calc_static('Main'),att)
+        self.main = cil_node.CILNew('Main', CILObject.calc_static('Main'))
         self.vars = []
         self.arguments = []
         self.mips_code = []
@@ -597,13 +590,15 @@ class MIPS:
 
         self.mips_code.append(f"jal .{node.ctype}.{node.ctype}")
 
+        self.mips_code.append("addu $sp, $sp, 4")
+
         self.mips_code.append("move $sp, $fp")
         self.mips_code.append("addu $sp, $sp, 4")
         self.mips_code.append("lw $fp, ($sp)")
         self.mips_code.append("addu $sp, $sp, 4")
         self.mips_code.append("lw $ra, ($sp)")
 
-        self.mips_code.append("addu $sp, $sp, 4")
+        # self.mips_code.append("addu $sp, $sp, 4")
         # self.vars = scope_backup
 
     @visitor.when(cil_node.CILSelf)
