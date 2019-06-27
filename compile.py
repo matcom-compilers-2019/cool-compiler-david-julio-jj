@@ -36,7 +36,7 @@ if __name__ == '__main__':
                         inp += temp
                         temp = fd.read()
                 i = i.split('.')[0]
-                with open(f'examples/{i}.asm', 'w') as fd:
+                with open(f'examples/{i}.mips', 'w') as fd:
                     fd.write(inp)
                     fd.write("\n")
                     fd.write("# Start Mips Generated Code")
@@ -66,7 +66,7 @@ if __name__ == '__main__':
             while temp:
                 inp += temp
                 temp = fd.read()
-        with open(f'{argv[2]}.asm', 'w') as fd:
+        with open(f'{argv[2]}', 'w') as fd:
             fd.write(inp)
             fd.write("\n")
             fd.write("# Start Mips Generated Code")

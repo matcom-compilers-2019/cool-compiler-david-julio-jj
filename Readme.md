@@ -146,12 +146,12 @@ def p_class(self, parse):
 ```
 
 ### Ánalisis Semántico
-Todo..
+Para entender nuestro análisis es importante analizar consideraciones que tuvimos, los métodos que devuelven como tipo SELF_TYPE en su body solo puden devolver SELF_TYPE. Invalidamos la herencia ciclica. Implementamos las reglas semánticas que aparecian en el manual de cool. Checkeamos los tipos en cada expresión, la herencia de Bool, Int y String no esta permitida.
 
 ### Generación de Código
 
 #### Cool -> Cil
-Todo...
+En el CIL resolvemos el renombramiento de variable y label, las tablas virtuales de los tipos y los constructores. Nos apoyamos en el Cil del libro de compilacion de Piad y definimos nuestro propia IL. A los tipos basicos [Int, Boolean, String] se les hace una copia del objeto al ser pasados como parametros.
 
 #### Cil -> Mips
 La generación de mips se divide en 3 partes fundamentales:
@@ -159,48 +159,10 @@ La generación de mips se divide en 3 partes fundamentales:
 2. **dotCode** donde se encuentran todo el código del programa
 3. **dotData** donde se encuentran todas las definiciones de los strings 
 
-En **dotCode**
+Seguimos el siguiente convenio estudiado en **Programacion de Maquina**, cada llamado a funcion(**dispatch**) pusheamos en la pila el `$fp`y `$ra`, luego movemos el `$sp` a `$fp` para simular una pila vacia, y al regresar realizamos la operacion contraria. Dado este convenio para un metodo el `$fp` separa los argumentos y los locales, a la derecha e izquierda respectivamente. A los tipos basicos [Int, String, Boolean] se les hace boxing y unboxing.
 
 ## Ejecutando el proyecto
 
 ```bash
 $ ./coolc.sh <input_file.cl>
 ```
-
-## Sobre el funcionamiento del compilador
-
-El compilador de COOL se ejecutará como se ha definido anteriormente.
-En caso de que no ocurran errores durante la operación del compilador, **coolc.sh** deberá terminar con código de salida 0, generar (o sobrescribir si ya existe) en la misma carpeta del archivo **.cl** procesado, y con el mismo nombre que éste, un archivo con extension **.mips** que pueda ser ejecutado con **spim**. Además, reportar a la salida estándar solamente lo siguiente:
-
-    <línea_con_nombre_y_versión_del_compilador>
-    <línea_con_copyright_para_el_compilador>
-
-En caso de que ocurran errores durante la operación del compilador, **coolc.sh** deberá terminar con código
-de salida (exit code) 1 y reportar a la salida estándar (standard output stream) lo que sigue...
-
-    <línea_con_nombre_y_versión_del_compilador>
-    <línea_con_copyright_para_el_compilador>
-    <línea_de_error>_1
-    ...
-    <línea_de_error>_n
-
-... donde `<línea_de_error>_i` tiene el siguiente formato:
-
-    (<línea>,<columna>) - <tipo_de_error>: <texto_del_error>
-
-Los campos `<línea>` y `<columna>` indican la ubicación del error en el fichero **.cl** procesado. En caso
-de que la naturaleza del error sea tal que no pueda asociárselo a una línea y columna en el archivo de
-código fuente, el valor de dichos campos debe ser 0.
-
-El campo `<tipo_de_error>` será alguno entre:
-
-- `CompilerError`: se reporta al detectar alguna anomalía con la entrada del compilador. Por ejemplo, si el fichero a compilar no existe.
-- `LexicographicError`: errores detectados por el lexer.
-- `SyntacticError`: errores detectados por el parser.
-- `NameError`: se reporta al referenciar un `identificador` en un ámbito en el que no es visible.
-- `TypeError`: se reporta al detectar un problema de tipos. Incluye:
-    - incompatibilidad de tipos entre `rvalue` y `lvalue`,
-    - operación no definida entre objetos de ciertos tipos, y
-    - tipo referenciado pero no definido.
-- `AttributeError`: se reporta cuando un atributo o método se referencia pero no está definido.
-- `SemanticError`: cualquier otro error semántico.
