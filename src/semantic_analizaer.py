@@ -349,7 +349,7 @@ class CheckSemantic:
             return return_type
         else:
             return_type = scope.join(if_type, else_type)
-            node.static = return_type
+            node.static_type = return_type
             return return_type
 
     @visitor.when(ast.WhileLoop)
