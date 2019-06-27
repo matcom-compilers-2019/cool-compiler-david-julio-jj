@@ -9,4 +9,5 @@ echo "Copyright (c) 2019: Julio Cesar Sanchez Garcia, Juan Jose Roque Cires, Joe
 
 # Llamar al compilador
 echo "Compiling $INPUT_FILE into $OUTPUT_FILE"
+source env/bin/activate
 python3 compile.py $INPUT_FILE $OUTPUT_FILE
