@@ -580,8 +580,8 @@ class MIPS:
         self.mips_code.append("sw $t0, 4($v0)")
 
 
-        scope_backup = self.vars
-        self.vars = node.scope
+        # scope_backup = self.vars
+        # self.vars = node.scope
 
 
         self.mips_code.append("sw $ra, ($sp)")
@@ -590,13 +590,12 @@ class MIPS:
         self.mips_code.append("subu $sp, $sp, 4")
         self.mips_code.append("move $fp, $sp")
 
-        self.mips_code.append("li $t0, 0")
-        for _ in range(len(node.scope)):
-            self.mips_code.append("sw $t0, ($sp)")
-            self.mips_code.append("subu $sp, $sp, 4")
+        # self.mips_code.append("li $t0, 0")
+        # for _ in range(len(node.scope)):
+        #     self.mips_code.append("sw $t0, ($sp)")
+        #     self.mips_code.append("subu $sp, $sp, 4")
 
-        for attr in node.attributes:
-            self.visit(attr)
+        self.mips_code.append(f"jal .{node.ctype}.{node.ctype}")
 
         self.mips_code.append("move $sp, $fp")
         self.mips_code.append("addu $sp, $sp, 4")
@@ -604,7 +603,8 @@ class MIPS:
         self.mips_code.append("addu $sp, $sp, 4")
         self.mips_code.append("lw $ra, ($sp)")
 
-        self.vars = scope_backup
+        self.mips_code.append("addu $sp, $sp, 4")
+        # self.vars = scope_backup
 
     @visitor.when(cil_node.CILSelf)
     def visit(self, _):
