@@ -549,14 +549,14 @@ class MIPS:
         self.mips_code.append("sw $a0, ($sp)")
         self.mips_code.append("subu, $sp, $sp, 4")
 
-    @visitor.when(cil_node.CILInitAttr)
-    def visit(self, node: cil_node.CILInitAttr):
-        self.mips_code.append("# Init Attr")
-        self.mips_code.append("lw $t0, 4($sp)")
-        self.mips_code.append("lw $t1, 12($fp)")
-        self.mips_code.append("addi $t1, $t1, 8")
-        self.mips_code.append("sw $t0, {}($t1)".format(4 * node.offset))
-        self.mips_code.append("addu $sp, $sp, 4")
+    # @visitor.when(cil_node.CILInitAttr)
+    # def visit(self, node: cil_node.CILInitAttr):
+    #     self.mips_code.append("# Init Attr")
+    #     self.mips_code.append("lw $t0, 4($sp)")
+    #     self.mips_code.append("lw $t1, 12($fp)")
+    #     self.mips_code.append("addi $t1, $t1, 8")
+    #     self.mips_code.append("sw $t0, {}($t1)".format(4 * node.offset))
+    #     self.mips_code.append("addu $sp, $sp, 4")
 
     @visitor.when(cil_node.CILNew)
     def visit(self, node: cil_node.CILNew):
