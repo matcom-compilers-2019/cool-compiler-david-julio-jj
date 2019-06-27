@@ -219,6 +219,15 @@ class Cool2cil:
         self.dtpe[1].attributes.append('#')
         self.dtpe[2].attributes.append('#')
         self.dtpe[3].attributes.append('#')
+        m = None
+        classofp = []
+        for i in node.classes:
+            if i.name != 'Main':
+                classofp.append(i)
+            else:
+                m = i
+        classofp.append(m)
+        node.classes = classofp
         for i in node.classes:
             self.visit(i, None)
 
