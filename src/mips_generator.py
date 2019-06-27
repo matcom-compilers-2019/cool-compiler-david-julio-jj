@@ -145,7 +145,7 @@ class MIPS:
                      "lw $a0, ($a1)\n" \
                      "lw $a1, 4($a1)\n" \
                      "sge $t0, $a2, $a0\n" \
-                     "sle $t1, $a1, $a3\n" \
+                     "sle $t1, $a3, $a1\n" \
                      "and $a0, $t0, $t1\n" \
                      "sw $a0, ($sp)\n" \
                      "subu $sp, $sp, 4\n" \
@@ -427,9 +427,8 @@ class MIPS:
 
         self.mips_code.append("lw $a0, 8($t0)")
 
-        self.mips_code.append("li $a2, 0")
-
-        self.mips_code.append("subu $a1, $a2, $a0")
+        self.mips_code.append("not $a1, $a0")
+        self.mips_code.append("addi $a1, $a1, 1")
 
         self.mips_code.append("li $v0, 9")
         self.mips_code.append("li $a0, 12")
@@ -454,8 +453,7 @@ class MIPS:
         self.mips_code.append("lw $t4, 4($sp)")
         self.mips_code.append("lw $t5, 8($t4)")
 
-        self.mips_code.append("li $t1, 1")
-        self.mips_code.append("beq $t5, $t1, {}".format(node.if_tag))
+        self.mips_code.append("beqz $t5, {}".format(node.if_tag))
         for i in node.else_body:
             self.visit(i)
 
@@ -476,8 +474,7 @@ class MIPS:
         self.mips_code.append("lw $t0, 4($sp)")
         self.mips_code.append("lw $a0, 8($t0)")
 
-        self.mips_code.append("li $t1, 1")
-        self.mips_code.append("bne $a0, $t1, {}".format(node.end_tag))
+        self.mips_code.append("beqz $a0, {}".format(node.end_tag))
         for i in node.body:
             self.visit(i)
 
