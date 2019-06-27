@@ -450,17 +450,19 @@ class MIPS:
         for i in node.predicate:
             self.visit(i)
 
-        self.mips_code.append("lw $t4, 4($sp)")
+        self.mips_code.append(f"lw $t4, 4($sp) # {node.if_tag}")
         self.mips_code.append("lw $t5, 8($t4)")
 
+        self.mips_code.append("addu $sp, $sp, 4")
+
         self.mips_code.append("beqz $t5, {}".format(node.if_tag))
-        for i in node.else_body:
+        for i in node.then_body:
             self.visit(i)
 
         self.mips_code.append("j {}".format(node.end_tag))
 
         self.mips_code.append("{}:".format(node.if_tag))
-        for i in node.then_body:
+        for i in node.else_body:
             self.visit(i)
 
         self.mips_code.append("{}:".format(node.end_tag))
@@ -474,12 +476,16 @@ class MIPS:
         self.mips_code.append("lw $t0, 4($sp)")
         self.mips_code.append("lw $a0, 8($t0)")
 
+        self.mips_code.append("addu $sp, $sp, 4")
+
         self.mips_code.append("beqz $a0, {}".format(node.end_tag))
         for i in node.body:
             self.visit(i)
 
         self.mips_code.append("j {}".format(node.while_tag))
         self.mips_code.append("{}:".format(node.end_tag))
+        self.mips_code.append("li $t0, 0")
+        self.mips_code.append("sw $t0, 4($sp)")
 
     @visitor.when(cil_node.CILCase)
     def visit(self, node: cil_node.CILCase):

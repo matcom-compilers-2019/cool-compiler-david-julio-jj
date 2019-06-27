@@ -213,9 +213,9 @@ class Cool2cil:
             t1 = self.tree[t[i].name]
             self.dtpe.append(cil_node.DotType(t[i].name, attrs, meths, t1[0], t1[1]))
 
-        self.constructors['Int'].append(cil_node.CILAttribute('#', [cil_node.CILInteger(0)], []))
-        self.constructors['Bool'].append(cil_node.CILAttribute('#', [cil_node.CILBoolean(0)], []))
-        self.constructors['String'].append(cil_node.CILAttribute('#', [cil_node.CILString(0)], []))
+        # self.constructors['Int'].append(cil_node.CILAttribute('#', [cil_node.CILInteger(0)], []))
+        # self.constructors['Bool'].append(cil_node.CILAttribute('#', [cil_node.CILBoolean(0)], []))
+        # self.constructors['String'].append(cil_node.CILAttribute('#', [cil_node.CILString(0)], []))
         self.dtpe[1].attributes.append('#')
         self.dtpe[2].attributes.append('#')
         self.dtpe[3].attributes.append('#')
