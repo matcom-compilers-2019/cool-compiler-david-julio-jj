@@ -35,7 +35,7 @@ class Article inherits Book {
 
     print() : Book {
         {
-	        self@Book.print();
+	    self@Book.print();
             out_string("periodical:  ").out_string(per_title).out_string("\n");
             self;
         }
@@ -108,7 +108,7 @@ class Nil inherits BookList {
 };
 
 
-class Main inherits IO {
+class Main {
 
     books : BookList;
 
