@@ -274,6 +274,7 @@ class MIPS:
         self.mips_code.append("lw $t0, 4($sp)")
         self.mips_code.append("addu $sp, $sp, 4")
         self.mips_code.append("lw $ra, 4($sp)")
+        self.mips_code.append("addu $sp, $sp, 4")
         self.mips_code.append("sw $t0, ($sp)")
         self.mips_code.append("subu $sp, $sp, 4")
 
